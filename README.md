@@ -1,5 +1,7 @@
 # Tor Network - Ziv and Uriyah
 
+![image info](https://drawcartoonstyle.com/wp-content/uploads/2022/09/9-add-kawaii-blush-spots-to-the-onion-768x768.jpg)
+
 The Simple Tor Network POC is an experimental project aimed at understanding the fundamentals of building a basic anonymity network. Tor, short for "The Onion Router," is a well-known example of such a network. The POC currently utilizes Python and RSA encryption for its operations.
 
 **Getting Started**
