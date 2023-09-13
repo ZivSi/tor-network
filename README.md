@@ -12,7 +12,7 @@ To get started with the Simple Tor Network POC, follow these steps:
 
 **bash**
 
-`git clone https://gitlab.com/ziv_sion_advanced_programming_2023/tor-network-ziv-and-uriyah.git`
+``git clone https://gitlab.com/zivsion7106/tor-network-ziv-and-uriyah.git``
 
 **Install Dependencies:**
 
