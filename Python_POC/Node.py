@@ -5,10 +5,9 @@ from typing import Tuple
 
 import RSA
 from Log import *
-from Server import decrypt_response
+from Server import decrypt_response, SPLITTER, SERVER_PORT
 
-ALIVE_FORMAT = "{}:{}:{}"
-SERVER_PORT = 5060
+ALIVE_FORMAT = "{}" + SPLITTER + "{}" + SPLITTER + "{}"
 
 rsa_object = RSA.RSA()
 server: socket.socket  # The server that the node is the host
@@ -45,7 +44,7 @@ def connect_to(port: int):
 
 
 def receive_parent_key(parent) -> Tuple[int, int]:
-    keys = parent.recv(2048).decode().split(":")
+    keys = parent.recv(2048).decode().split(SPLITTER)
     public_key = int(keys[0])
     modulus = int(keys[1])
 
@@ -69,7 +68,7 @@ def send_alive():
 
 
 def extract_data(decrypted):
-    return decrypted.split(":")
+    return decrypted.split(SPLITTER)
 
 
 def receive():
@@ -102,8 +101,17 @@ def receive():
         send_to_node(data_to_send, int(destination_port))
 
 
-def reached_destination(decrypted) -> bool:
-    return decrypted.strip() == ""
+def start_with_port(decrypted):
+    splitter_index = decrypted.find(SPLITTER)
+    try:
+        port = int(decrypted[:splitter_index])  # Try to cast the port to int
+        return True
+    except ValueError:
+        return False
+
+
+def reached_destination(decrypted: str) -> bool:
+    return not start_with_port(decrypted)
 
 
 def send_to_node(data_to_send, destination_port):

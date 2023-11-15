@@ -1,9 +1,10 @@
 import socket
 
-from Log import *
 import RSA
+from Log import *
+from Python_POC.Server import SPLITTER
 
-CLIENT_DATA_FORMAT = "{}:{}"
+CLIENT_DATA_FORMAT = "{}" + SPLITTER + "{}"
 rsa_object = RSA.RSA()
 server_public_key = None
 server_modulus = None
@@ -26,7 +27,7 @@ def main(CLIENT_TO_SEND=5062):
     log("Client connected to server", CLIENT_COLOR)
 
     # Receive the public key and modulus from the server
-    server_public_key, server_modulus = client.recv(2048).decode().split(":")
+    server_public_key, server_modulus = client.recv(2048).decode().split(SPLITTER)
 
     log("Client received public key and modulus from server", CLIENT_COLOR)
 
@@ -45,7 +46,7 @@ def main(CLIENT_TO_SEND=5062):
 
 def sendKeyToServer(client):
     global rsa_object, server_public_key, server_modulus
-    message = f"{rsa_object.publicKey}:{rsa_object.modulus}"
+    message = f"{rsa_object.publicKey}" + SPLITTER + f"{rsa_object.modulus}"
     encrypted_message = str(RSA.encrypt(message, server_public_key, server_modulus))
     client.send(encrypted_message.encode())
 

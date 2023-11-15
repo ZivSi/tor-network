@@ -5,8 +5,11 @@ import threading
 import time
 from typing import *
 
-from Log import *
 import RSA
+from Log import *
+
+SPLITTER = ":::"
+SERVER_PORT = 5060
 
 
 class NodeIndexes:
@@ -30,7 +33,7 @@ class ClientIndexes:
 
 
 rsa_object = RSA.RSA()
-RSA_KEY = f"{rsa_object.publicKey}:{rsa_object.modulus}"
+RSA_KEY = f"{rsa_object.publicKey}" + SPLITTER + f"{rsa_object.modulus}"
 
 
 def create_server(port: int):
@@ -43,11 +46,11 @@ def create_server(port: int):
 
 
 def is_node(response) -> bool:
-    return len(response.split(":")) == 3
+    return len(response.split(SPLITTER)) == 3
 
 
 def extract_node_data(response) -> Tuple[int, int, int]:
-    server_port, public_key, modulus = response.split(":")
+    server_port, public_key, modulus = response.split(SPLITTER)
 
     server_port = int(server_port)
     public_key = int(public_key)
@@ -58,9 +61,9 @@ def extract_node_data(response) -> Tuple[int, int, int]:
 
 def extract_client_data(response, first_message=True):
     if not first_message:
-        return response.split(":")
+        return response.split(SPLITTER)
 
-    public_key, modulus = response.split(":")
+    public_key, modulus = response.split(SPLITTER)
 
     public_key = int(public_key)
     modulus = int(modulus)
@@ -124,9 +127,9 @@ def encrypt(random_path: list, data):
         node_modulus = nodes_map[node][NodeIndexes.MODULUS_INDEX]
         node_server_port = nodes_map[node][NodeIndexes.SERVER_PORT_INDEX]
 
-        encrypted_data = str(node_server_port) + ":" + str(RSA.encrypt(encrypted_data, node_public_key, node_modulus))
+        encrypted_data = str(node_server_port) + SPLITTER + str(RSA.encrypt(encrypted_data, node_public_key, node_modulus))
 
-    encrypted_data = encrypted_data[encrypted_data.find(":") + 1:]
+    encrypted_data = encrypted_data[encrypted_data.find(SPLITTER) + len(SPLITTER):]
 
     return encrypted_data
 
@@ -141,7 +144,7 @@ def send(destination_port, data_to_send):
     # print(f"Sending {data_to_send} to {destination_port} through {random_path}")
     log(f"Sending {data_to_send} to {destination_port} through {random_path}", ACTION_COLOR)
 
-    encrypted_data = encrypt(random_path, str(destination_port) + ":" + data_to_send)
+    encrypted_data = encrypt(random_path, str(destination_port) + SPLITTER + data_to_send)
 
     first_node = random_path[0]
     node_properties = nodes_map[first_node]
@@ -273,7 +276,7 @@ def send_public_key(connection):
 
 
 def main():
-    server = create_server(5060)
+    server = create_server(SERVER_PORT)
     listen(server)
 
 
