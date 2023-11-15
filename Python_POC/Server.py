@@ -79,7 +79,11 @@ def check_alive(port: int):
 
         current_time_milliseconds = int(time.time() * 1000)
 
-        node_last_time = nodes_map[port][NodeIndexes.TIME_INDEX]
+        try:
+            node_last_time = nodes_map[port][NodeIndexes.TIME_INDEX]
+        except KeyError:
+            log(f"Tried to check dead node ({port})", ERROR_COLOR)
+            return  # Already have been terminated
 
         log(f"Checking {port}...", ACTION_COLOR)
 
@@ -127,7 +131,8 @@ def encrypt(random_path: list, data):
         node_modulus = nodes_map[node][NodeIndexes.MODULUS_INDEX]
         node_server_port = nodes_map[node][NodeIndexes.SERVER_PORT_INDEX]
 
-        encrypted_data = str(node_server_port) + SPLITTER + str(RSA.encrypt(encrypted_data, node_public_key, node_modulus))
+        encrypted_data = str(node_server_port) + SPLITTER + str(
+            RSA.encrypt(encrypted_data, node_public_key, node_modulus))
 
     encrypted_data = encrypted_data[encrypted_data.find(SPLITTER) + len(SPLITTER):]
 
