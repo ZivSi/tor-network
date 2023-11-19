@@ -1,0 +1,18 @@
+SERVER_PORT = 5060
+SPLITER = "::::"
+NODE_INIT_FORMAT = "{}" + SPLITER + "{}" + SPLITER + "{}"
+CLIENT_INIT_FORMAT = "{}" + SPLITER + "{}"
+
+class NodeIndexes:
+    SERVER_PORT_INDEX = 0
+    TIME_INDEX = 1
+    CONNECTION_INDEX = 2
+    AES_KEY_INDEX = 3
+    AES_IV_INDEX = 4
+
+
+class ClientIndexes:
+    CONNECTION_INDEX = 0
+    TIME_INDEX = 1
+    AES_KEY_INDEX = 2
+    AES_IV_INDEX = 3

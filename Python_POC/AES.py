@@ -39,7 +39,7 @@ def encrypt(plaintext: str, key, iv):
     return base64.b64encode(iv + ciphertext).decode()
 
 
-def decrypt(ciphertext: str, key, iv):
+def decrypt(ciphertext: str, key):
     ciphertext = base64.b64decode(ciphertext.encode())
     iv = ciphertext[:16]  # Extract the IV from the ciphertext
     ciphertext = ciphertext[16:]
@@ -49,3 +49,11 @@ def decrypt(ciphertext: str, key, iv):
     unpadder = pad.PKCS7(128).unpadder()
     unpadded_data = unpadder.update(plaintext) + unpadder.finalize()
     return unpadded_data.decode()
+
+
+def format_key_for_sending(key: bytes) -> str:
+    return base64.b64encode(key).decode()
+
+
+def reformat_key_for_receivig(key: str) -> bytes:
+    return base64.b64decode(key)

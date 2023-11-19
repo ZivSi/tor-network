@@ -5,17 +5,23 @@ from typing import Tuple
 
 import RSA
 from Log import *
-from Server import decrypt_response, SPLITTER, SERVER_PORT
+from Python_POC import AES
+from Server import SPLITER, SERVER_PORT
 
-ALIVE_FORMAT = "{}" + SPLITTER + "{}" + SPLITTER + "{}"
+ALIVE_FORMAT = "{}" + SPLITER + "{}" + SPLITER + "{}"
 
 rsa_object = RSA.RSA()
+aes_object = AES.AES()
+
 server: socket.socket  # The server that the node is the host
 parent_server: socket.socket = None  # The server the node connects to
 parent_public_key: int = None
 parent_modulus: int = None
 
 my_server_port = -1
+
+first_message = True
+received_parent_keys = False
 
 
 def run_server(port) -> Tuple[socket.socket, int]:
@@ -44,31 +50,44 @@ def connect_to(port: int):
 
 
 def receive_parent_key(parent) -> Tuple[int, int]:
-    keys = parent.recv(2048).decode().split(SPLITTER)
+    global received_parent_keys
+
+    keys = parent.recv(2048).decode().split(SPLITER)
     public_key = int(keys[0])
     modulus = int(keys[1])
+
+    received_parent_keys = True
 
     return public_key, modulus
 
 
 def send_alive():
-    global parent_server, my_server_port
+    global parent_server, my_server_port, first_message
 
-    public_key, modulus = rsa_object.publicKey, rsa_object.modulus
+    aes_key, aes_iv = AES.format_key_for_sending(aes_object.key), AES.format_key_for_sending(aes_object.iv)
 
-    alive_message = ALIVE_FORMAT.format(my_server_port, public_key, modulus)
-    alive_message_encrypted = str(RSA.encrypt(alive_message, parent_public_key, parent_modulus))
+    alive_message = ALIVE_FORMAT.format(my_server_port, aes_key, aes_iv)
+
+    while not received_parent_keys:
+        time.sleep(0.01)
 
     while True:
-        time.sleep(2)
+        if first_message:
+            alive_message_encrypted = str(RSA.encrypt(alive_message, parent_public_key, parent_modulus))
+            first_message = False
+        else:
+            alive_message_encrypted = str(AES.encrypt(alive_message, aes_object.key, aes_object.iv))
+
         if my_server_port != -1:
             parent_server.sendall(alive_message_encrypted.encode())
         else:
-            log("Not connected to a server", ERROR_COLOR)
+            log("Node's server not established yet", ERROR_COLOR)
+
+        time.sleep(2)
 
 
 def extract_data(decrypted):
-    return decrypted.split(SPLITTER)
+    return decrypted.split(SPLITER)
 
 
 def receive():
@@ -85,7 +104,7 @@ def receive():
 
         received = connection.recv(2048).decode()
         try:
-            decrypted = decrypt_response(received, rsa_object)
+            decrypted = aes_object.decrypt(received)
         except SyntaxError:
             continue
 
@@ -102,7 +121,7 @@ def receive():
 
 
 def start_with_port(decrypted):
-    splitter_index = decrypted.find(SPLITTER)
+    splitter_index = decrypted.find(SPLITER)
     try:
         port = int(decrypted[:splitter_index])  # Try to cast the port to int
         return True

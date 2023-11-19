@@ -1,103 +1,27 @@
-import ast
 import random
 import socket
 import threading
 import time
-from typing import *
+from typing import Any
 
 import RSA
-from Log import *
-
-SPLITTER = ":::"
-SERVER_PORT = 5060
-
-
-class NodeIndexes:
-    SERVER_PORT_INDEX = 0
-    TIME_INDEX = 1
-    CONNECTION_INDEX = 2
-    PUBLIC_KEY_INDEX = 3
-    MODULUS_INDEX = 4
-
-
-clients_map = {}
-nodes_map: Dict[int, Tuple[int, int, socket.socket, int, int]] = {}
-
-ALIVE_TIME = 10
-
-
-class ClientIndexes:
-    CONNECTION_INDEX = 0
-    PUBLIC_KEY_INDEX = 1
-    MODULUS_INDEX = 2
-
+from Log import SERVER_COLOR, CLIENT_COLOR, DATA_COLOR
+from Python_POC.AES import *
+from Utility import *
 
 rsa_object = RSA.RSA()
-RSA_KEY = f"{rsa_object.publicKey}" + SPLITTER + f"{rsa_object.modulus}"
+RSA_KEYS_FORMAT = f"{rsa_object.publicKey}" + SPLITER + f"{rsa_object.modulus}"
+
+clients_map = {}
+# current connection port, (server_port, time, connection, aes_key, aes_iv)
+nodes_map: Dict[int, Tuple[int, int, socket.socket, Any, Any]] = {}
 
 
-def create_server(port: int):
+def run_server(port: int) -> socket.socket:
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(("127.0.0.1", port))
 
-    log(f"Running on {port}", SERVER_COLOR)
-
     return server
-
-
-def is_node(response) -> bool:
-    return len(response.split(SPLITTER)) == 3
-
-
-def extract_node_data(response) -> Tuple[int, int, int]:
-    server_port, public_key, modulus = response.split(SPLITTER)
-
-    server_port = int(server_port)
-    public_key = int(public_key)
-    modulus = int(modulus)
-
-    return server_port, public_key, modulus
-
-
-def extract_client_data(response, first_message=True):
-    if not first_message:
-        return response.split(SPLITTER)
-
-    public_key, modulus = response.split(SPLITTER)
-
-    public_key = int(public_key)
-    modulus = int(modulus)
-
-    return public_key, modulus
-
-
-def check_alive(port: int):
-    global nodes_map, clients_map
-
-    while port in nodes_map.keys():
-        time.sleep(ALIVE_TIME)
-
-        current_time_milliseconds = int(time.time() * 1000)
-
-        try:
-            node_last_time = nodes_map[port][NodeIndexes.TIME_INDEX]
-        except KeyError:
-            log(f"Tried to check dead node ({port})", ERROR_COLOR)
-            return  # Already have been terminated
-
-        log(f"Checking {port}...", ACTION_COLOR)
-
-        if current_time_milliseconds - node_last_time > 10000:
-            log(f"{port} is dead", ERROR_COLOR)
-
-            terminate_node(nodes_map, port)
-
-            break
-
-
-def terminate_node(nodes_map, port):
-    nodes_map[port][NodeIndexes.CONNECTION_INDEX].close()
-    del nodes_map[port]
 
 
 def generate_random_path(length=2) -> List[int]:
@@ -127,47 +51,35 @@ def encrypt(random_path: list, data):
     # encrypted = A.encrypt(B.encrypt(C.encrypt(data)))
 
     for node in reversed_path:
-        node_public_key = nodes_map[node][NodeIndexes.PUBLIC_KEY_INDEX]
-        node_modulus = nodes_map[node][NodeIndexes.MODULUS_INDEX]
+        node_aes_key = nodes_map[node][NodeIndexes.AES_KEY_INDEX]
+        node_aes_iv = nodes_map[node][NodeIndexes.AES_IV_INDEX]
         node_server_port = nodes_map[node][NodeIndexes.SERVER_PORT_INDEX]
 
-        encrypted_data = str(node_server_port) + SPLITTER + str(
-            RSA.encrypt(encrypted_data, node_public_key, node_modulus))
+        encrypted_data = str(node_server_port) + SPLITER + str(AES.encrypt(encrypted_data, node_aes_key, node_aes_iv))
 
-    encrypted_data = encrypted_data[encrypted_data.find(SPLITTER) + len(SPLITTER):]
+    # Remove first node's port (we don't need it since we are the one's who send it to him)
+    encrypted_data = encrypted_data[encrypted_data.find(SPLITER) + len(SPLITER):]
 
     return encrypted_data
 
 
-def send(destination_port, data_to_send):
+def send(destination_port: str, data_to_send: str):
     global nodes_map, clients_map, rsa_object
 
     random_path = generate_random_path()
 
-    print_path(random_path)
+    print_path(nodes_map, random_path)
 
     # print(f"Sending {data_to_send} to {destination_port} through {random_path}")
     log(f"Sending {data_to_send} to {destination_port} through {random_path}", ACTION_COLOR)
 
-    encrypted_data = encrypt(random_path, str(destination_port) + SPLITTER + data_to_send)
+    encrypted_data = encrypt(random_path, str(destination_port) + SPLITER + data_to_send)
 
     first_node = random_path[0]
     node_properties = nodes_map[first_node]
     first_node_connection_server_port = node_properties[NodeIndexes.SERVER_PORT_INDEX]
 
     send_to_first_node(encrypted_data, first_node_connection_server_port)
-
-
-def print_path(random_path):
-    # print the path (by the order of the nodes) in a nice way
-    path = ""
-
-    for node in random_path:
-        path += str(nodes_map[node][NodeIndexes.SERVER_PORT_INDEX]) + " -> "
-
-    path = path[:-4]
-
-    log(f"Path: {path}", ACTION_COLOR)
 
 
 def send_to_first_node(encrypted_data, first_node_connection_server_port):
@@ -179,53 +91,49 @@ def send_to_first_node(encrypted_data, first_node_connection_server_port):
     log(f"Sent {encrypted_data} to {first_node_connection_server_port}", ACTION_COLOR)
 
 
+def terminate_node(nodes_map, port):
+    nodes_map[port][NodeIndexes.CONNECTION_INDEX].close()
+    del nodes_map[port]
+
+
 def handle_connection(connection: socket.socket, node: bool, port: int):
     global nodes_map, clients_map, rsa_object
 
+    """
     if node:
         check_alive_in_thread(port)
+    """
 
-    try:
+    aes_key = nodes_map[port][NodeIndexes.AES_KEY_INDEX] if node else clients_map[port][ClientIndexes.AES_KEY_INDEX]
+    aes_iv = nodes_map[port][NodeIndexes.AES_IV_INDEX] if node else clients_map[port][ClientIndexes.AES_IV_INDEX]
 
-        while True:
-            received = connection.recv(2048).decode()
-            try:
-                received = decrypt_response(received, rsa_object)
-            except SyntaxError:
-                continue
+    while True:
+        try:
+            received = connection.recv(2048 * 2 * 2).decode()
+            decrypted = decrypt(received, aes_key)
 
             if node:
-                server_port, public_key, modulus = extract_node_data(received)
+                server_port, aes_key, aes_iv = extract_connection_data(decrypted)
+
+                aes_key, aes_iv = format_keys(aes_key, aes_iv)
 
                 current_time_milliseconds = int(time.time() * 1000)
 
-                nodes_map[port] = (server_port, current_time_milliseconds, connection, public_key, modulus)
-            elif received.strip() != "":
-                destination_port, data_to_send = extract_client_data(received, False)
+                nodes_map[port] = (server_port, current_time_milliseconds, connection, aes_key, aes_iv)
+            elif decrypted.strip() != "":
+                destination_port, data_to_send = extract_connection_data(decrypted)
                 log(f"Extracted {destination_port} and {data_to_send}", DATA_COLOR)
 
                 send(destination_port, data_to_send)
 
-    except ConnectionResetError as e:
-        log(f"{port} disconnected", ERROR_COLOR)
-        terminate_node(nodes_map, port)
+        except ConnectionResetError as e:
+            log(f"{port} disconnected", ERROR_COLOR)
+            if node: terminate_node(nodes_map, port)
 
-    except Exception as e:
-        raise e
+            return
 
-
-def check_alive_in_thread(port):
-    check_alive_thread = threading.Thread(target=check_alive, args=(port,))
-    check_alive_thread.daemon = True
-    check_alive_thread.start()
-
-
-def decrypt_response(received, rsa_object):
-    try:
-        return rsa_object.decrypt(ast.literal_eval(received))
-    except (SyntaxError, TypeError, ValueError):
-        # log(f"Tried to decrypt {received} but failed", ERROR_COLOR)
-        return ""
+        except Exception as e:
+            raise e
 
 
 def listen(server: socket.socket):
@@ -238,51 +146,60 @@ def listen(server: socket.socket):
         connection, address = server.accept()
         _, client_port = address
 
-        send_public_key(connection)
+        send_rsa_keys(connection)
 
         try:
-            response = connection.recv(1024).decode()
-
+            response = connection.recv(2048).decode()
             try:
-                decrypted = decrypt_response(response, rsa_object)
-            except SyntaxError:
-                continue
+                decrypted_response = rsa_object.decrypt(response)  # Only first message in RSA
+            except TypeError:  # (The client sent the data as "[1, 2, 3]" and we turn it to [1, 2, 3])
+                evaluated_list = eval_list(response)
+                decrypted_response = rsa_object.decrypt(evaluated_list)
+        except:
+            log(f"Couldn't receive initial data from {address}", ERROR_COLOR)
+            connection.close()
 
-            log("Received: " + response, DATA_COLOR)
-            log("Decrypted: " + decrypted, DATA_COLOR)
+            continue
 
-        except ConnectionResetError:
-            print("Connection ended")
-            return
+        try:
+            if is_node(decrypted_response):
+                log(f"Node connected: {client_port}", SERVER_COLOR)
 
-        if is_node(decrypted):
-            log(f"Node connected: {client_port}", SERVER_COLOR)
+                server_port, aes_key, aes_iv = extract_connection_data(decrypted_response)
 
-            server_port, public_key, modulus = extract_node_data(decrypted)
+                aes_key, aes_iv = format_keys(aes_key, aes_iv)
 
-            current_time_milliseconds = int(time.time() * 1000)
+                current_time_milliseconds = int(time.time() * 1000)
 
-            nodes_map[client_port] = (server_port, current_time_milliseconds, connection, public_key, modulus)
-        else:
-            log(f"Client connected: {client_port}", CLIENT_COLOR)
+                nodes_map[client_port] = (server_port, current_time_milliseconds, connection, aes_key, aes_iv)
+            else:
+                log(f"Client connected: {client_port}", CLIENT_COLOR)
 
-            public_key, modulus = extract_client_data(decrypted)
+                aes_key, aes_iv = extract_connection_data(decrypted_response)
 
-            clients_map[client_port] = (connection, public_key, modulus)
+                aes_key, aes_iv = format_keys(aes_key, aes_iv)
 
-        # Start receiving
-        my_thread = threading.Thread(target=handle_connection, args=(connection, is_node(decrypted), client_port))
+                current_time_milliseconds = int(time.time() * 1000)
+
+                clients_map[client_port] = (connection, current_time_milliseconds, aes_key, aes_iv)
+        except (ValueError, UnicodeEncodeError):
+            log("Couldn't receive initial data from the connection", ERROR_COLOR)
+            continue
+
+        my_thread = threading.Thread(target=handle_connection,
+                                     args=(connection, is_node(decrypted_response), client_port))
         my_thread.daemon = True
         my_thread.start()
 
 
-def send_public_key(connection):
-    connection.sendall(RSA_KEY.encode())
+def send_rsa_keys(client: socket.socket):
+    client.sendall(RSA_KEYS_FORMAT.encode())
 
 
 def main():
-    server = create_server(SERVER_PORT)
-    listen(server)
+    server_socket = run_server(SERVER_PORT)
+    log("Server is running", SERVER_COLOR)
+    listen(server_socket)
 
 
 if __name__ == '__main__':
