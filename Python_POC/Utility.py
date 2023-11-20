@@ -1,4 +1,5 @@
 import ast
+import time
 from typing import List, Dict, Tuple
 
 import AES
@@ -36,6 +37,14 @@ def format_keys(aes_key: str, aes_iv: str) -> Tuple[bytes, bytes]:
         raise ValueError("Input does not represent bytes.")
 
 
+def capture_time():
+    return time.perf_counter() * 1000
+
+
+def calculate_differences(before, after):
+    return after - before
+
+
 def print_path(nodes_map: Dict, random_path):
     # print the path (by the order of the nodes) in a nice way
     path = ""
@@ -56,4 +65,6 @@ def is_node(response: str) -> bool:
 
 
 def extract_connection_data(decrypted_response: str) -> List[str]:
-    return decrypted_response.split(SPLITER)
+    splited = decrypted_response.split(SPLITER)
+
+    return splited

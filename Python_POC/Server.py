@@ -1,7 +1,6 @@
 import random
 import socket
 import threading
-import time
 from typing import Any
 
 import RSA
@@ -24,7 +23,7 @@ def run_server(port: int) -> socket.socket:
     return server
 
 
-def generate_random_path(length=2) -> List[int]:
+def generate_random_path(length=DEFAULT_LEN) -> List[int]:
     global nodes_map
 
     length = min(length, len(nodes_map.keys()))  # Choose the minimum between the length and the number of nodes
@@ -109,11 +108,17 @@ def handle_connection(connection: socket.socket, node: bool, port: int):
 
     while True:
         try:
-            received = connection.recv(2048 * 2 * 2).decode()
-            decrypted = decrypt(received, aes_key)
+            received = connection.recv(RECEIVE_SIZE).decode()
+            try:
+                decrypted = decrypt(received, aes_key)
+            except:
+                if len(received) == 0: continue
+                log(f"Couldn't decrypt {received}", ERROR_COLOR)
+                continue
 
             if node:
                 server_port, aes_key, aes_iv = extract_connection_data(decrypted)
+                server_port = int(server_port)
 
                 aes_key, aes_iv = format_keys(aes_key, aes_iv)
 
@@ -166,6 +171,7 @@ def listen(server: socket.socket):
                 log(f"Node connected: {client_port}", SERVER_COLOR)
 
                 server_port, aes_key, aes_iv = extract_connection_data(decrypted_response)
+                server_port = int(server_port)
 
                 aes_key, aes_iv = format_keys(aes_key, aes_iv)
 
@@ -182,8 +188,8 @@ def listen(server: socket.socket):
                 current_time_milliseconds = int(time.time() * 1000)
 
                 clients_map[client_port] = (connection, current_time_milliseconds, aes_key, aes_iv)
-        except (ValueError, UnicodeEncodeError):
-            log("Couldn't receive initial data from the connection", ERROR_COLOR)
+        except (ValueError, UnicodeEncodeError) as e:
+            log(f"Couldn't receive initial data from the connection ({e})", ERROR_COLOR)
             continue
 
         my_thread = threading.Thread(target=handle_connection,

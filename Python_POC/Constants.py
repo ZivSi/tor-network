@@ -1,7 +1,9 @@
 SERVER_PORT = 5060
+RECEIVE_SIZE = 2 ** 24
 SPLITER = "::::"
 NODE_INIT_FORMAT = "{}" + SPLITER + "{}" + SPLITER + "{}"
 CLIENT_INIT_FORMAT = "{}" + SPLITER + "{}"
+DEFAULT_LEN = 5
 
 class NodeIndexes:
     SERVER_PORT_INDEX = 0

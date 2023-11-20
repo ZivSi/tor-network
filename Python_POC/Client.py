@@ -19,6 +19,11 @@ def send_to(connection, destination, data):
     connection.sendall(encrypted_data.encode())
 
 
+def read_content(filename):
+    with open(filename, "rb") as file:
+        return file.read()
+
+
 def main(CLIENT_TO_SEND=5062):
     global server_public_key, server_modulus
 
@@ -35,19 +40,22 @@ def main(CLIENT_TO_SEND=5062):
     server_public_key = int(server_public_key)
     server_modulus = int(server_modulus)
 
-    # Send the public key and modulus to the server
+    # Send the aes keys to the server
     send_key_to_server(client)
 
-    log("Client sent public key and modulus to server", CLIENT_COLOR)
+    log("Client AES keys", CLIENT_COLOR)
 
-    send_to(client, CLIENT_TO_SEND, "Hello, World!")
+    send_to(client, CLIENT_TO_SEND, "HELLO WORLD!")
 
     log(f"Client sent data to server. Destination is {CLIENT_TO_SEND}", CLIENT_COLOR)
 
 
 def send_key_to_server(client):
     global server_public_key, server_modulus
-    message = f"{aes_object.key}" + SPLITER + f"{aes_object.iv}"
+
+    aes_key, aes_iv = AES.format_key_for_sending(aes_object.key), AES.format_key_for_sending(aes_object.iv)
+
+    message = f"{aes_key}" + SPLITER + f"{aes_iv}"
     encrypted_message = str(RSA.encrypt(message, server_public_key, server_modulus))
     client.send(encrypted_message.encode())
 

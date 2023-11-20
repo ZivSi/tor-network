@@ -1,3 +1,4 @@
+import binascii
 import socket
 import threading
 import time
@@ -6,6 +7,8 @@ from typing import Tuple
 import RSA
 from Log import *
 from Python_POC import AES
+from Python_POC.Constants import RECEIVE_SIZE
+from Python_POC.Utility import capture_time, calculate_differences
 from Server import SPLITER, SERVER_PORT
 
 ALIVE_FORMAT = "{}" + SPLITER + "{}" + SPLITER + "{}"
@@ -78,10 +81,19 @@ def send_alive():
         else:
             alive_message_encrypted = str(AES.encrypt(alive_message, aes_object.key, aes_object.iv))
 
-        if my_server_port != -1:
-            parent_server.sendall(alive_message_encrypted.encode())
-        else:
-            log("Node's server not established yet", ERROR_COLOR)
+        try:
+            if my_server_port != -1:
+                parent_server.sendall(alive_message_encrypted.encode())
+            else:
+                log("Node's server not established yet", ERROR_COLOR)
+        except Exception:
+            log("Server disconnected", ERROR_COLOR)
+            time.sleep(5)
+
+            exit(1)
+
+            log("Trying to connect again...", ACTION_COLOR)
+            parent_server = connect_to(SERVER_PORT)
 
         time.sleep(2)
 
@@ -102,15 +114,29 @@ def receive():
     while True:
         connection, address = server.accept()
 
-        received = connection.recv(2048).decode()
+        received = connection.recv(RECEIVE_SIZE).decode()
+
         try:
+            before = capture_time()
             decrypted = aes_object.decrypt(received)
+            after = capture_time()
+
+            differences = calculate_differences(before, after)
+
+            log(f"\n\nDecrypted in {differences}ms\n\n", ACTION_COLOR)
         except SyntaxError:
+            continue
+        except binascii.Error:
+            # Data is for current node
+            decrypted = received
+        except ValueError as e:
+            if len(received) == 0: continue
+
+            log(f"Node {my_server_port} couldn't decrypt {received[:min(len(received), 50)]}\nError: {e}", ERROR_COLOR)
             continue
 
         if reached_destination(decrypted):
-            log(f"NODE {my_server_port} Data reached destination: {received}", ACTION_COLOR)
-
+            log(f"NODE {my_server_port} Data reached destination: {received[:min(len(received), 50)]}", ACTION_COLOR)
             continue
 
         destination_port, data_to_send = extract_data(decrypted)

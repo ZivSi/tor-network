@@ -18,7 +18,7 @@ def run_client():
 
 
 if __name__ == "__main__":
-    num_processes = 5  # Change this to the desired number of parallel runs
+    num_processes = 15  # Change this to the desired number of parallel runs
 
     # Create a list of processes
     processes = [multiprocessing.Process(target=run_node) for _ in range(num_processes)]
