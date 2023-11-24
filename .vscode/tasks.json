@@ -27,6 +27,8 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
+                "-I",
+                "C:\\Users\\zivsi\\Documents\\Tor - Cloned\\tor-network-ziv-and-uriyah\\CPP Project",
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"

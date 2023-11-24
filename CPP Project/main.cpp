@@ -1,8 +1,15 @@
 #include <iostream>
+#include "Log.hpp"
+#include "Utility.hpp"
+#include "Constants.h"
+
+using std::cout;
+using std::endl;
 
 int main()
 {
-    std::cout << (60000 * 5000) << std::endl;
+    NodeData node_data = NodeData(5061, "2021-05-01 12:00:00", "", "aes_key", "aes_iv");
+    cout << node_data.server_port << endl;
 
     return 0;
 }
