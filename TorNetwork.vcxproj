@@ -127,18 +127,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CPP Project\AES.hpp" />
+    <ClInclude Include="CPP Project\AES.h" />
     <ClInclude Include="CPP Project\Client.hpp" />
     <ClInclude Include="CPP Project\Constants.h" />
-    <ClInclude Include="CPP Project\DatabaseHelper.hpp" />
+    <ClInclude Include="CPP Project\DatabaseHelper.h" />
     <ClInclude Include="CPP Project\Log.hpp" />
     <ClInclude Include="CPP Project\Node.hpp" />
     <ClInclude Include="CPP Project\RSA.hpp" />
     <ClInclude Include="CPP Project\ServerObject.hpp" />
+    <ClInclude Include="CPP Project\sqlite3.h" />
     <ClInclude Include="CPP Project\Utility.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CPP Project\DatabaseHelper.cpp" />
     <ClCompile Include="CPP Project\main.cpp" />
+    <ClCompile Include="CPP Project\sqlite3.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CPP Project\tor.db" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

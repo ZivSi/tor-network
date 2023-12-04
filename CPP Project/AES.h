@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
-#include <openssl/aes.h>
-#include <openssl/rand.h>
+
 
 class AES {
 public:

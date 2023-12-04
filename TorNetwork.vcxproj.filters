@@ -13,39 +13,56 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="HPP_Files">
+      <UniqueIdentifier>{238fe4be-46c6-45de-bde2-63096052be35}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CPP Project\AES.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPP Project\Client.hpp">
+    <ClInclude Include="CPP Project\AES.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPP Project\Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPP Project\DatabaseHelper.hpp">
+    <ClInclude Include="CPP Project\DatabaseHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPP Project\Log.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPP Project\Node.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPP Project\RSA.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CPP Project\ServerObject.hpp">
+    <ClInclude Include="CPP Project\sqlite3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPP Project\Utility.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>HPP_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPP Project\ServerObject.hpp">
+      <Filter>HPP_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPP Project\Client.hpp">
+      <Filter>HPP_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPP Project\RSA.hpp">
+      <Filter>HPP_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPP Project\Node.hpp">
+      <Filter>HPP_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPP Project\Log.hpp">
+      <Filter>HPP_Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CPP Project\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CPP Project\sqlite3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPP Project\DatabaseHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CPP Project\tor.db">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
