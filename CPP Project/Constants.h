@@ -24,30 +24,3 @@ enum ClientIndexes {
 	AES_KEY_INDEX = 2,
 	AES_IV_INDEX = 3
 };
-
-class NodeData {
-public:
-	int server_port;
-	string time;
-	string connection;
-	string aes_key;
-	string aes_iv;
-
-	NodeData(int server_port, string time, string connection, string aes_key, string aes_iv)
-	{
-		this->server_port = server_port;
-		this->time = time;
-		this->connection = connection;
-		this->aes_key = aes_key;
-		this->aes_iv = aes_iv;
-	}
-
-	NodeData()
-	{
-		this->server_port = 0;
-		this->time = "";
-		this->connection = "";
-		this->aes_key = "";
-		this->aes_iv = "";
-	}
-};

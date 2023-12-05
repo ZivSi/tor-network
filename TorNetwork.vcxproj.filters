@@ -36,16 +36,16 @@
     <ClInclude Include="CPP Project\ServerObject.hpp">
       <Filter>HPP_Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPP Project\Client.hpp">
+    <ClInclude Include="CPP Project\ClientData.hpp">
       <Filter>HPP_Files</Filter>
     </ClInclude>
     <ClInclude Include="CPP Project\RSA.hpp">
       <Filter>HPP_Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPP Project\Node.hpp">
+    <ClInclude Include="CPP Project\NodeData.hpp">
       <Filter>HPP_Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPP Project\Log.hpp">
+    <ClInclude Include="CPP Project\StatsData.hpp">
       <Filter>HPP_Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -61,7 +61,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="CPP Project\tor.db">
+    <None Include="tor.db">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -1,2 +1,5 @@
 ﻿  main.cpp
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\CPP Project\RSA.hpp(24,23): warning C4244: 'initializing': conversion from 'double' to 'int64_t', possible loss of data
+  (compiling source file 'CPP%20Project/main.cpp')
+  
   TorNetwork.vcxproj -> C:\Users\zivsi\source\repos\TorNetwork\x64\Debug\TorNetwork.exe

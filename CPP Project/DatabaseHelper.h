@@ -1,10 +1,14 @@
 #pragma once
 
 #include "sqlite3.h"
-#include "Client.hpp"
-#include "Node.hpp"
-#include "Log.hpp"
+#include "NodeData.hpp"
+#include <iostream>
+#include <string>
 
+using std::cout;
+using std::endl;
+using std::string;
+using std::to_string;
 
 class DatabaseHelper
 {
@@ -12,35 +16,39 @@ public:
 	DatabaseHelper();
 	~DatabaseHelper();
 
-	// Db methods
+	void executeSimpleQuery(const std::string& query);
+	int executeQueryWithCallback(const std::string& query, sqlite3_callback callback, void* callbackData);
+
+	bool isDatabaseOpen();
 	bool openDatabase();
 	bool closeDatabase();
 	void initializeDatabase();
+
 	bool isTableExist(string table_name);
 
+	void increaseTotalBytesSent(long long int bytes);
+	void increaseTotalBytesReceived(long long int bytes);
+	void increaseTotalConnections();
+	void increaseTotalNodes();
+	void increaseTotalClients();
 
-	bool isClientExist(string username);
-	bool isPasswordCorrect(string username, string password);
-	ClientData getClientByUsername(string username);
-	bool insertClient(ClientData client_data);
-	bool updateClient(ClientData client_data);
-	bool deleteClient(string username);
+	void resetStats();
+	void addOneEntryToStatsTable();
+	void printStats();
 
-	bool isNodeExist(string server_port);
-	NodeData getNodeByServerPort(string server_port);
-	bool insertNode(NodeData node_data);
-	bool updateNode(NodeData node_data);
-	bool deleteNode(string server_port);
+
+	long long int getTotalBytesSent();
+	long long int getTotalBytesReceived();
+	int getTotalConnections();
+	int getTotalNodes();
+	int getTotalClients();
 
 private:
 	sqlite3* m_database;
 
 	string filename = "tor.db";
 
-	string tables[3] = { "clients", "nodes", "stats" };
-	string clients_columns[7] = { "username", "password", "email", "bytes_sent", "bytes_received", "aes_key", "aes_iv" };
+	string tables[1] = { "stats" };
 
-	string nodes_columns[5] = { "server_port", "time", "connection", "aes_key", "aes_iv" };
-
-	string stats_columns[6] = { "total_bytes_sent", "total_bytes_received", "total_connections", "total_nodes", "total_clients", "total_stats" };
+	string stats_columns[6] = { "total_bytes_sent", "total_bytes_received", "total_connections", "total_nodes", "total_clients" };
 };
