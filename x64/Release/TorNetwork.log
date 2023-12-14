@@ -1,0 +1,7 @@
+﻿  main.cpp
+  Generating code
+  78 of 3158 functions ( 2.5%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
+    129 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  TorNetwork.vcxproj -> C:\Users\zivsi\source\repos\TorNetwork\x64\Release\TorNetwork.exe

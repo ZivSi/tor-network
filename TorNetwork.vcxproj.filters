@@ -18,7 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CPP Project\simpleAES.h">
+    <ClInclude Include="CPP Project\AesHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPP Project\Constants.h">
@@ -45,7 +45,7 @@
     <ClInclude Include="CPP Project\StatsData.hpp">
       <Filter>HPP_Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPP Project\ServerObject.h">
+    <ClInclude Include="CPP Project\Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,7 +59,10 @@
     <ClCompile Include="CPP Project\DatabaseHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CPP Project\simpleAES.cpp">
+    <ClCompile Include="CPP Project\AesHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPP Project\Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

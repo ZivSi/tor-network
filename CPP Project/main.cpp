@@ -1,33 +1,20 @@
 #include <iostream>
 #include <bitset>
 #include <vector>
-#include "RSA.hpp"
+#include "AesHandler.h"
 
 using namespace std;
 
 int main() {
-	RSA myRSA;
-	RSA clientRSA;
+	AesHandler aes_handler;
+	string plaintext = "Hello World!";
 
-	myRSA.setClientPublicKey(clientRSA.getPublicKey());
-	myRSA.setClientModulus(clientRSA.getModulus());
 
-	clientRSA.setClientPublicKey(myRSA.getPublicKey());
-	clientRSA.setClientModulus(myRSA.getModulus());
+	string ciphertext = aes_handler.encrypt(plaintext);
+	cout << "Ciphertext: " << ciphertext << endl;
 
-	string message = "Hello World!";
-
-	vector<int64_t> encryptedMessage = myRSA.encrypt(message);
-
-	string decryptedMessage = clientRSA.decrypt(encryptedMessage);
-
-	cout << "Message: " << message << endl;
-	cout << "Encrypted Message: ";
-	for (int i = 0; i < encryptedMessage.size(); i++) {
-		cout << encryptedMessage[i] << " ";
-	}
-
-	cout << endl << "Decrypted Message: " << decryptedMessage << endl;
+	string decrypted = aes_handler.decrypt(ciphertext);
+	cout << "Decrypted: " << decrypted << endl;
 
 
 	return 0;
