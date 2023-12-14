@@ -104,10 +104,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\zivsi\Downloads\cryptopp890;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\zivsi\Downloads\cryptopp890\x64\Output\Debug</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -118,27 +120,32 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\zivsi\Downloads\cryptopp890;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\zivsi\Downloads\cryptopp890\x64\Output\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cryptlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CPP Project\AES.h" />
+    <ClInclude Include="CPP Project\simpleAES.h" />
     <ClInclude Include="CPP Project\ClientData.hpp" />
     <ClInclude Include="CPP Project\Constants.h" />
     <ClInclude Include="CPP Project\DatabaseHelper.h" />
     <ClInclude Include="CPP Project\NodeData.hpp" />
     <ClInclude Include="CPP Project\RSA.hpp" />
-    <ClInclude Include="CPP Project\ServerObject.hpp" />
+    <ClInclude Include="CPP Project\ServerObject.h" />
     <ClInclude Include="CPP Project\sqlite3.h" />
     <ClInclude Include="CPP Project\StatsData.hpp" />
     <ClInclude Include="CPP Project\Utility.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CPP Project\simpleAES.cpp" />
     <ClCompile Include="CPP Project\DatabaseHelper.cpp" />
     <ClCompile Include="CPP Project\main.cpp" />
     <ClCompile Include="CPP Project\sqlite3.c" />
