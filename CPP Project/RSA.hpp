@@ -1,3 +1,7 @@
+#pragma once
+
+#pragma warning(disable : 4244)  // Disable warning C4244: 'initializing': conversion from 'double' to 'int64_t', possible
+
 #include <cstdlib>
 #include <cmath>
 #include <vector>

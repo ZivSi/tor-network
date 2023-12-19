@@ -94,3 +94,12 @@ SecByteBlock AesHandler::reformat_key_for_receiving(string& key) {
 
 	return formattedKey;
 }
+
+string AesHandler::SecByteBlockToString(const CryptoPP::SecByteBlock& secByteBlock) {
+	return string(reinterpret_cast<const char*>(secByteBlock.BytePtr()), secByteBlock.SizeInBytes());
+}
+
+// Helper function to convert string to SecByteBlock
+CryptoPP::SecByteBlock AesHandler::StringToSecByteBlock(const string& str) {
+	return CryptoPP::SecByteBlock(reinterpret_cast<const byte*>(str.data()), str.size());
+}

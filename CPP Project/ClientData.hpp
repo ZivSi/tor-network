@@ -1,100 +1,133 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+#pragma once
 
 #include <string>
+#include <secblock.h>
+
+#include <WS2tcpip.h>
+#include <WinSock2.h>
+
+#include "nlohmann/json.hpp"
+#include "AesHandler.h"
 
 using std::string;
+using CryptoPP::SecByteBlock;
 
 class ClientData {
 public:
-	ClientData(string username, string password, string email, long long int bytes_sent, long long int bytes_received, string aes_key, string aes_iv) {
-		this->username = username;
-		this->password = password;
-		this->email = email;
+	ClientData(unsigned long long last_seen, unsigned long long int bytes_sent, unsigned long long int bytes_received, SecByteBlock aes_key, SecByteBlock aes_iv) {
+		this->last_seen = last_seen;
 		this->bytes_sent = bytes_sent;
 		this->bytes_received = bytes_received;
 		this->aes_key = aes_key;
 		this->aes_iv = aes_iv;
+	}
+
+	ClientData(unsigned long long last_seen, unsigned long long int bytes_sent, unsigned long long int bytes_received, SecByteBlock aes_key, SecByteBlock aes_iv, SOCKET socket) {
+		this->last_seen = last_seen;
+		this->bytes_sent = bytes_sent;
+		this->bytes_received = bytes_received;
+		this->aes_key = aes_key;
+		this->aes_iv = aes_iv;
+		this->socket = socket;
 	}
 
 	ClientData() {
-		this->username = "";
-		this->password = "";
-		this->email = "";
+		this->last_seen = 0;
 		this->bytes_sent = 0;
 		this->bytes_received = 0;
-		this->aes_key = "";
-		this->aes_iv = "";
 	}
 
-	string get_username() {
-		return this->username;
+	unsigned long long get_last_seen() {
+		return this->last_seen;
 	}
 
-	string get_password() {
-		return this->password;
-	}
-
-	string get_email() {
-		return this->email;
-	}
-
-	long long int get_bytes_sent() {
+	unsigned long long int get_bytes_sent() {
 		return this->bytes_sent;
 	}
 
-	long long int get_bytes_received() {
+	unsigned long long int get_bytes_received() {
 		return this->bytes_received;
 	}
 
-	string get_aes_key() {
+	SecByteBlock get_aes_key() {
 		return this->aes_key;
 	}
 
-	string get_aes_iv() {
+	SecByteBlock get_aes_iv() {
 		return this->aes_iv;
 	}
 
-
-	void set_username(string username) {
-		this->username = username;
+	SOCKET get_socket() {
+		return this->socket;
 	}
 
-	void set_password(string password) {
-		this->password = password;
+	void set_last_seen(unsigned long long last_seen) {
+		this->last_seen = last_seen;
 	}
 
-	void set_email(string email) {
-		this->email = email;
-	}
-
-	void set_bytes_sent(long long int bytes_sent) {
+	void set_bytes_sent(unsigned long long int bytes_sent) {
 		this->bytes_sent = bytes_sent;
 	}
 
-	void set_bytes_received(long long int bytes_received) {
+	void set_bytes_received(unsigned long long int bytes_received) {
 		this->bytes_received = bytes_received;
 	}
 
-	void set_aes_key(string aes_key) {
+	void set_aes_key(SecByteBlock aes_key) {
 		this->aes_key = aes_key;
 	}
 
-	void set_aes_iv(string aes_iv) {
+	void set_aes_iv(SecByteBlock aes_iv) {
 		this->aes_iv = aes_iv;
 	}
 
+	void set_socket(SOCKET socket) {
+		this->socket = socket;
+	}
+
+	string toString() const {
+		nlohmann::json jsonObj;
+
+		jsonObj["last_seen"] = last_seen;
+		jsonObj["bytes_sent"] = bytes_sent;
+		jsonObj["bytes_received"] = bytes_received;
+		jsonObj["aes_key"] = AesHandler::SecByteBlockToString(aes_key);
+		jsonObj["aes_iv"] = AesHandler::SecByteBlockToString(aes_iv);
+		jsonObj["socket"] = socket;
+
+		return jsonObj.dump();
+	}
+
+	static ClientData fromString(const string& jsonString) {
+		nlohmann::json jsonObj = nlohmann::json::parse(jsonString);
+
+		ClientData newData;
+
+		newData.last_seen = jsonObj["last_seen"].get<unsigned long long>();
+		newData.bytes_sent = jsonObj["bytes_sent"].get<unsigned long long>();
+		newData.bytes_received = jsonObj["bytes_received"].get<unsigned long long>();
+
+		// Assuming SecByteBlock constructor takes a byte pointer and size
+		newData.aes_key = AesHandler::StringToSecByteBlock(jsonObj["aes_key"].get<string>());
+		newData.aes_iv = AesHandler::StringToSecByteBlock(jsonObj["aes_iv"].get<string>());
+
+		newData.socket = jsonObj["socket"].get<SOCKET>();
+
+		return newData;
+	}
+
+	bool operator==(const ClientData& other) const {
+		return this->socket == other.socket;
+	}
+
 private:
-	string username;
-	string password;
-	string email;
-	long long int bytes_sent;
-	long long int bytes_received;
+	unsigned long long last_seen;
+	unsigned long long int bytes_sent;
+	unsigned long long int bytes_received;
 
 	// AES
-	string aes_key;
-	string aes_iv;
+	SecByteBlock aes_key;
+	SecByteBlock aes_iv;
 
+	SOCKET socket;
 };
-
-#endif

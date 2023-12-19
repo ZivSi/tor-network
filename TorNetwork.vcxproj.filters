@@ -48,6 +48,9 @@
     <ClInclude Include="CPP Project\Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CPP Project\DataObject.hpp">
+      <Filter>HPP_Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CPP Project\main.cpp">
@@ -63,6 +66,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPP Project\Server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPP Project\Constants.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

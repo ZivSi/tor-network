@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CPP Project\DataObject.hpp" />
     <ClInclude Include="CPP Project\Server.h" />
     <ClInclude Include="CPP Project\AesHandler.h" />
     <ClInclude Include="CPP Project\ClientData.hpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="CPP Project\Utility.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CPP Project\Constants.cpp" />
     <ClCompile Include="CPP Project\Server.cpp" />
     <ClCompile Include="CPP Project\AesHandler.cpp" />
     <ClCompile Include="CPP Project\DatabaseHelper.cpp" />

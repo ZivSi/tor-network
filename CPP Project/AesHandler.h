@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <aes.h>
@@ -47,7 +49,10 @@ public:
 	static string decryptAES(const string& ciphertext, SecByteBlock key, SecByteBlock iv);
 	static string format_key_for_sending(SecByteBlock key);
 	static SecByteBlock reformat_key_for_receiving(string& key);
+	static string SecByteBlockToString(const CryptoPP::SecByteBlock& secByteBlock);
+	static CryptoPP::SecByteBlock StringToSecByteBlock(const string& str);
 
+	
 
 private:
 	SecByteBlock key;
