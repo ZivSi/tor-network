@@ -7,7 +7,7 @@
 #include "ClientData.hpp"
 #include "NodeData.hpp"
 #include "AesHandler.h"
-#include "RSA.hpp"
+#include "RSAHandler.h"
 #include "Utility.hpp"
 #include <mutex>
 #include "DataObject.hpp"
@@ -37,7 +37,7 @@ public:
 	void stopServer();
 
 private:
-	RSA rsaObject;
+	RSAHandler rsaObject;
 	mutex rsaObjectMutex;
 
 	AesHandler aesObject;

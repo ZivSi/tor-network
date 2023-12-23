@@ -44,6 +44,9 @@ public:
 
 	string getKeys();
 
+	SecByteBlock getKey();
+	SecByteBlock getIv();
+
 
 	static string encryptAES(const string& plaintext, SecByteBlock key, SecByteBlock iv);
 	static string decryptAES(const string& ciphertext, SecByteBlock key, SecByteBlock iv);

@@ -136,19 +136,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CPP Project\DataObject.hpp" />
+    <ClInclude Include="CPP Project\Node.h" />
+    <ClInclude Include="CPP Project\RSAHandler.h" />
     <ClInclude Include="CPP Project\Server.h" />
     <ClInclude Include="CPP Project\AesHandler.h" />
     <ClInclude Include="CPP Project\ClientData.hpp" />
     <ClInclude Include="CPP Project\Constants.h" />
     <ClInclude Include="CPP Project\DatabaseHelper.h" />
     <ClInclude Include="CPP Project\NodeData.hpp" />
-    <ClInclude Include="CPP Project\RSA.hpp" />
     <ClInclude Include="CPP Project\sqlite3.h" />
     <ClInclude Include="CPP Project\StatsData.hpp" />
     <ClInclude Include="CPP Project\Utility.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CPP Project\Constants.cpp" />
+    <ClCompile Include="CPP Project\Node.cpp" />
+    <ClCompile Include="CPP Project\RSAHandler.cpp" />
     <ClCompile Include="CPP Project\Server.cpp" />
     <ClCompile Include="CPP Project\AesHandler.cpp" />
     <ClCompile Include="CPP Project\DatabaseHelper.cpp" />

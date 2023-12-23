@@ -39,6 +39,16 @@ string AesHandler::getKeys()
 	string formatted = AesHandler::format_key_for_sending(this->key);
 	formatted += SPLITER;
 	formatted += AesHandler::format_key_for_sending(this->iv);
+
+	return formatted;
+}
+
+SecByteBlock AesHandler::getKey() {
+	return this->key;
+}
+
+SecByteBlock AesHandler::getIv() {
+	return this->iv;
 }
 
 string AesHandler::encryptAES(const string& plaintext, SecByteBlock key, SecByteBlock iv) {

@@ -10,6 +10,7 @@
 #include <chrono>
 #include <sstream>
 #include "Constants.h"
+#include "NodeData.hpp"
 
 
 using std::string;

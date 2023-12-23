@@ -3,7 +3,7 @@
 #include <string>
 #include <math.h>
 
-#define RECEIVE_SIZE 2 << 24
+#define RECEIVE_SIZE 2 << 20
 
 using std::string;
 

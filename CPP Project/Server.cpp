@@ -10,7 +10,7 @@ Server::Server() {
 }
 
 Server::~Server() {
-	// this->stopServer();
+	this->stop = true;
 }
 
 SOCKET Server::initWSASocket() {
@@ -40,6 +40,7 @@ void Server::bindSocket(SOCKET socket) {
 
 	bind(socket, (sockaddr*)&hint, sizeof(hint));
 
+	cout << "Server is bound to port " << Constants::SERVER_PORT << endl;
 }
 
 void Server::listenSocket(SOCKET socket) {
@@ -68,7 +69,11 @@ string Server::receiveData(SOCKET socket) {
 		exit(1);
 	}
 
-	return string(buf, 0, bytesReceived);
+	string received = string(buf, static_cast<size_t>(bytesReceived));
+
+	cout << "Received: " << received;
+
+	return received;
 }
 
 string Server::receiveDataWithTimeout(SOCKET socket, int timeoutInSeconds) {
@@ -96,7 +101,11 @@ void Server::acceptSocket(SOCKET socket) {
 	while (!stop) {
 		SOCKET clientSocket = accept(socket, NULL, NULL);
 
+		cout << "Accepted client" << endl;
+
 		sendRSAKeys(clientSocket);
+
+		cout << "Sent RSA keys" << endl;
 
 		if (clientSocket == INVALID_SOCKET) {
 			cerr << "Can't accept client socket, Err #" << WSAGetLastError() << endl;
