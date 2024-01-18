@@ -1,0 +1,620 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C26439",
+          "message": {
+            "text": "This kind of function should not throw. Declare it 'noexcept' (f.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/cryptlib.h"
+                },
+                "region": {
+                  "startLine": 185,
+                  "startColumn": 11
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "CryptoPP::Exception::{dtor}",
+                  "decoratedName": "??1Exception@CryptoPP@@UEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26439",
+          "message": {
+            "text": "This kind of function should not throw. Declare it 'noexcept' (f.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/cryptlib.h"
+                },
+                "region": {
+                  "startLine": 260,
+                  "startColumn": 11
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "CryptoPP::OS_Error::{dtor}",
+                  "decoratedName": "??1OS_Error@CryptoPP@@UEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'CryptoPP::BufferedTransformation::m_buf' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/cryptlib.h"
+                },
+                "region": {
+                  "startLine": 1662,
+                  "startColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "CryptoPP::BufferedTransformation::{ctor}",
+                  "decoratedName": "??0BufferedTransformation@CryptoPP@@QEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "CryptoPP::BufferedTransformation::m_buf"
+          }
+        },
+        {
+          "ruleId": "C26439",
+          "message": {
+            "text": "This kind of function should not throw. Declare it 'noexcept' (f.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/queue.h"
+                },
+                "region": {
+                  "startLine": 265,
+                  "startColumn": 24
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "std::swap",
+                  "decoratedName": "??$swap@VByteQueue@CryptoPP@@$0A@@std@@YAXAEAVByteQueue@CryptoPP@@0@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'CryptoPP::FixedSizeAllocatorWithCleanup<unsigned __int64,16,CryptoPP::NullAllocator<unsigned __int64>,1>::m_array' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/secblock.h"
+                },
+                "region": {
+                  "startLine": 360,
+                  "startColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "CryptoPP::FixedSizeAllocatorWithCleanup<unsigned __int64,16,CryptoPP::NullAllocator<unsigned __int64>,1>::{ctor}",
+                  "decoratedName": "??0?$FixedSizeAllocatorWithCleanup@_K$0BA@V?$NullAllocator@_K@CryptoPP@@$00@CryptoPP@@QEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "CryptoPP::FixedSizeAllocatorWithCleanup<unsigned __int64,16,CryptoPP::NullAllocator<unsigned __int64>,1>::m_array"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'CryptoPP::FixedSizeAllocatorWithCleanup<unsigned __int64,16,CryptoPP::NullAllocator<unsigned __int64>,0>::m_array' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/secblock.h"
+                },
+                "region": {
+                  "startLine": 584,
+                  "startColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "CryptoPP::FixedSizeAllocatorWithCleanup<unsigned __int64,16,CryptoPP::NullAllocator<unsigned __int64>,0>::{ctor}",
+                  "decoratedName": "??0?$FixedSizeAllocatorWithCleanup@_K$0BA@V?$NullAllocator@_K@CryptoPP@@$0A@@CryptoPP@@QEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "CryptoPP::FixedSizeAllocatorWithCleanup<unsigned __int64,16,CryptoPP::NullAllocator<unsigned __int64>,0>::m_array"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'CryptoPP::FixedSizeAllocatorWithCleanup<unsigned int,16,CryptoPP::NullAllocator<unsigned int>,1>::m_array' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/secblock.h"
+                },
+                "region": {
+                  "startLine": 360,
+                  "startColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "CryptoPP::FixedSizeAllocatorWithCleanup<unsigned int,16,CryptoPP::NullAllocator<unsigned int>,1>::{ctor}",
+                  "decoratedName": "??0?$FixedSizeAllocatorWithCleanup@I$0BA@V?$NullAllocator@I@CryptoPP@@$00@CryptoPP@@QEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "CryptoPP::FixedSizeAllocatorWithCleanup<unsigned int,16,CryptoPP::NullAllocator<unsigned int>,1>::m_array"
+          }
+        },
+        {
+          "ruleId": "C26495",
+          "message": {
+            "text": "Variable 'CryptoPP::FixedSizeAllocatorWithCleanup<unsigned int,16,CryptoPP::NullAllocator<unsigned int>,0>::m_array' is uninitialized. Always initialize a member variable (type.6)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/secblock.h"
+                },
+                "region": {
+                  "startLine": 584,
+                  "startColumn": 2
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "CryptoPP::FixedSizeAllocatorWithCleanup<unsigned int,16,CryptoPP::NullAllocator<unsigned int>,0>::{ctor}",
+                  "decoratedName": "??0?$FixedSizeAllocatorWithCleanup@I$0BA@V?$NullAllocator@I@CryptoPP@@$0A@@CryptoPP@@QEAA@XZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "targetSymbol": "CryptoPP::FixedSizeAllocatorWithCleanup<unsigned int,16,CryptoPP::NullAllocator<unsigned int>,0>::m_array"
+          }
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.38.33130.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/cryptlib.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "12eb02d2bdf953ffd90d0c8ddcaf800dcb3e1890b8f0ea93b533b4087e82785c"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/queue.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "7a223d51a78bea39e6a7bdd02ae58cabfdda561e81e461550d240c47f8bd0264"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///C:/Users/zivsi/Downloads/cryptopp890/secblock.h"
+          },
+          "roles": [
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "7d83f568a249e674772fddeea33d4c1bf7b403a880aac82298ebf4729f597d7d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/source/repos/tornetwork/tornetwork/serverproject/conversationobject.cpp"
+          },
+          "roles": [
+            "analysisTarget"
+          ],
+          "hashes": {
+            "sha-256": "20b23c61b9c6c901313dcd99c5359920575b4c4eecdc24a5ab05f354b975c0c9"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/source/repos/tornetwork/tornetwork/serverproject/conversationobject.h"
+          },
+          "hashes": {
+            "sha-256": "a343103ea0ef60d046cf6b869bba3afe2fd9a83957e55e7ee6a22acd70c29e7f"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/source/repos/tornetwork/tornetwork/serverproject/aeshandler.h"
+          },
+          "hashes": {
+            "sha-256": "469de51b7e7d175170d15678c66adf9dcc310e2b152658749e30d38787c33ff0"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/aes.h"
+          },
+          "hashes": {
+            "sha-256": "fbd98402a8ddab54389a433c5685356bf3d3ad2ae37747c242a593667379a683"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/rijndael.h"
+          },
+          "hashes": {
+            "sha-256": "d82187fd5e08a45a74e9aac8a0b9197856ff879d072cdad8b204e6915fbabb4a"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/seckey.h"
+          },
+          "hashes": {
+            "sha-256": "54204f1ae34214150d0087043c19e25e83abe010837ef214a232891598501cfa"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config.h"
+          },
+          "hashes": {
+            "sha-256": "641a512721c40a6778dfcc143b611c6204f38916bae55d391e2c74c18b70b2f6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_align.h"
+          },
+          "hashes": {
+            "sha-256": "3a3f596ac05567c75b79d736319e561cf5ea01e06573d78bd479fb8673492bb3"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_asm.h"
+          },
+          "hashes": {
+            "sha-256": "b1486213b61a024b0cfe6918d5760ec97d22448a0f280a692ad252df365ee1f3"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_os.h"
+          },
+          "hashes": {
+            "sha-256": "7a876d8032295b3e813dcafd2ea6788c527985c8464273e23d7c4d07c6b5c0c6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_ver.h"
+          },
+          "hashes": {
+            "sha-256": "9a0db3ff548ba011097a62546a03f12aabe3c4a42925bbbb53668ad047bcd095"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_cpu.h"
+          },
+          "hashes": {
+            "sha-256": "0126771f1c78c6532275407261e9c2dd7888e6365ccda0ebb582d936f8c0bbe3"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_cxx.h"
+          },
+          "hashes": {
+            "sha-256": "0a5042e6ea886e2c38a9626585deb1409a56dbcd35a522e877b648fb9042a366"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_dll.h"
+          },
+          "hashes": {
+            "sha-256": "5f5f25287fc9a0bd49230edebaf6377b64f8020aa04d843cdd1a5449dd34c5e4"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_int.h"
+          },
+          "hashes": {
+            "sha-256": "99a41cf87cb25c898fe438f4ba1e9dbe209e652a0328bacc1adf5d6e4ff848b6"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_ns.h"
+          },
+          "hashes": {
+            "sha-256": "c4bc5ebf250efea647afb1873fb89f6b9dc540485f6f569f8b868cd9e8994ef9"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/config_misc.h"
+          },
+          "hashes": {
+            "sha-256": "1918df9919402f747b862bffd1235f4087be76d48d34d4e3b9ee2820ed526823"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/stdcpp.h"
+          },
+          "hashes": {
+            "sha-256": "35f068b2521c8ee31eeb1ea2810a352148a2854f47683363f914be4f090ef750"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/trap.h"
+          },
+          "hashes": {
+            "sha-256": "a82a30348451a7d113ddea392d03b834085802dd05c12c265546d3b90599403f"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/misc.h"
+          },
+          "hashes": {
+            "sha-256": "13de68cfefceff3cc97f980a61b56931cff5bccac9eece0a6d6ab2bc98daa44d"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/secblockfwd.h"
+          },
+          "hashes": {
+            "sha-256": "472e5d0fa333257c3b8254e5fddbcbaa803dae920f65d64542219c0b3b8400cf"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/smartptr.h"
+          },
+          "hashes": {
+            "sha-256": "a2d6f834c9e2890943a203ce7397976d8618e62c3d56f6a6afa456ffdc22e879"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/simple.h"
+          },
+          "hashes": {
+            "sha-256": "41a165d3b4ffce87755b28b878e08503d571558cffe5877b7e00cb84226ef373"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/allocate.h"
+          },
+          "hashes": {
+            "sha-256": "6fbcf40f97fb72c1523bb597d28337623997bc5610f235b9d440b22289b6f970"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/modes.h"
+          },
+          "hashes": {
+            "sha-256": "baf83cebf1be6c734ee84f3012d030dfac3566165cd1698089ae9869eaaaa111"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/strciphr.h"
+          },
+          "hashes": {
+            "sha-256": "afc19eaeb53bdb4f6b5d6650d2e06173023750606376e0c31c19835077c1be8b"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/argnames.h"
+          },
+          "hashes": {
+            "sha-256": "4fa6995e67001c2b744d64e2f7f36629cf489be21f1ff242fbc13da43df59769"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/algparam.h"
+          },
+          "hashes": {
+            "sha-256": "a0c1352f81ca19aee1329e00af0e8e298131851a5449ecd042e370a73d8d09d4"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/integer.h"
+          },
+          "hashes": {
+            "sha-256": "524baaeae6f5d23b9c07c13c3b34f1c89971d40357385a40b6346886f8b40d84"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/filters.h"
+          },
+          "hashes": {
+            "sha-256": "783038cf6411bcddcd92c0b900cbfbb4c9038dbfe828ae8fda444313215cf4a9"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/osrng.h"
+          },
+          "hashes": {
+            "sha-256": "eba8e5d21f62a4b2f4ff0b5b94c93d7b7ff95d54e15dd082f19a1f2cf4e331cb"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/randpool.h"
+          },
+          "hashes": {
+            "sha-256": "1d29d8662ebab0da03dc7782e886df16656549ae7c89983c53d89f4779e6785b"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/fips140.h"
+          },
+          "hashes": {
+            "sha-256": "cb4042de79c44789f6730c331dab5cb2ad6d10730e24557084f363c0daf71f34"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/hkdf.h"
+          },
+          "hashes": {
+            "sha-256": "1ccedcd401635ac077d895f147ef142645ad7216205d4adf46899e35e8222b5b"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/hmac.h"
+          },
+          "hashes": {
+            "sha-256": "f8becd33fc708ac1bbcc1929d34fb0f8f7f7b7592f52bc5d8e985d862c0e8cbb"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/rng.h"
+          },
+          "hashes": {
+            "sha-256": "40f2532cf14e950080bb1ba1383c52a2e5af0ab09779de89524f066735b6fa2b"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/sha.h"
+          },
+          "hashes": {
+            "sha-256": "9d9cb08b466b520a21a9549ce438aba5f4c0479e46240a4c4f9160a930962d7c"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/iterhash.h"
+          },
+          "hashes": {
+            "sha-256": "397298f1eadcfe7165f8b86670a7879641244e7a48aab62fe910dd3fc6eb3ff5"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/hex.h"
+          },
+          "hashes": {
+            "sha-256": "c2d77dcba2ae606bfbe05375435a43e2172b3b036290424d57cf310d12d5d7d1"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/basecode.h"
+          },
+          "hashes": {
+            "sha-256": "00483175aa5484357b4c154f16b8fbaf795f04ae0a9d01da4d503a585c285db7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/downloads/cryptopp890/base64.h"
+          },
+          "hashes": {
+            "sha-256": "3a3a539c8f3ba7d6d8fdec4a2fb6fa9bb7cc4d4e735d25c527cf21dcfd64bafa"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/zivsi/source/repos/tornetwork/tornetwork/serverproject/constants.h"
+          },
+          "hashes": {
+            "sha-256": "8509db5c850f5c39d5e12c140f8461e3efd9413c878e745dc0913a31ff39871a"
+          }
+        }
+      ]
+    }
+  ]
+}

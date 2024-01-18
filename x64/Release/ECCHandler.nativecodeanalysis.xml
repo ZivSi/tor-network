@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>cryptlib.h</FILENAME>
+      <LINE>185</LINE>
+      <COLUMN>10</COLUMN>
+    </SFA>
+    <DEFECTCODE>26439</DEFECTCODE>
+    <DESCRIPTION>This kind of function should not throw. Declare it 'noexcept' (f.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::Exception::{dtor}</FUNCTION>
+    <DECORATED>??1Exception@CryptoPP@@UEAA@XZ</DECORATED>
+    <FUNCLINE>185</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>cryptlib.h</FILENAME>
+      <LINE>260</LINE>
+      <COLUMN>10</COLUMN>
+    </SFA>
+    <DEFECTCODE>26439</DEFECTCODE>
+    <DESCRIPTION>This kind of function should not throw. Declare it 'noexcept' (f.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::OS_Error::{dtor}</FUNCTION>
+    <DECORATED>??1OS_Error@CryptoPP@@UEAA@XZ</DECORATED>
+    <FUNCLINE>260</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>cryptlib.h</FILENAME>
+      <LINE>1662</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::BufferedTransformation::m_buf' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::BufferedTransformation::{ctor}</FUNCTION>
+    <DECORATED>??0BufferedTransformation@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>1662</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::BufferedTransformation::m_buf</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>queue.h</FILENAME>
+      <LINE>265</LINE>
+      <COLUMN>23</COLUMN>
+    </SFA>
+    <DEFECTCODE>26439</DEFECTCODE>
+    <DESCRIPTION>This kind of function should not throw. Declare it 'noexcept' (f.6).</DESCRIPTION>
+    <FUNCTION>std::swap</FUNCTION>
+    <DECORATED>??$swap@VByteQueue@CryptoPP@@$0A@@std@@YAXAEAVByteQueue@CryptoPP@@0@Z</DECORATED>
+    <FUNCLINE>265</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>gf2n.h</FILENAME>
+      <LINE>393</LINE>
+      <COLUMN>23</COLUMN>
+    </SFA>
+    <DEFECTCODE>26439</DEFECTCODE>
+    <DESCRIPTION>This kind of function should not throw. Declare it 'noexcept' (f.6).</DESCRIPTION>
+    <FUNCTION>std::swap</FUNCTION>
+    <DECORATED>??$swap@VPolynomialMod2@CryptoPP@@$0A@@std@@YAXAEAVPolynomialMod2@CryptoPP@@0@Z</DECORATED>
+    <FUNCLINE>393</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\</FILEPATH>
+      <FILENAME>ECCHandler.cpp</FILENAME>
+      <LINE>71</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>26444</DEFECTCODE>
+    <DESCRIPTION>Don't try to declare a local variable with no name (es.84).</DESCRIPTION>
+    <FUNCTION>ECCHandler::encrypt</FUNCTION>
+    <DECORATED>?encrypt@ECCHandler@@SA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV23@PEAV?$PK_FinalTemplate@V?$DL_EncryptorImpl@U?$DL_CryptoSchemeOptions@U?$ECIES@VECP@CryptoPP@@VSHA1@2@U?$EnumToType@W4CofactorMultiplicationOption@CryptoPP@@$0A@@2@$00$0A@@CryptoPP@@U?$DL_Keys_EC@VECP@CryptoPP@@@2@V?$DL_KeyAgreementAlgorithm_DH@UECPPoint@CryptoPP@@U?$EnumToType@W4CofactorMultiplicationOption@CryptoPP@@$0A@@2@@2@V?$DL_KeyDerivationAlgorithm_P1363@UECPPoint@CryptoPP@@$00V?$P1363_KDF2@VSHA1@CryptoPP@@@2@@2@V?$DL_EncryptionAlgorithm_Xor@V?$HMAC@VSHA1@CryptoPP@@@CryptoPP@@$00$0A@@2@@CryptoPP@@@CryptoPP@@@CryptoPP@@PEAVAutoSeededRandomPool@5@@Z</DECORATED>
+    <FUNCLINE>67</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\</FILEPATH>
+      <FILENAME>ECCHandler.cpp</FILENAME>
+      <LINE>84</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>26444</DEFECTCODE>
+    <DESCRIPTION>Don't try to declare a local variable with no name (es.84).</DESCRIPTION>
+    <FUNCTION>ECCHandler::decrypt</FUNCTION>
+    <DECORATED>?decrypt@ECCHandler@@SA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV23@PEAV?$PK_FinalTemplate@V?$DL_DecryptorImpl@U?$DL_CryptoSchemeOptions@U?$ECIES@VECP@CryptoPP@@VSHA1@2@U?$EnumToType@W4CofactorMultiplicationOption@CryptoPP@@$0A@@2@$00$0A@@CryptoPP@@U?$DL_Keys_EC@VECP@CryptoPP@@@2@V?$DL_KeyAgreementAlgorithm_DH@UECPPoint@CryptoPP@@U?$EnumToType@W4CofactorMultiplicationOption@CryptoPP@@$0A@@2@@2@V?$DL_KeyDerivationAlgorithm_P1363@UECPPoint@CryptoPP@@$00V?$P1363_KDF2@VSHA1@CryptoPP@@@2@@2@V?$DL_EncryptionAlgorithm_Xor@V?$HMAC@VSHA1@CryptoPP@@@CryptoPP@@$00$0A@@2@@CryptoPP@@@CryptoPP@@@CryptoPP@@PEAVAutoSeededRandomPool@5@@Z</DECORATED>
+    <FUNCLINE>80</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>algebra.h</FILENAME>
+      <LINE>238</LINE>
+      <COLUMN>0</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::AbstractRing&lt;CryptoPP::PolynomialMod2&gt;::MultiplicativeGroupT::m_pRing' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::AbstractRing&lt;CryptoPP::PolynomialMod2&gt;::MultiplicativeGroupT::{ctor}</FUNCTION>
+    <DECORATED>??0MultiplicativeGroupT@?$AbstractRing@VPolynomialMod2@CryptoPP@@@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>238</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::AbstractRing&lt;CryptoPP::PolynomialMod2&gt;::MultiplicativeGroupT::m_pRing</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>algebra.h</FILENAME>
+      <LINE>238</LINE>
+      <COLUMN>0</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::AbstractRing&lt;CryptoPP::Integer&gt;::MultiplicativeGroupT::m_pRing' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::AbstractRing&lt;CryptoPP::Integer&gt;::MultiplicativeGroupT::{ctor}</FUNCTION>
+    <DECORATED>??0MultiplicativeGroupT@?$AbstractRing@VInteger@CryptoPP@@@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>238</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::AbstractRing&lt;CryptoPP::Integer&gt;::MultiplicativeGroupT::m_pRing</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>secblock.h</FILENAME>
+      <LINE>360</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,1&gt;::m_array' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,1&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$FixedSizeAllocatorWithCleanup@_K$0BA@V?$NullAllocator@_K@CryptoPP@@$00@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>360</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,1&gt;::m_array</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>secblock.h</FILENAME>
+      <LINE>584</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,0&gt;::m_array' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,0&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$FixedSizeAllocatorWithCleanup@_K$0BA@V?$NullAllocator@_K@CryptoPP@@$0A@@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>584</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,0&gt;::m_array</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>secblock.h</FILENAME>
+      <LINE>360</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,1&gt;::m_array' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,1&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$FixedSizeAllocatorWithCleanup@I$0BA@V?$NullAllocator@I@CryptoPP@@$00@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>360</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,1&gt;::m_array</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>secblock.h</FILENAME>
+      <LINE>584</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,0&gt;::m_array' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,0&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$FixedSizeAllocatorWithCleanup@I$0BA@V?$NullAllocator@I@CryptoPP@@$0A@@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>584</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,0&gt;::m_array</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>
