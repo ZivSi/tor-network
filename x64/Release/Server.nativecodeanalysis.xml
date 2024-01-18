@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>cryptlib.h</FILENAME>
+      <LINE>185</LINE>
+      <COLUMN>10</COLUMN>
+    </SFA>
+    <DEFECTCODE>26439</DEFECTCODE>
+    <DESCRIPTION>This kind of function should not throw. Declare it 'noexcept' (f.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::Exception::{dtor}</FUNCTION>
+    <DECORATED>??1Exception@CryptoPP@@UEAA@XZ</DECORATED>
+    <FUNCLINE>185</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>cryptlib.h</FILENAME>
+      <LINE>260</LINE>
+      <COLUMN>10</COLUMN>
+    </SFA>
+    <DEFECTCODE>26439</DEFECTCODE>
+    <DESCRIPTION>This kind of function should not throw. Declare it 'noexcept' (f.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::OS_Error::{dtor}</FUNCTION>
+    <DECORATED>??1OS_Error@CryptoPP@@UEAA@XZ</DECORATED>
+    <FUNCLINE>260</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>cryptlib.h</FILENAME>
+      <LINE>1662</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::BufferedTransformation::m_buf' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::BufferedTransformation::{ctor}</FUNCTION>
+    <DECORATED>??0BufferedTransformation@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>1662</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::BufferedTransformation::m_buf</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>queue.h</FILENAME>
+      <LINE>265</LINE>
+      <COLUMN>23</COLUMN>
+    </SFA>
+    <DEFECTCODE>26439</DEFECTCODE>
+    <DESCRIPTION>This kind of function should not throw. Declare it 'noexcept' (f.6).</DESCRIPTION>
+    <FUNCTION>std::swap</FUNCTION>
+    <DECORATED>??$swap@VByteQueue@CryptoPP@@$0A@@std@@YAXAEAVByteQueue@CryptoPP@@0@Z</DECORATED>
+    <FUNCLINE>265</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>gf2n.h</FILENAME>
+      <LINE>393</LINE>
+      <COLUMN>23</COLUMN>
+    </SFA>
+    <DEFECTCODE>26439</DEFECTCODE>
+    <DESCRIPTION>This kind of function should not throw. Declare it 'noexcept' (f.6).</DESCRIPTION>
+    <FUNCTION>std::swap</FUNCTION>
+    <DECORATED>??$swap@VPolynomialMod2@CryptoPP@@$0A@@std@@YAXAEAVPolynomialMod2@CryptoPP@@0@Z</DECORATED>
+    <FUNCLINE>393</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\</FILEPATH>
+      <FILENAME>Server.cpp</FILENAME>
+      <LINE>3</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Server::stop' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Server::{ctor}</FUNCTION>
+    <DECORATED>??0Server@@QEAA@XZ</DECORATED>
+    <FUNCLINE>3</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Server::stop</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\</FILEPATH>
+      <FILENAME>Server.cpp</FILENAME>
+      <LINE>3</LINE>
+      <COLUMN>8</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Server::serverSocket' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Server::{ctor}</FUNCTION>
+    <DECORATED>??0Server@@QEAA@XZ</DECORATED>
+    <FUNCLINE>3</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>Server::serverSocket</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>algebra.h</FILENAME>
+      <LINE>238</LINE>
+      <COLUMN>0</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::AbstractRing&lt;CryptoPP::PolynomialMod2&gt;::MultiplicativeGroupT::m_pRing' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::AbstractRing&lt;CryptoPP::PolynomialMod2&gt;::MultiplicativeGroupT::{ctor}</FUNCTION>
+    <DECORATED>??0MultiplicativeGroupT@?$AbstractRing@VPolynomialMod2@CryptoPP@@@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>238</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::AbstractRing&lt;CryptoPP::PolynomialMod2&gt;::MultiplicativeGroupT::m_pRing</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>algebra.h</FILENAME>
+      <LINE>238</LINE>
+      <COLUMN>0</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::AbstractRing&lt;CryptoPP::Integer&gt;::MultiplicativeGroupT::m_pRing' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::AbstractRing&lt;CryptoPP::Integer&gt;::MultiplicativeGroupT::{ctor}</FUNCTION>
+    <DECORATED>??0MultiplicativeGroupT@?$AbstractRing@VInteger@CryptoPP@@@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>238</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::AbstractRing&lt;CryptoPP::Integer&gt;::MultiplicativeGroupT::m_pRing</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>secblock.h</FILENAME>
+      <LINE>360</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,1&gt;::m_array' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,1&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$FixedSizeAllocatorWithCleanup@_K$0BA@V?$NullAllocator@_K@CryptoPP@@$00@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>360</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,1&gt;::m_array</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>secblock.h</FILENAME>
+      <LINE>584</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,0&gt;::m_array' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,0&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$FixedSizeAllocatorWithCleanup@_K$0BA@V?$NullAllocator@_K@CryptoPP@@$0A@@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>584</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned __int64,16,CryptoPP::NullAllocator&lt;unsigned __int64&gt;,0&gt;::m_array</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>secblock.h</FILENAME>
+      <LINE>360</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,1&gt;::m_array' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,1&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$FixedSizeAllocatorWithCleanup@I$0BA@V?$NullAllocator@I@CryptoPP@@$00@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>360</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,1&gt;::m_array</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\zivsi\Downloads\cryptopp890\</FILEPATH>
+      <FILENAME>secblock.h</FILENAME>
+      <LINE>584</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,0&gt;::m_array' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,0&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$FixedSizeAllocatorWithCleanup@I$0BA@V?$NullAllocator@I@CryptoPP@@$0A@@CryptoPP@@QEAA@XZ</DECORATED>
+    <FUNCLINE>584</FUNCLINE>
+    <ADDITIONALINFO>
+      <targetSymbol>CryptoPP::FixedSizeAllocatorWithCleanup&lt;unsigned int,16,CryptoPP::NullAllocator&lt;unsigned int&gt;,0&gt;::m_array</targetSymbol>
+    </ADDITIONALINFO>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>
