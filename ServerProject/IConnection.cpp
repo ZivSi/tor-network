@@ -1,19 +1,14 @@
 #include "IConnection.h"
 
-IConnection::IConnection(string ip, unsigned short port, bool isServer, Logger logger) : logger(logger) {
+IConnection::IConnection(string ip, unsigned short port, Logger logger) : logger(logger) {
 	this->ip = ip;
 	this->port = port;
-	this->isServer = isServer;
 
-	if (isServer) {
-		connection = initWSASocket();
-		bindSocket(connection);
-		listenSocket(connection);
-		acceptSocket(connection);
-	}
-	else {
-		connection = initWSASocket();
-	}
+
+	connection = initWSASocket();
+	bindSocket(connection);
+	listenSocket(connection);
+	acceptSocket(connection);
 }
 
 IConnection::~IConnection()
@@ -128,9 +123,4 @@ unsigned short IConnection::getPort()
 string IConnection::getIP()
 {
 	return ip;
-}
-
-bool IConnection::isServerConnection()
-{
-	return isServer;
 }

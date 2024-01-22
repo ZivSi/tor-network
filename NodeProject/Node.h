@@ -6,6 +6,7 @@
 #include "Constants.h"
 #include "Utility.h"
 #include "Logger.h"
+#include "IConnection.h"
 
 #include <iostream>
 #include <string>

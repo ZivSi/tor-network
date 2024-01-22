@@ -1,6 +1,6 @@
 #include "Server.h"
 
-Server::Server() : logger("Server"), IConnection("127.0.0.1", SERVER_PORT, true, logger) {
+Server::Server() : logger("Server"), IConnection("127.0.0.1", SERVER_PORT, logger) {
 }
 
 void Server::startServer() {
