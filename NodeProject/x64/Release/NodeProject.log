@@ -16,18 +16,17 @@ C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObje
   RSAHandler.cpp
   StatsData.cpp
   Utility.cpp
+  main.cpp
   Node.cpp
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(82,32): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(96,29): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(161,28): warning C4566: character represented by universal-character-name '\u256C' cannot be represented in the current code page (1252)
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(364,43): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(377,37): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-  main.cpp
   sqlite3.c
   Generating code
+  Previous IPDB not found, fall back to full compilation.
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(298): warning C4715: 'Node::connectToParent': not all control paths return a value
-  15 of 4396 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    73 functions had inline decision re-evaluated but remain unchanged
+  All 4396 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
   NodeProject.vcxproj -> C:\Users\zivsi\source\repos\TorNetwork\x64\Release\NodeProject.exe

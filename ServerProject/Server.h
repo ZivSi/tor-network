@@ -21,6 +21,7 @@
 #include <WinSock2.h>
 #include <winsock2.h>
 #include <WS2tcpip.h>
+#include "IConnection.h"
 
 
 #pragma comment(lib, "Ws2_32.lib")
@@ -36,7 +37,7 @@ using std::mutex;
 
 using namespace Constants;
 
-class Server {
+class Server : IConnection {
 public:
 	Server();
 	~Server();
@@ -48,7 +49,6 @@ public:
 	void initializeNodes(vector<NodeData*> nodes);
 
 private:
-	SOCKET serverSocket;
 	bool stop;
 	ECCHandler eccHandler;
 
@@ -59,20 +59,12 @@ private:
 
 	NodeData EMPTY_NODE;
 
-	SOCKET initWSASocket();
-	void bindSocket(SOCKET socket);
-	void listenSocket(SOCKET socket);
-	void acceptSocket(SOCKET socket);
-
-	void sendData(SOCKET clientSocket, string data);
-	string receiveData(SOCKET clientSocket);
+	void acceptSocket(SOCKET socket) override;
+	void handleConnection(SOCKET clientSocket) override;
 
 	string decrypt(string encrypted);
 
-	void handleConnection(SOCKET clientSocket);
-
 	void sendECCKeys(SOCKET clientSocket);
-	string receiveKeys(SOCKET clientSocket);
 	string receiveECCKeys(SOCKET clientSocket);
 	string receiveAESKey(SOCKET clientSocket);
 

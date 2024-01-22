@@ -1,19 +1,12 @@
 #include "Server.h"
 
-Server::Server() : logger("Server") {
+Server::Server() : logger("Server"), IConnection("127.0.0.1", SERVER_PORT, true, logger) {
 }
 
 void Server::startServer() {
-	this->serverSocket = initWSASocket();
-	bindSocket(this->serverSocket);
-
-	logger.log("Server is bound to port " + to_string(Constants::SERVER_PORT));
-
-	listenSocket(this->serverSocket);
-
 	logger.log("Server is listening on port " + to_string(Constants::SERVER_PORT));
 
-	thread acceptInThread(&Server::acceptSocket, this, this->serverSocket);
+	thread acceptInThread(&Server::acceptSocket, this, getSocket());
 	acceptInThread.detach();
 
 	logger.log("Server is accepting clients");
@@ -31,52 +24,12 @@ void Server::stopServer() {
 Server::~Server() {
 	this->stop = true;
 
-	closesocket(this->serverSocket);
+	closesocket(getSocket());
 	WSACleanup();
 
 	cout << "Server closed" << endl;
 }
 
-SOCKET Server::initWSASocket() {
-	WSADATA wsaData;
-	WORD version = MAKEWORD(2, 2);
-	int wsaResult = WSAStartup(version, &wsaData);
-
-	if (wsaResult != 0) {
-		cerr << "Can't start Winsock, Err #" << wsaResult << endl;
-		exit(1);
-	}
-
-	SOCKET listening = socket(AF_INET, SOCK_STREAM, 0);
-	if (listening == INVALID_SOCKET) {
-		cerr << "Can't create a socket, Err #" << WSAGetLastError() << endl;
-		exit(1);
-	}
-
-	return listening;
-}
-
-void Server::bindSocket(SOCKET socket) {
-	sockaddr_in hint;
-	hint.sin_family = AF_INET;
-	hint.sin_port = htons(Constants::SERVER_PORT);
-	hint.sin_addr.S_un.S_addr = INADDR_ANY;
-
-	bind(socket, (sockaddr*)&hint, sizeof(hint));
-}
-
-void Server::listenSocket(SOCKET socket) {
-	if (socket == INVALID_SOCKET) {
-		logger.error("Can't create a socket, Err #" + WSAGetLastError());
-		exit(1);
-	}
-
-	int listening = listen(socket, SOMAXCONN);
-	if (listening == SOCKET_ERROR) {
-		logger.error("Can't listen on socket, Err #" + WSAGetLastError());
-		exit(1);
-	}
-}
 
 void Server::acceptSocket(SOCKET socket) {
 	while (!stop) {
@@ -109,27 +62,6 @@ void Server::sendECCKeys(SOCKET clientSocket)
 	logger.log("Sent public key");
 }
 
-string Server::receiveKeys(SOCKET clientSocket)
-{
-	int dataSize = 0;
-
-	// First, receive the size of the data
-	recv(clientSocket, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
-
-	// Allocate a buffer to store the received data
-	char* buffer = new char[dataSize];
-
-	// Receive the key
-	recv(clientSocket, buffer, dataSize, 0);
-
-	// Create a string from the received data
-	string keysStr(buffer, dataSize);
-
-	delete[] buffer;
-
-
-	return keysStr;
-}
 
 string Server::receiveECCKeys(SOCKET clientSocket)
 {
@@ -206,7 +138,8 @@ void Server::handleConnection(SOCKET clientSocket)
 		logger.success("Node's format is valid!");
 
 		vector<string> parts = Utility::splitString(decrypted, SPLITER);
-		unsigned short port = stoi(parts[0]);
+		unsigned short port = static_cast<unsigned short>(stoi(parts[0]));
+
 		// string eccPublicKey = parts[1]; we don't need it, we already have it
 
 		NodeData* node = getNodeInVector(port);
@@ -235,37 +168,6 @@ void Server::handleConnection(SOCKET clientSocket)
 	}
 }
 
-void Server::sendData(SOCKET clientSocket, string data) {
-	size_t sendResult = send(clientSocket, data.c_str(), data.size() + 1, 0);
-
-	if (sendResult == SOCKET_ERROR) {
-		cerr << "Can't send data to client, Err #" << WSAGetLastError() << endl;
-		exit(1);
-	}
-}
-
-string Server::receiveData(SOCKET clientSocket)
-{
-	size_t dataSize = 0;
-
-	// First, receive the size of the data
-	recv(clientSocket, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
-
-	// Allocate a buffer to store the received data
-	char* buffer = new char[dataSize];
-
-	// Receive the key
-	recv(clientSocket, buffer, dataSize, 0);
-
-	// Create a string from the received data
-	string data(buffer, dataSize);
-
-	delete[] buffer;
-
-
-	return data;
-
-}
 
 string Server::decrypt(string encrypted) {
 	return eccHandler.decrypt(encrypted);
@@ -287,7 +189,7 @@ bool Server::isValidFormat(string data) {
 		return false;
 	}
 
-	unsigned short port = stoi(parts[PORT]);
+	unsigned short port = static_cast<unsigned short>(stoi(parts[PORT]));
 	string eccPublicKey = parts[ECC_PUBLIC_KEY];
 
 	if (!Utility::isValidECCPublicKey(eccPublicKey)) {
