@@ -1,4 +1,5 @@
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\AesHandler.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\AesHandler.obj
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\ClientConnection.obj
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\Constants.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\Constants.obj
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\ConversationObject.obj
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\DatabaseHelper.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\DatabaseHelper.obj

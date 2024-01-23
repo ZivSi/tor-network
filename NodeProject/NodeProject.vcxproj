@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerProject\AesHandler.cpp" />
+    <ClCompile Include="..\ServerProject\ClientConnection.cpp" />
     <ClCompile Include="..\ServerProject\Constants.cpp" />
     <ClCompile Include="..\ServerProject\ConversationObject.cpp" />
     <ClCompile Include="..\ServerProject\DatabaseHelper.cpp" />
@@ -151,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerProject\AesHandler.h" />
+    <ClInclude Include="..\ServerProject\ClientConnection.h" />
     <ClInclude Include="..\ServerProject\Constants.h" />
     <ClInclude Include="..\ServerProject\ConversationObject.h" />
     <ClInclude Include="..\ServerProject\DatabaseHelper.h" />

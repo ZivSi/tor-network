@@ -1,13 +1,9 @@
-﻿  main.cpp
-  Node.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(82,32): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(96,29): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(161,28): warning C4566: character represented by universal-character-name '\u256C' cannot be represented in the current code page (1252)
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(364,43): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(377,37): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+﻿  ClientConnection.cpp
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(82,32): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(101,27): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   Generating code
-  0 of 4396 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  4 of 4420 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    79 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   NodeProject.vcxproj -> C:\Users\zivsi\source\repos\TorNetwork\x64\Release\NodeProject.exe

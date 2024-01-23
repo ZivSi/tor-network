@@ -5,6 +5,10 @@ unsigned short Node::PORT = SERVER_PORT + 1;
 
 Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false)
 {
+	myPort = Node::PORT;
+	Node::PORT += 1;
+
+	this->parentConnection = new ClientConnection("127.0.0.1", SERVER_PORT, logger);
 }
 
 Node::~Node()
@@ -256,59 +260,26 @@ void Node::runMyServer(unsigned short port)
 	t.detach();
 }
 
-SOCKET Node::connectToParent(string parentIp, unsigned short parentPort, bool repeat = true)
+ClientConnection* Node::connectToParent(string parentIp, unsigned short parentPort, bool repeat = true)
 {
-	while (repeat) {
-		SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-		if (clientSocket == -1) {
-			logger.error("Error creating socket");
+	parentConnection->closeConnection();
+	this->parentConnection = new ClientConnection("127.0.0.1", SERVER_PORT, logger);
 
-			closesocket(clientSocket);
-
-			Sleep(1000);
-
-			logger.log("Trying again...");
-
-			continue;
-		}
-
-		// Set up server information
-		struct sockaddr_in serverAddress;
-		serverAddress.sin_family = AF_INET;
-		serverAddress.sin_port = htons(SERVER_PORT);
-		inet_pton(AF_INET, parentIp.c_str(), &serverAddress.sin_addr);
-
-		// Connect to the server
-		if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
-			logger.error("Error creating socket");
-
-			closesocket(clientSocket);
-
-			Sleep(3000);
-
-			logger.log("Trying again...");
-
-			continue;
-		}
-
-		logger.log("Connected to parent");
-
-		return clientSocket;
-	}
+	return this->parentConnection;
 }
 
-
-void Node::handshake(SOCKET parentSocket)
+void Node::handshake(ClientConnection* parentConnection)
 {
 	// the data should be in the format of:
 	// Port:publickey:CurrentTime:serializedKey:randomNonPrimeNumber:number that make(random % (number – port) == 1:hashOfText + PEPPER : hashOfText + PEPPER2
 
-	string receivedECCKeys = this->receiveECCKeys(this->parentSocket);
+	string receivedECCKeys = parentConnection->receiveKeys();
 	logger.keysInfo("Received server's ECC key");
 
-	sendECCKeys(parentSocket);
+	// Send ECC
+	parentConnection->sendKeys(eccHandler.serializeKey());
 
-	sendAESKeys(parentSocket, receivedECCKeys);
+	sendAESKeys(parentConnection, receivedECCKeys);
 
 	unsigned long int nonPrime = Utility::generateNonPrime();
 	unsigned long int modulusBase = Utility::findModuloBase(nonPrime, myPort);
@@ -322,7 +293,7 @@ void Node::handshake(SOCKET parentSocket)
 
 	string encryptedData = aesHandler.encrypt(formattedData);
 
-	sendData(encryptedData, parentSocket);
+	parentConnection->sendData(encryptedData);
 }
 
 void Node::sendAlive()
@@ -331,11 +302,11 @@ void Node::sendAlive()
 		Sleep(MAX_TIME_ALIVE / 3);
 
 		try {
-			this->parentSocket = this->connectToParent("127.0.0.1", SERVER_PORT);
+			parentConnection = this->connectToParent("127.0.0.1", SERVER_PORT);
 
-			this->handshake(this->parentSocket);
+			this->handshake(parentConnection);
 
-			closesocket(this->parentSocket);
+			parentConnection->closeConnection();
 		}
 		catch (Exception) {
 			logger.error("Error in sendAlive (probably handshake)");
@@ -343,7 +314,7 @@ void Node::sendAlive()
 	}
 }
 
-void Node::sendAESKeys(SOCKET clientSocket, string receivedECCKeys)
+void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys)
 {
 	cout << "Server's public key is: " << receivedECCKeys << endl;
 	ECCHandler serverECCHandler(receivedECCKeys);
@@ -351,17 +322,9 @@ void Node::sendAESKeys(SOCKET clientSocket, string receivedECCKeys)
 	string keysStr = aesHandler.formatKeyForSending(aesHandler.getKey());
 	keysStr += aesHandler.formatKeyForSending(aesHandler.getIv());
 
-	string keyToString = AesHandler::SecByteBlockToString(aesHandler.getKey());
-	string ivToString = AesHandler::SecByteBlockToString(aesHandler.getIv());
-
-
 	string encryptedKeys = serverECCHandler.encrypt(keysStr);
 
-	size_t dataSize = encryptedKeys.size();
-
-	send(clientSocket, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
-
-	send(clientSocket, encryptedKeys.data(), dataSize, 0);
+	parentConnection->sendData(encryptedKeys);
 
 	logger.keysInfo("Sent symmetric key (AES)");
 }

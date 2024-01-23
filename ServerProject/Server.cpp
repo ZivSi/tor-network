@@ -100,7 +100,7 @@ void Server::handleConnection(SOCKET clientSocket)
 		}
 		catch (Exception e) {
 			logger.error("Error in eccHandler.decrypt");
-			cout << e.what() << endl;
+			cout << e.what() << ": " << receivedAES << endl;
 			return;
 		}
 

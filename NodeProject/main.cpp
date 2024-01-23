@@ -1,8 +1,6 @@
 #include <iostream>
 #include "Node.h"
 
-using std::thread;
-
 
 int main()
 {

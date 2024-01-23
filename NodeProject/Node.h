@@ -6,14 +6,14 @@
 #include "Constants.h"
 #include "Utility.h"
 #include "Logger.h"
-#include "IConnection.h"
+#include "ClientConnection.h"
 
 #include <iostream>
 #include <string>
 #include <vector>
 #include <thread>
 #include <mutex>
-#include<xstring>
+#include <xstring>
 
 // Encryptor
 #include <cryptlib.h>
@@ -78,7 +78,7 @@ private:
 	/*
 	* The socket of the parent server
 	*/
-	SOCKET parentSocket;
+	ClientConnection* parentConnection; // TODO
 
 
 	SOCKET initWSASocket();
@@ -89,7 +89,7 @@ private:
 	* Set actions to perform when new connection is made
 	*/
 	void acceptSocket(SOCKET socket);
-	SOCKET connectToParent(string parentIp, unsigned short parentPort, bool repeat);
+	ClientConnection* connectToParent(string parentIp, unsigned short parentPort, bool repeat);
 
 	/*
 	* Handle node or client connected
@@ -109,12 +109,12 @@ private:
 	/*
 	* With parent. Send formatted alive message
 	*/
-	void handshake(SOCKET parentSocket);
+	void handshake(ClientConnection* parentConnection);
 
 	void sendAlive();
 	void sendData(string data, SOCKET connection);
 	void sendECCKeys(SOCKET clientSocket);
-	void sendAESKeys(SOCKET clientSocket, string receivedECCKeys);
+	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
 
 	string receiveData(SOCKET clientSocket);
 	string receiveKeys(SOCKET clientSocket);
