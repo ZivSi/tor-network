@@ -80,13 +80,13 @@ void Server::handleConnection(SOCKET clientSocket)
 		logger.keysInfo("Sent ECC keys to the client");
 
 
-		string eccKeys = this->receiveECCKeys(clientSocket);
-		logger.keysInfo("Received ECC keys from client: " + eccKeys);
+		string receivedECCKeys = this->receiveECCKeys(clientSocket);
+		logger.keysInfo("Received ECC keys from client: " + receivedECCKeys);
 
 
-		string receivedAES;
+		string receivedAESKeys;
 		try {
-			receivedAES = this->receiveAESKey(clientSocket);
+			receivedAESKeys = this->receiveAESKey(clientSocket);
 			logger.keysInfo("Received AES keys from client");
 		}
 		catch (Exception) {
@@ -94,13 +94,13 @@ void Server::handleConnection(SOCKET clientSocket)
 			return;
 		}
 
-		string aesKeys;
+		string decryptedAESKeys;
 		try {
-			aesKeys = eccHandler.decrypt(receivedAES);
+			decryptedAESKeys = eccHandler.decrypt(receivedAESKeys);
 		}
 		catch (Exception e) {
 			logger.error("Error in eccHandler.decrypt");
-			cout << e.what() << ": " << receivedAES << endl;
+			cout << e.what() << ": " << receivedAESKeys << endl;
 			return;
 		}
 
@@ -108,8 +108,8 @@ void Server::handleConnection(SOCKET clientSocket)
 		string extractedAes = "";
 		string extractedIv = "";
 
-		Utility::extractAESKey(aesKeys, extractedAes);
-		Utility::extractAESIv(aesKeys, extractedIv);
+		Utility::extractAESKey(decryptedAESKeys, extractedAes);
+		Utility::extractAESIv(decryptedAESKeys, extractedIv);
 
 		SecByteBlock aesKey = AesHandler::StringToSecByteBlock(extractedAes);
 		SecByteBlock aesIv = AesHandler::StringToSecByteBlock(extractedIv);
@@ -146,7 +146,7 @@ void Server::handleConnection(SOCKET clientSocket)
 
 		if (*node == EMPTY_NODE) {
 			aliveNodesMutex.lock();
-			this->aliveNodes.push_back(new NodeData(port, eccKeys, Utility::capture_time(), 1, 0));
+			this->aliveNodes.push_back(new NodeData(port, receivedECCKeys, Utility::capture_time(), 1, 0));
 			aliveNodesMutex.unlock();
 
 			closesocket(clientSocket);
@@ -164,7 +164,6 @@ void Server::handleConnection(SOCKET clientSocket)
 		logger.error("Error in handleConnection(). Quitting");
 
 		closesocket(clientSocket);
-		return;
 	}
 }
 
