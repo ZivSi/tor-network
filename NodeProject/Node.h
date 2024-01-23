@@ -7,6 +7,7 @@
 #include "Utility.h"
 #include "Logger.h"
 #include "ClientConnection.h"
+#include "IConnection.h"
 
 #include <iostream>
 #include <string>
@@ -37,7 +38,7 @@ using CryptoPP::ECIES;
 using namespace Constants;
 
 
-class Node
+class Node : public IConnection
 {
 public:
 	Node();
@@ -47,11 +48,6 @@ public:
 	* Run server with increase of the PORT (Choose this to start the server)
 	*/
 	void start();
-
-	/*
-	* Bind listen and accept in detached method
-	*/
-	void runMyServer(unsigned short port);
 
 private:
 	/*
@@ -78,17 +74,12 @@ private:
 	/*
 	* The socket of the parent server
 	*/
-	ClientConnection* parentConnection; // TODO
-
-
-	SOCKET initWSASocket();
-	void bindSocket(SOCKET socket);
-	void listenSocket(SOCKET socket);
+	ClientConnection* parentConnection;
 
 	/*
 	* Set actions to perform when new connection is made
 	*/
-	void acceptSocket(SOCKET socket);
+	void acceptSocket(SOCKET socket) override;
 	ClientConnection* connectToParent(string parentIp, unsigned short parentPort, bool repeat);
 
 	/*
@@ -96,7 +87,7 @@ private:
 	* If client - receive AES, generate conversation ID and perform handshake
 	* If node - extract current conversation id, decrypt, send
 	*/
-	void handleClient(SOCKET clientSocket);
+	void handleClient(SOCKET clientSocket) override;
 
 
 	/*
@@ -110,15 +101,8 @@ private:
 	* With parent. Send formatted alive message
 	*/
 	void handshake(ClientConnection* parentConnection);
-
-	void sendAlive();
-	void sendData(string data, SOCKET connection);
-	void sendECCKeys(SOCKET clientSocket);
 	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
 
-	string receiveData(SOCKET clientSocket);
-	string receiveKeys(SOCKET clientSocket);
-	string receiveECCKeys(SOCKET clientSocket);
-	string receiveAESKey(SOCKET clientSocket);
+	void sendAlive();
 };
 

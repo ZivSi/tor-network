@@ -60,7 +60,7 @@ private:
 	NodeData EMPTY_NODE;
 
 	void acceptSocket(SOCKET socket) override;
-	void handleConnection(SOCKET clientSocket) override;
+	void handleClient(SOCKET clientSocket) override;
 
 	string decrypt(string encrypted);
 

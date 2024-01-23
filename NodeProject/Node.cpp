@@ -3,7 +3,7 @@
 // Port variable
 unsigned short Node::PORT = SERVER_PORT + 1;
 
-Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false)
+Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false), IConnection("127.0.0.1", Node::PORT, logger)
 {
 	myPort = Node::PORT;
 	Node::PORT += 1;
@@ -15,50 +15,6 @@ Node::~Node()
 {
 }
 
-
-SOCKET Node::initWSASocket() {
-	WSADATA wsaData;
-	WORD version = MAKEWORD(2, 2);
-	int wsaResult = WSAStartup(version, &wsaData);
-
-	if (wsaResult != 0) {
-		cerr << "Can't start Winsock, Err #" << wsaResult << endl;
-		exit(1);
-	}
-
-	SOCKET listening = socket(AF_INET, SOCK_STREAM, 0);
-	if (listening == INVALID_SOCKET) {
-		cerr << "Can't create a socket, Err #" << WSAGetLastError() << endl;
-		exit(1);
-	}
-
-	return listening;
-}
-
-void Node::bindSocket(SOCKET socket)
-{
-	// Bind the socket
-	sockaddr_in server;
-	server.sin_family = AF_INET;
-	server.sin_port = htons(this->myPort);
-	server.sin_addr.s_addr = INADDR_ANY;
-
-	int iResult = bind(socket, (sockaddr*)&server, sizeof(server));
-	if (iResult == SOCKET_ERROR) {
-		cerr << "Bind failed with error: " << WSAGetLastError() << endl;
-		exit(1);
-	}
-}
-
-void Node::listenSocket(SOCKET socket)
-{
-	// Listen on the socket
-	int iResult = listen(socket, SOMAXCONN);
-	if (iResult == SOCKET_ERROR) {
-		cerr << "Listen failed with error: " << WSAGetLastError() << endl;
-		exit(1);
-	}
-}
 
 void Node::acceptSocket(SOCKET socket)
 {
@@ -74,40 +30,11 @@ void Node::acceptSocket(SOCKET socket)
 		exit(1);
 	}
 
-	// Handle the client
-	this->handleClient(clientSocket);
+	// Handle the client in a new thread
+	thread clientThread(&Node::handleClient, this, clientSocket);
+	clientThread.detach();
 }
 
-void Node::sendData(string data, SOCKET connection) {
-	size_t dataSize = data.size();
-
-	send(connection, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
-
-	send(connection, data.data(), dataSize, 0);
-}
-
-string Node::receiveData(SOCKET clientSocket)
-{
-	size_t dataSize = 0;
-
-	// First, receive the size of the data
-	recv(clientSocket, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
-
-	// Allocate a buffer to store the received data
-	char* buffer = new char[dataSize];
-
-	// Receive the key
-	recv(clientSocket, buffer, dataSize, 0);
-
-	// Create a string from the received data
-	string data(buffer, dataSize);
-
-	delete[] buffer;
-
-
-	return data;
-
-}
 
 void Node::handleClient(SOCKET clientSocket)
 {
@@ -183,11 +110,11 @@ void Node::clientHandshake(SOCKET clientSocket)
 
 	*/
 
-	sendECCKeys(clientSocket);
+	sendKeys(clientSocket, eccHandler.serializeKey());
 
 	string receivedAES;
 	try {
-		receivedAES = this->receiveAESKey(clientSocket);
+		receivedAES = receiveKeys(clientSocket);
 		logger.keysInfo("Received AES keys from client");
 	}
 	catch (Exception) {
@@ -226,38 +153,14 @@ void Node::clientHandshake(SOCKET clientSocket)
 
 	string encryptedId = AesHandler::encryptAES(conversationId, aesPair.getKey(), aesPair.getIv());
 
-	sendData(encryptedId, clientSocket);
+	sendData(clientSocket, encryptedId);
 
 	closesocket(clientSocket);
 }
 
 void Node::start() {
-	Node::PORT++;
-	this->myPort = Node::PORT;
-
-	// Ecc keys already generated in the constructor
-
-	logger.log("Starting Node: " + to_string(this->myPort));
-
-	this->runMyServer(this->myPort);
-
 	thread t(&Node::sendAlive, this);
 	t.join();
-}
-
-void Node::runMyServer(unsigned short port)
-{
-	this->myServerSocket = this->initWSASocket();
-	logger.log("Initialized WSA");
-
-	// Bind the socket
-	this->bindSocket(this->myServerSocket);
-
-	// Listen on the socket
-	this->listenSocket(this->myServerSocket);
-
-	thread t(&Node::acceptSocket, this, this->myServerSocket);
-	t.detach();
 }
 
 ClientConnection* Node::connectToParent(string parentIp, unsigned short parentPort, bool repeat = true)
@@ -279,6 +182,7 @@ void Node::handshake(ClientConnection* parentConnection)
 	// Send ECC
 	parentConnection->sendKeys(eccHandler.serializeKey());
 
+	// Send AES
 	sendAESKeys(parentConnection, receivedECCKeys);
 
 	unsigned long int nonPrime = Utility::generateNonPrime();
@@ -294,24 +198,6 @@ void Node::handshake(ClientConnection* parentConnection)
 	string encryptedData = aesHandler.encrypt(formattedData);
 
 	parentConnection->sendData(encryptedData);
-}
-
-void Node::sendAlive()
-{
-	while (true) {
-		Sleep(MAX_TIME_ALIVE / 3);
-
-		try {
-			parentConnection = this->connectToParent("127.0.0.1", SERVER_PORT);
-
-			this->handshake(parentConnection);
-
-			parentConnection->closeConnection();
-		}
-		catch (Exception) {
-			logger.error("Error in sendAlive (probably handshake)");
-		}
-	}
 }
 
 void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys)
@@ -330,46 +216,20 @@ void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKey
 }
 
 
-void Node::sendECCKeys(SOCKET clientSocket)
+void Node::sendAlive()
 {
-	string keysStr = eccHandler.serializeKey();
-	size_t dataSize = keysStr.size();
+	while (true) {
+		Sleep(MAX_TIME_ALIVE / 3);
 
-	send(clientSocket, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
+		try {
+			parentConnection = this->connectToParent("127.0.0.1", SERVER_PORT);
 
-	send(clientSocket, keysStr.data(), dataSize, 0);
+			this->handshake(parentConnection);
 
-	logger.keysInfo("Sent public key (ECC)");
-}
-
-
-string Node::receiveKeys(SOCKET clientSocket)
-{
-	int dataSize = 0;
-
-	// First, receive the size of the data
-	recv(clientSocket, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
-
-	// Allocate a buffer to store the received data
-	char* buffer = new char[dataSize];
-
-	// Receive the key
-	recv(clientSocket, buffer, dataSize, 0);
-
-	// Create a string from the received data
-	string keysStr(buffer, dataSize);
-
-	delete[] buffer;
-
-
-	return keysStr;
-}
-
-string Node::receiveECCKeys(SOCKET clientSocket)
-{
-	return receiveKeys(clientSocket);
-}
-
-string Node::receiveAESKey(SOCKET clientSocket) {
-	return receiveKeys(clientSocket);
+			parentConnection->closeConnection();
+		}
+		catch (Exception) {
+			logger.error("Error in sendAlive (probably handshake)");
+		}
+	}
 }

@@ -62,7 +62,7 @@ void IConnection::acceptSocket(SOCKET socket) {
 
 }
 
-void IConnection::handleConnection(SOCKET clientSocket) {
+void IConnection::handleClient(SOCKET clientSocket) {
 
 }
 

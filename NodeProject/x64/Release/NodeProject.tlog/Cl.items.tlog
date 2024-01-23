@@ -4,6 +4,7 @@ C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\Constants.cpp;C:
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\ConversationObject.obj
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\DatabaseHelper.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\DatabaseHelper.obj
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ECCHandler.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\ECCHandler.obj
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\IConnection.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\IConnection.obj
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\Logger.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\Logger.obj
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\NodeData.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\NodeData.obj
 C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\RSAHandler.cpp;C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\x64\Release\RSAHandler.obj

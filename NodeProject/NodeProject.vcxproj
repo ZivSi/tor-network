@@ -141,6 +141,7 @@
     <ClCompile Include="..\ServerProject\ConversationObject.cpp" />
     <ClCompile Include="..\ServerProject\DatabaseHelper.cpp" />
     <ClCompile Include="..\ServerProject\ECCHandler.cpp" />
+    <ClCompile Include="..\ServerProject\IConnection.cpp" />
     <ClCompile Include="..\ServerProject\Logger.cpp" />
     <ClCompile Include="..\ServerProject\NodeData.cpp" />
     <ClCompile Include="..\ServerProject\RSAHandler.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="..\ServerProject\ConversationObject.h" />
     <ClInclude Include="..\ServerProject\DatabaseHelper.h" />
     <ClInclude Include="..\ServerProject\ECCHandler.h" />
+    <ClInclude Include="..\ServerProject\IConnection.h" />
     <ClInclude Include="..\ServerProject\Logger.h" />
     <ClInclude Include="..\ServerProject\NodeData.h" />
     <ClInclude Include="..\ServerProject\RSAHandler.h" />

@@ -45,7 +45,7 @@ void Server::acceptSocket(SOCKET socket) {
 
 		logger.log("Client connected");
 
-		thread clientThread(&Server::handleConnection, this, clientSocket);
+		thread clientThread(&Server::handleClient, this, clientSocket);
 		clientThread.detach();
 	}
 }
@@ -72,7 +72,7 @@ string Server::receiveAESKey(SOCKET clientSocket) {
 	return receiveKeys(clientSocket);
 }
 
-void Server::handleConnection(SOCKET clientSocket)
+void Server::handleClient(SOCKET clientSocket)
 {
 	try {
 

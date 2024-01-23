@@ -28,7 +28,7 @@ public:
 	void listenSocket(SOCKET socket);
 
 	virtual void acceptSocket(SOCKET socket) = 0;
-	virtual void handleConnection(SOCKET clientSocket) = 0;
+	virtual void handleClient(SOCKET clientSocket) = 0;
 
 	void sendData(SOCKET connection, string data);
 	void sendKeys(SOCKET connection, string keyStr);
