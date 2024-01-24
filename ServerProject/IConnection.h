@@ -20,7 +20,7 @@ enum class KeyType
 class IConnection
 {
 public:
-	IConnection(string ip, unsigned short port, Logger logger);
+	IConnection(string ip, unsigned short port, Logger* logger);
 	virtual ~IConnection();
 
 	SOCKET initWSASocket();
@@ -38,7 +38,6 @@ public:
 
 	void closeConnection();
 
-protected:
 	SOCKET getSocket();
 	unsigned short getPort();
 	string getIP();
@@ -49,6 +48,6 @@ private:
 	unsigned short port;
 	string ip;
 
-	Logger logger;
+	Logger* logger;
 };
 

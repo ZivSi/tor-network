@@ -37,7 +37,7 @@ using std::mutex;
 
 using namespace Constants;
 
-class Server : IConnection {
+class Server : public IConnection {
 public:
 	Server();
 	~Server();
@@ -47,6 +47,9 @@ public:
 
 	void printNodes();
 	void initializeNodes(vector<NodeData*> nodes);
+
+	void acceptSocket(SOCKET socket) override;
+	void handleClient(SOCKET clientSocket) override;
 
 private:
 	bool stop;
@@ -58,9 +61,6 @@ private:
 	Logger logger;
 
 	NodeData EMPTY_NODE;
-
-	void acceptSocket(SOCKET socket) override;
-	void handleClient(SOCKET clientSocket) override;
 
 	string decrypt(string encrypted);
 
@@ -78,5 +78,4 @@ private:
 
 	NodeData* getNodeInVector(unsigned short port);
 	void checkAliveNodes();
-
 };

@@ -3,7 +3,7 @@
 // Port variable
 unsigned short Node::PORT = SERVER_PORT + 1;
 
-Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false), IConnection("127.0.0.1", Node::PORT, logger)
+Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false), IConnection("127.0.0.1", Node::PORT, &logger)
 {
 	myPort = Node::PORT;
 	Node::PORT += 1;
@@ -13,6 +13,7 @@ Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false), ICon
 
 Node::~Node()
 {
+	closeConnection();
 }
 
 

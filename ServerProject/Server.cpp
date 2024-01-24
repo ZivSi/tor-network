@@ -1,6 +1,6 @@
 #include "Server.h"
 
-Server::Server() : logger("Server"), IConnection("127.0.0.1", SERVER_PORT, logger) {
+Server::Server() : logger("Server"), IConnection("127.0.0.1", SERVER_PORT, &logger) {
 }
 
 void Server::startServer() {
@@ -22,10 +22,9 @@ void Server::stopServer() {
 }
 
 Server::~Server() {
-	this->stop = true;
+	closeConnection();
 
-	closesocket(getSocket());
-	WSACleanup();
+	this->stop = true;
 
 	cout << "Server closed" << endl;
 }
@@ -68,14 +67,15 @@ string Server::receiveECCKeys(SOCKET clientSocket)
 	return receiveKeys(clientSocket);
 }
 
+
 string Server::receiveAESKey(SOCKET clientSocket) {
 	return receiveKeys(clientSocket);
 }
 
 void Server::handleClient(SOCKET clientSocket)
 {
+	cout << "Handle method is called" << endl;
 	try {
-
 		this->sendECCKeys(clientSocket);
 		logger.keysInfo("Sent ECC keys to the client");
 

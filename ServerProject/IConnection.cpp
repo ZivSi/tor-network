@@ -1,8 +1,9 @@
 #include "IConnection.h"
 
-IConnection::IConnection(string ip, unsigned short port, Logger logger) : logger(logger) {
+IConnection::IConnection(string ip, unsigned short port, Logger* logger) {
 	this->ip = ip;
 	this->port = port;
+	this->logger = logger;
 
 
 	connection = initWSASocket();
@@ -13,7 +14,6 @@ IConnection::IConnection(string ip, unsigned short port, Logger logger) : logger
 
 IConnection::~IConnection()
 {
-	WSACleanup();
 	closeConnection();
 }
 
@@ -47,23 +47,23 @@ void IConnection::bindSocket(SOCKET socket) {
 
 void IConnection::listenSocket(SOCKET socket) {
 	if (socket == INVALID_SOCKET) {
-		logger.error("Can't create a socket, Err #" + WSAGetLastError());
+		logger->error("Can't create a socket, Err #" + WSAGetLastError());
 		exit(1);
 	}
 
 	int listening = listen(socket, SOMAXCONN);
 	if (listening == SOCKET_ERROR) {
-		logger.error("Can't listen on socket, Err #" + WSAGetLastError());
+		logger->error("Can't listen on socket, Err #" + WSAGetLastError());
 		exit(1);
 	}
 }
 
 void IConnection::acceptSocket(SOCKET socket) {
-
+	// Meant to be overrided
 }
 
 void IConnection::handleClient(SOCKET clientSocket) {
-
+	// Meant to be overrided
 }
 
 void IConnection::sendData(SOCKET connection, string data) {
@@ -78,7 +78,7 @@ void IConnection::sendData(SOCKET connection, string data) {
 void IConnection::sendKeys(SOCKET connection, string keyStr) {
 	sendData(connection, keyStr);
 
-	logger.log("Sent keys: " + to_string(keyStr.size()));
+	logger->log("Sent keys: " + to_string(keyStr.size()));
 }
 
 string IConnection::receiveData(SOCKET connection) {
@@ -107,6 +107,7 @@ string IConnection::receiveKeys(SOCKET connection) {
 }
 
 void IConnection::closeConnection() {
+	WSACleanup();
 	closesocket(connection);
 }
 

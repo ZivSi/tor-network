@@ -23,7 +23,7 @@ void Logger::keysInfo(string message)
 
 void Logger::success(string message)
 {
-	logMessages.push_back("\033[92m[KEY]\033[0m " + message); // Green color
+	logMessages.push_back("\033[92m[SUCCESS]\033[0m " + message); // Green color
 
 	printLastLogMessage();
 }
