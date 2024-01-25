@@ -46,19 +46,18 @@ public:
 	string decrypt(const string& ciphertext);
 
 	string getKeys();
-
 	SecByteBlock getKey();
 	SecByteBlock getIv();
 
 	string formatKeyForSending(SecByteBlock key);
 	SecByteBlock reformatKeyForReceiving(const std::string& key);
 
+	string serializeKey();
+
 	static string encryptAES(const string& plaintext, SecByteBlock key, SecByteBlock iv);
 	static string decryptAES(const string& ciphertext, SecByteBlock key, SecByteBlock iv);
 	static string SecByteBlockToString(const CryptoPP::SecByteBlock& secByteBlock);
 	static CryptoPP::SecByteBlock StringToSecByteBlock(const string& str);
-
-	
 
 private:
 	SecByteBlock key;

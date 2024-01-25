@@ -1,9 +1,9 @@
-﻿  IConnection.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\IConnection.cpp(75,32): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\IConnection.cpp(94,27): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+﻿  ClientConnection.cpp
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(91,32): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(115,27): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   Generating code
-  0 of 4425 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  4 of 4429 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    65 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   NodeProject.vcxproj -> C:\Users\zivsi\source\repos\TorNetwork\x64\Release\NodeProject.exe

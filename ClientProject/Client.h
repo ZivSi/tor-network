@@ -4,6 +4,8 @@
 #include <string>
 #include <WS2tcpip.h>
 #include "Logger.h"
+#include "ClientConnection.h"
+#include "Constants.h"
 
 #pragma comment (lib, "ws2_32.lib")
 
@@ -11,35 +13,27 @@ using std::cout;
 using std::endl;
 using std::string;
 
+using namespace Constants;
+
 class Client
 {
 public:
 	Client();
 	~Client();
 
-	void startPathDesign();
+	void handshakeServer();
 	void sendRequestToServer();
-	void handshakewithServer();
-
 	void receiveResponseFromServer();
 	void formatResponseFromServer();
 
-	void handshakeWithNode(int nodeID);
-
-	void sendKeys(SOCKET clientSocket, string keysStr);
-	string receiveKeys(SOCKET clientSocket);
-
-	void sendECCKeys(SOCKET clientSocket);
-	string receiveECCKeys(SOCKET clientSocket);
-
-	void sendAESKey(SOCKET clientSocket);
-	string receiveAESKey(SOCKET clientSocket);
+	void startPathDesign();
+	void handshakeWithNode(int nodePort);
 
 	void checkConnectionAliveTimer();
 
 
 private:
-	SOCKET m_clientSocket;
+	ClientConnection clientConnection;
 	int connectionAliveSeconds = 0;
 	bool desginPath = true; // Will turn false after the first path design, and true when connectionAliveSeconds > 10 minutes
 

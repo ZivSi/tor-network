@@ -175,7 +175,7 @@ string Server::decrypt(string encrypted) {
 bool Server::isNode(string data) {
 	int currentSplitSize = Utility::splitString(data, SPLITER).size();
 	logger.log("Current size: " + to_string(currentSplitSize));
-	logger.log("Original size: " + to_string(NODE_SPLIT_SIZE));
+	logger.log("Desired size: " + to_string(NODE_SPLIT_SIZE));
 
 	return currentSplitSize == NODE_SPLIT_SIZE;
 }

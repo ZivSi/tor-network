@@ -7,23 +7,7 @@ ECCHandler::ECCHandler()
 
 ECCHandler::ECCHandler(const std::string& serializedPublicKey)
 {
-	CryptoPP::ECIES<ECP>::PublicKey pubKey;
-
-	try
-	{
-
-		StringSource ss(serializedPublicKey, true);
-		pubKey.Load(ss);
-
-		cout << "Loaded key in size of: " << serializedPublicKey.size() << endl;
-		cout << "Loaded key in sizeof of: " << sizeof(serializedPublicKey) << endl;
-	}
-	catch (const CryptoPP::Exception& e)
-	{
-		throw e;
-	}
-
-	this->encryptor = ECIES<ECP>::Encryptor(pubKey);
+	initialize(serializedPublicKey);
 }
 
 ECCHandler::~ECCHandler()
@@ -56,6 +40,26 @@ void ECCHandler::generateKeyPair(AutoSeededRandomPool* rng) {
 
 	this->encryptor = ECIES<ECP>::Encryptor(publicKey);
 	this->decryptor = ECIES<ECP>::Decryptor(privateKey);
+}
+
+void ECCHandler::initialize(const string& serializedPublicKey)
+{
+	CryptoPP::ECIES<ECP>::PublicKey pubKey;
+
+	try
+	{
+
+		StringSource ss(serializedPublicKey, true);
+		pubKey.Load(ss);
+
+		cout << "Loaded key in sizeof of: " << sizeof(serializedPublicKey) << endl;
+	}
+	catch (const CryptoPP::Exception& e)
+	{
+		throw e;
+	}
+
+	this->encryptor = ECIES<ECP>::Encryptor(pubKey);
 }
 
 string ECCHandler::encrypt(const string& plaintext)

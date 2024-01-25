@@ -5,8 +5,8 @@ ClientConnection::ClientConnection(string ip, unsigned short port, Logger logger
 	this->ip = ip;
 	this->port = port;
 
-	initWSASocket();	
-	this->connection = connectInLoop(this->ip, this->port);
+	initWSASocket();
+	connectInLoop();
 }
 
 ClientConnection::~ClientConnection()
@@ -26,7 +26,7 @@ void ClientConnection::initWSASocket()
 	}
 }
 
-SOCKET ClientConnection::connectToServer(string ip, unsigned short port)
+SOCKET ClientConnection::connectToServer()
 {
 	SOCKET connection = socket(AF_INET, SOCK_STREAM, 0);
 	if (connection == INVALID_SOCKET)
@@ -52,11 +52,13 @@ SOCKET ClientConnection::connectToServer(string ip, unsigned short port)
 	return connection;
 }
 
-SOCKET ClientConnection::connectInLoop(string ip, unsigned short port)
+SOCKET ClientConnection::connectInLoop()
 {
+	closeConnection();
+
 	while (true) {
 		try {
-			this->connection = connectToServer(ip, port);
+			this->connection = connectToServer();
 
 			break;
 		}
@@ -68,6 +70,13 @@ SOCKET ClientConnection::connectInLoop(string ip, unsigned short port)
 	}
 
 	return this->connection;
+}
+
+void ClientConnection::handshake()
+{
+	receiveKeys(true);
+	sendECCKeys();
+	sendAESKeys();
 }
 
 
@@ -85,6 +94,11 @@ void ClientConnection::sendData(string data)
 void ClientConnection::sendKeys(string keysStr)
 {
 	sendData(keysStr);
+}
+
+void ClientConnection::sendEncrypted(string data)
+{
+	sendData(aesHandler.encrypt(data));
 }
 
 string ClientConnection::receiveData()
@@ -108,10 +122,40 @@ string ClientConnection::receiveData()
 	return data;
 }
 
-string ClientConnection::receiveKeys()
+string ClientConnection::receiveKeys(bool initialize = true)
 {
-	return receiveData();
+	string receivedKeys = receiveData();
+
+	if (initialize) { this->initializeParentECC(receivedKeys); }
+
+	return receivedKeys;
 }
+
+void ClientConnection::initializeParentECC(string receivedECCKeys)
+{
+	this->parentECCHandler.initialize(receivedECCKeys);
+}
+
+void ClientConnection::sendECCKeys()
+{
+
+	string eccKeysSerialized = this->eccHandler.serializeKey();
+	sendKeys(eccKeysSerialized);
+
+	logger.keysInfo("Sent public key");
+}
+
+void ClientConnection::sendAESKeys()
+{
+	string keysStr = aesHandler.serializeKey();
+
+	string encryptedKeys = parentECCHandler.encrypt(keysStr);
+
+	sendData(encryptedKeys);
+
+	logger.keysInfo("Sent symmetric key (AES)");
+}
+
 
 SOCKET ClientConnection::getSocket()
 {
@@ -132,5 +176,4 @@ void ClientConnection::closeConnection()
 {
 	closesocket(connection);
 }
-
 

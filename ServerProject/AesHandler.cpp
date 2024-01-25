@@ -88,6 +88,14 @@ SecByteBlock AesHandler::reformatKeyForReceiving(const std::string& key) {
 	return StringToSecByteBlock(key);
 }
 
+string AesHandler::serializeKey()
+{
+	string keySerialized = formatKeyForSending(getKey());
+	string ivSerialized = formatKeyForSending(getIv());
+
+	return keySerialized + ivSerialized;
+}
+
 
 string AesHandler::SecByteBlockToString(const CryptoPP::SecByteBlock& secByteBlock) {
 	return string(reinterpret_cast<const char*>(secByteBlock.BytePtr()), secByteBlock.SizeInBytes());

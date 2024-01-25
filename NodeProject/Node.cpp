@@ -164,41 +164,17 @@ void Node::start() {
 	t.join();
 }
 
-ClientConnection* Node::connectToParent(string parentIp, unsigned short parentPort, bool repeat = true)
-{
-	parentConnection->closeConnection();
-	this->parentConnection = new ClientConnection("127.0.0.1", SERVER_PORT, logger);
-
-	return this->parentConnection;
-}
 
 void Node::handshake(ClientConnection* parentConnection)
 {
 	// the data should be in the format of:
 	// Port:publickey:CurrentTime:serializedKey:randomNonPrimeNumber:number that make(random % (number – port) == 1:hashOfText + PEPPER : hashOfText + PEPPER2
 
-	string receivedECCKeys = parentConnection->receiveKeys();
-	logger.keysInfo("Received server's ECC key");
+	parentConnection->handshake();
 
-	// Send ECC
-	parentConnection->sendKeys(eccHandler.serializeKey());
+	string formattedData = buildAliveFormat();
 
-	// Send AES
-	sendAESKeys(parentConnection, receivedECCKeys);
-
-	unsigned long int nonPrime = Utility::generateNonPrime();
-	unsigned long int modulusBase = Utility::findModuloBase(nonPrime, myPort);
-	unsigned long int randomNumber = Utility::generateRandomNumber(0, 71067106);
-	unsigned long long currentTime = Utility::capture_time();
-
-	string formattedData = to_string(this->myPort) + SPLITER + "Public Key!" + SPLITER + to_string(currentTime) + SPLITER + to_string(nonPrime) + SPLITER + to_string(randomNumber) + SPLITER + to_string(modulusBase);
-
-	formattedData = formattedData + SPLITER + Utility::hashStr(formattedData + PEPPER);
-	formattedData = formattedData + SPLITER + Utility::hashStr(formattedData + PEPPER2);
-
-	string encryptedData = aesHandler.encrypt(formattedData);
-
-	parentConnection->sendData(encryptedData);
+	parentConnection->sendEncrypted(formattedData);
 }
 
 void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys)
@@ -216,6 +192,19 @@ void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKey
 	logger.keysInfo("Sent symmetric key (AES)");
 }
 
+string Node::buildAliveFormat() {
+	unsigned long int nonPrime = Utility::generateNonPrime();
+	unsigned long int modulusBase = Utility::findModuloBase(nonPrime, myPort);
+	unsigned long int randomNumber = Utility::generateRandomNumber(0, 71067106);
+	unsigned long long currentTime = Utility::capture_time();
+
+	string formattedData = to_string(this->myPort) + SPLITER + "Public Key!" + SPLITER + to_string(currentTime) + SPLITER + to_string(nonPrime) + SPLITER + to_string(randomNumber) + SPLITER + to_string(modulusBase);
+
+	formattedData = formattedData + SPLITER + Utility::hashStr(formattedData + PEPPER);
+	formattedData = formattedData + SPLITER + Utility::hashStr(formattedData + PEPPER2);
+
+	return formattedData;
+}
 
 void Node::sendAlive()
 {
@@ -223,7 +212,7 @@ void Node::sendAlive()
 		Sleep(MAX_TIME_ALIVE / 3);
 
 		try {
-			parentConnection = this->connectToParent("127.0.0.1", SERVER_PORT);
+			parentConnection->connectInLoop();
 
 			this->handshake(parentConnection);
 

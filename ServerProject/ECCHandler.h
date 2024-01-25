@@ -39,13 +39,11 @@ public:
 	ECCHandler(const string& serializedPublicKey);
 	~ECCHandler();
 
-	static ECIES<ECP>::Encryptor buildEncryptor(string serializedPublicKey);
+	// Replace the constrauctor
+	void initialize(const string& serializedPublicKey);
 
 	string encrypt(const string& plaintext);
 	string decrypt(const string& ciphertext);
-
-	static string encrypt(const string& plaintext, ECIES<ECP>::Encryptor* encryptor, AutoSeededRandomPool* rng);
-	static string decrypt(const string& ciphertext, ECIES<ECP>::Decryptor* decryptor, AutoSeededRandomPool* rng);
 
 	void setPublicKey(const string& publicKey);
 
@@ -58,6 +56,12 @@ public:
 	void generateKeyPair(AutoSeededRandomPool* rng);
 
 	ECCHandler& operator=(const ECCHandler& other);
+
+
+	static ECIES<ECP>::Encryptor buildEncryptor(string serializedPublicKey);
+	static string encrypt(const string& plaintext, ECIES<ECP>::Encryptor* encryptor, AutoSeededRandomPool* rng);
+	static string decrypt(const string& ciphertext, ECIES<ECP>::Decryptor* decryptor, AutoSeededRandomPool* rng);
+
 
 private:
 	AutoSeededRandomPool rng;

@@ -94,6 +94,7 @@ private:
 	* The conversation will start with ECC key
 	*/
 	bool isHandshake(string received);
+	string buildAliveFormat();
 
 	void clientHandshake(SOCKET clientSocket);
 
