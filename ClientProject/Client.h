@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <vector>
 #include <WS2tcpip.h>
 #include "Logger.h"
 #include "ClientConnection.h"
@@ -12,6 +14,7 @@
 using std::cout;
 using std::endl;
 using std::string;
+using std::vector;
 
 using namespace Constants;
 
@@ -21,8 +24,6 @@ public:
 	Client();
 	~Client();
 
-	void handshakeServer();
-	void sendRequestToServer();
 	void receiveResponseFromServer();
 	void formatResponseFromServer();
 
@@ -38,5 +39,7 @@ private:
 	bool desginPath = true; // Will turn false after the first path design, and true when connectionAliveSeconds > 10 minutes
 
 	Logger logger;
+
+	vector<unsigned short> receivedPorts;
 };
 

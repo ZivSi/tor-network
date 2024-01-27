@@ -118,7 +118,6 @@ void Server::handleClient(SOCKET clientSocket)
 
 		string received = receiveData(clientSocket);
 
-
 		string decrypted = AesHandler::decryptAES(received, aesKey, aesIv);
 		logger.log("Decrypted data from client: " + decrypted);
 
@@ -255,21 +254,24 @@ bool Server::isValidFormat(string data) {
 
 void Server::sendNodesToClient(SOCKET clientSocket)
 {
-	vector<unsigned short> portsStream;
+	logger.log("Passing alive nodes to the client (" + std::to_string(aliveNodes.size()) + ")");
 
+	std::vector<unsigned short> portsStream;
 
-	// We represent the number of nodes as 2 bytes (unsigned short) becuase ports can be up to 65535
 	aliveNodesMutex.lock();
 	for (NodeData* node : this->aliveNodes) {
 		unsigned short port = node->getPort();
-
 		portsStream.push_back(port);
 	}
-
 	aliveNodesMutex.unlock();
 
-	// Send the ports to the client
-	sendData(clientSocket, string(portsStream.begin(), portsStream.end()));
+	// Serialize the vector of ports into a string
+	std::string serializedData(reinterpret_cast<const char*>(portsStream.data()), portsStream.size() * sizeof(unsigned short));
+
+	cout << "Serialized data: " << serializedData << endl;
+
+	// Send the serialized data to the client
+	sendData(clientSocket, serializedData);
 }
 
 NodeData* Server::getNodeInVector(unsigned short port) {
