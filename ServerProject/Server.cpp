@@ -27,36 +27,48 @@ Server::~Server() {
 	this->stop = true;
 
 	cout << "Server closed" << endl;
+
+	aliveNodesMutex.lock();
+	for (NodeData* node : this->aliveNodes) {
+		delete node;
+	}
+	aliveNodesMutex.unlock();
+
+	this->aliveNodes.clear();
 }
 
 
 void Server::acceptSocket(SOCKET socket) {
-	while (!stop) {
-		sockaddr_in client;
-		int clientSize = sizeof(client);
+	try {
+		while (!stop) {
+			sockaddr_in client;
+			int clientSize = sizeof(client);
 
-		SOCKET clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
+			SOCKET clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
 
-		if (clientSocket == INVALID_SOCKET) {
-			logger.error("Can't accept client socket, Err #" + WSAGetLastError());
-			exit(1);
+			if (clientSocket == INVALID_SOCKET) {
+				logger.error("Can't accept client socket, Err #" + WSAGetLastError());
+				exit(1);
+			}
+
+			logger.log("Client connected");
+
+			thread clientThread(&Server::handleClient, this, clientSocket);
+			clientThread.detach();
 		}
-
-		logger.log("Client connected");
-
-		thread clientThread(&Server::handleClient, this, clientSocket);
-		clientThread.detach();
+	}
+	catch (...) {
+		logger.error("Error in acceptSocket()");
 	}
 }
 
 void Server::sendECCKeys(SOCKET clientSocket)
 {
+	eccHandlerMutex.lock();
 	string keysStr = eccHandler.serializeKey();
-	int dataSize = keysStr.size();
+	eccHandlerMutex.unlock();
 
-	send(clientSocket, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
-
-	send(clientSocket, keysStr.data(), dataSize, 0);
+	sendKeys(clientSocket, keysStr);
 
 	logger.log("Sent public key");
 }
@@ -74,14 +86,13 @@ string Server::receiveAESKey(SOCKET clientSocket) {
 
 void Server::handleClient(SOCKET clientSocket)
 {
-	cout << "Handle method is called" << endl;
 	try {
 		this->sendECCKeys(clientSocket);
 		logger.keysInfo("Sent ECC keys to the client");
 
 
 		string receivedECCKeys = this->receiveECCKeys(clientSocket);
-		logger.keysInfo("Received ECC keys from client: " + receivedECCKeys);
+		logger.keysInfo("Received ECC keys from client: " + Utility::asHex(receivedECCKeys));
 
 
 		string receivedAESKeys;
@@ -96,11 +107,18 @@ void Server::handleClient(SOCKET clientSocket)
 
 		string decryptedAESKeys;
 		try {
-			decryptedAESKeys = eccHandler.decrypt(receivedAESKeys);
+			eccHandlerMutex.lock();
+			decryptedAESKeys = eccHandler.decrypt(receivedAESKeys); // If client, we will get something like "Hi from client"
+			eccHandlerMutex.unlock();
+
+			logger.keysInfo("Decrypted AES keys from client: " + Utility::asHex(decryptedAESKeys));
 		}
 		catch (Exception e) {
+			eccHandlerMutex.unlock();
+
 			logger.error("Error in eccHandler.decrypt");
-			cout << e.what() << ": " << receivedAESKeys << endl;
+			cout << e.what() << endl << "Input was: " << receivedAESKeys << endl;
+
 			return;
 		}
 
@@ -118,13 +136,23 @@ void Server::handleClient(SOCKET clientSocket)
 
 		string received = receiveData(clientSocket);
 
+		if (received.empty()) {
+			logger.log("Received empty data from client. Closing connection");
+
+			closesocket(clientSocket);
+
+			return;
+		}
+
 		string decrypted = AesHandler::decryptAES(received, aesKey, aesIv);
 		logger.log("Decrypted data from client: " + decrypted);
 
 		if (!isNode(decrypted)) {
+			logger.success("Client authorized");
 			sendNodesToClient(clientSocket);
 
 			closesocket(clientSocket);
+
 			return;
 		}
 
@@ -134,32 +162,37 @@ void Server::handleClient(SOCKET clientSocket)
 			return;
 		}
 
-		logger.success("Node's format is valid!");
+		logger.success("Node's format is valid");
 
 		vector<string> parts = Utility::splitString(decrypted, SPLITER);
-		unsigned short port = static_cast<unsigned short>(stoi(parts[0]));
 
-		// string eccPublicKey = parts[1]; we don't need it, we already have it
+		unsigned short port = static_cast<unsigned short>(stoi(parts[0]));
 
 		NodeData* node = getNodeInVector(port);
 
+		emptyNodeMutex.lock();
 		if (*node == EMPTY_NODE) {
+			emptyNodeMutex.unlock();
+
 			aliveNodesMutex.lock();
 			this->aliveNodes.push_back(new NodeData(port, receivedECCKeys, Utility::capture_time(), 1, 0));
 			aliveNodesMutex.unlock();
 
 			closesocket(clientSocket);
 
-			logger.success("New node added to alive nodes list");
+			logger.success("New node added to alive nodes list: " + to_string(port));
 
 			return;
 		}
+		emptyNodeMutex.unlock();
 
 		node->updateLastAliveMessageTime();
 
-		logger.success("Updated node's last alive time");
+		logger.success("Updated node's last alive time: " + to_string(port));
 	}
-	catch (Exception) {
+	catch (...) {
+		aliveNodesMutex.unlock();
+
 		logger.error("Error in handleConnection(). Quitting");
 
 		closesocket(clientSocket);
@@ -173,8 +206,6 @@ string Server::decrypt(string encrypted) {
 
 bool Server::isNode(string data) {
 	int currentSplitSize = Utility::splitString(data, SPLITER).size();
-	logger.log("Current size: " + to_string(currentSplitSize));
-	logger.log("Desired size: " + to_string(NODE_SPLIT_SIZE));
 
 	return currentSplitSize == NODE_SPLIT_SIZE;
 }
@@ -254,23 +285,28 @@ bool Server::isValidFormat(string data) {
 
 void Server::sendNodesToClient(SOCKET clientSocket)
 {
-	logger.log("Passing alive nodes to the client (" + std::to_string(aliveNodes.size()) + ")");
-
-	std::vector<unsigned short> portsStream;
-
 	aliveNodesMutex.lock();
+	logger.log("Passing alive nodes to the client (" + to_string(aliveNodes.size()) + ")");
+
+	vector<unsigned short> portsStream;
+
 	for (NodeData* node : this->aliveNodes) {
 		unsigned short port = node->getPort();
 		portsStream.push_back(port);
 	}
 	aliveNodesMutex.unlock();
 
-	// Serialize the vector of ports into a string
-	std::string serializedData(reinterpret_cast<const char*>(portsStream.data()), portsStream.size() * sizeof(unsigned short));
+	if (portsStream.empty()) {
+		logger.log("No nodes to send");
 
-	cout << "Serialized data: " << serializedData << endl;
+		sendData(clientSocket, NO_NOEDS_REPONSE);
 
-	// Send the serialized data to the client
+		return;
+	}
+
+	// Devide the portsStream into a string (bytes of data / sizeof(unsigned short))
+	string serializedData(reinterpret_cast<const char*>(portsStream.data()), portsStream.size() * sizeof(unsigned short));
+
 	sendData(clientSocket, serializedData);
 }
 
@@ -291,19 +327,35 @@ NodeData* Server::getNodeInVector(unsigned short port) {
 
 void Server::checkAliveNodes()
 {
-	while (!stop) {
-		aliveNodesMutex.lock();
+	try {
+		logger.log("Checking alive nodes..");
+		while (true) {
+			aliveNodesMutex.lock();
 
-		for (int i = 0; i < this->aliveNodes.size(); i++) {
-			NodeData* node = aliveNodes[i];
+			for (int i = 0; i < this->aliveNodes.size(); i++) {
+				NodeData* node = aliveNodes[i];
 
-			if (Utility::capture_time() - node->getLastAliveMessageTime() > Constants::MAX_TIME_ALIVE) {
-				this->aliveNodes.erase(this->aliveNodes.begin() + i);
+				if (Utility::capture_time() - node->getLastAliveMessageTime() > Constants::MAX_TIME_ALIVE) {
+
+					logger.error("Node " + to_string(node->getPort()) + " is dead");
+					delete node;
+
+					this->aliveNodes.erase(this->aliveNodes.begin() + i);
+
+					printNodes();
+				}
 			}
-		}
 
+			aliveNodesMutex.unlock();
+			Sleep(1000);
+		}
+	}
+	catch (...) {
 		aliveNodesMutex.unlock();
-		Sleep(400 + (40 * aliveNodes.size())); // More nodes - longer the mutex is locked, so when it does open, allow more time to be unlocked
+
+		logger.error("Error in checkAliveNodes()");
+
+		checkAliveNodes();
 	}
 }
 

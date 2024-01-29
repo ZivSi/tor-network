@@ -54,13 +54,17 @@ public:
 
 private:
 	bool stop;
+
+	mutex eccHandlerMutex;
 	ECCHandler eccHandler;
 
 	mutex aliveNodesMutex;
 	vector<NodeData*> aliveNodes;
 
+	mutex nodesMutex;
 	Logger logger;
 
+	mutex emptyNodeMutex;
 	NodeData EMPTY_NODE;
 
 	string decrypt(string encrypted);

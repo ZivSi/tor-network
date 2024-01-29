@@ -5,10 +5,10 @@ using std::thread;
 
 int main()
 {
-	Sleep(6 * 1000);
+	cout << "Client started" << endl;
 	Client client;
-
-	Sleep(20000);
+	thread clientThread(&Client::receiveResponseFromServerInLoop, &client);
+	clientThread.join();
 	
 	return 0;
 }

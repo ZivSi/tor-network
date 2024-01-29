@@ -52,7 +52,7 @@ void ECCHandler::initialize(const string& serializedPublicKey)
 		StringSource ss(serializedPublicKey, true);
 		pubKey.Load(ss);
 
-		cout << "Loaded key in sizeof of: " << sizeof(serializedPublicKey) << endl;
+		// cout << "Loaded key in sizeof of: " << sizeof(serializedPublicKey) << endl;
 	}
 	catch (const CryptoPP::Exception& e)
 	{

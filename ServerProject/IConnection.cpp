@@ -67,12 +67,17 @@ void IConnection::handleClient(SOCKET clientSocket) {
 }
 
 void IConnection::sendData(SOCKET connection, string data) {
-	// First send size of data
-	size_t dataSize = data.size();
+	try {
+		// First send size of data
+		size_t dataSize = data.size();
 
-	send(connection, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
+		send(connection, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
 
-	send(connection, data.data(), dataSize, 0);
+		send(connection, data.data(), dataSize, 0);
+	}
+	catch (...) {
+		logger->error("Couldn't send data. Client disconnected");
+	}
 }
 
 void IConnection::sendKeys(SOCKET connection, string keyStr) {
@@ -82,24 +87,30 @@ void IConnection::sendKeys(SOCKET connection, string keyStr) {
 }
 
 string IConnection::receiveData(SOCKET connection) {
-	size_t dataSize = 0;
+	try {
+		size_t dataSize = 0;
 
-	// First, receive the size of the data
-	recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
+		// First, receive the size of the data
+		recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
 
-	// Allocate a buffer to store the received data
-	char* buffer = new char[dataSize];
+		// Allocate a buffer to store the received data
+		char* buffer = new char[dataSize];
 
-	// Receive the key
-	recv(connection, buffer, dataSize, 0);
+		// Receive the key
+		recv(connection, buffer, dataSize, 0);
 
-	// Create a string from the received data
-	string data(buffer, dataSize);
+		// Create a string from the received data
+		string data(buffer, dataSize);
 
-	delete[] buffer;
+		delete[] buffer;
 
 
-	return data;
+		return data;
+	}
+	catch (...) {
+		logger->error("Couldn't receive data. Client disconnected");
+		return "";
+	}
 }
 
 string IConnection::receiveKeys(SOCKET connection) {

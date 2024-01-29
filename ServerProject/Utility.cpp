@@ -79,6 +79,18 @@ unsigned long int Utility::findModuloBase(unsigned long int nonPrime, unsigned s
 	return 0;
 }
 
+string Utility::asHex(string input) // Represent every string by a printable string
+{
+	std::stringstream hexStringStream;
+
+	for (int i = 0; i < 16; i++) {
+		unsigned char ch = input.at(i);
+		hexStringStream << std::hex << std::setw(2) << std::setfill('0') << (int)ch;
+	}
+
+	return hexStringStream.str();
+}
+
 string Utility::hashStr(const string& input) {
 	SHA256 sha256;
 	string hashed;
@@ -104,7 +116,7 @@ unsigned long int Utility::generateNonPrime() {
 unsigned long int Utility::generateRandomNumber(unsigned long int lowerLimit, unsigned long int upperLimit) {
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_int_distribution<unsigned long int> dis(2, upperLimit);
+	std::uniform_int_distribution<unsigned long int> dis(lowerLimit, upperLimit);
 
 	return dis(gen);
 }

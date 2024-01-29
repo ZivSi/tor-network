@@ -25,6 +25,7 @@ public:
 	~Client();
 
 	void receiveResponseFromServer();
+	void receiveResponseFromServerInLoop();
 	void formatResponseFromServer();
 
 	void startPathDesign();

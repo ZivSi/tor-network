@@ -20,4 +20,6 @@ namespace Constants {
 
 	const string PEPPER = "myCoolPepper";
 	const string PEPPER2 = "anotherPepper:)";
+
+	const string NO_NOEDS_REPONSE = "NO_NODES";
 }

@@ -22,6 +22,8 @@ namespace Constants {
 	extern const string PEPPER;
 	extern const string PEPPER2;
 
+	extern const string NO_NOEDS_REPONSE;
+
 	// Port||||PublicKeyAsString||||CurrentTime||||randomNonPrimeNumber||||number that make(random % (number – port) == 0
 	enum NodeIndexes {
 		PORT = 0,

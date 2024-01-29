@@ -32,7 +32,8 @@ SOCKET ClientConnection::connectToServer()
 	if (connection == INVALID_SOCKET)
 	{
 		cout << "Can't create socket! Quitting" << endl;
-		throw string("Can't create socket! Quitting");
+
+		throw "Can't create socket! Quitting";
 	}
 
 	sockaddr_in hint;
@@ -44,7 +45,8 @@ SOCKET ClientConnection::connectToServer()
 	if (connResult == SOCKET_ERROR)
 	{
 		cout << "Can't connect to server! Quitting" << endl;
-		throw string("Can't connect to server! Quitting");
+
+		throw "Can't connect to server! Quitting";
 	}
 
 	logger.log("Connected to " + this->ip + ":" + to_string(this->port));
@@ -54,15 +56,14 @@ SOCKET ClientConnection::connectToServer()
 
 SOCKET ClientConnection::connectInLoop()
 {
-	closeConnection();
-
-	while (true) {
+	while (failedAttempts < 20) {
 		try {
 			this->connection = connectToServer();
 
 			break;
 		}
-		catch (exception e) {
+		catch (...) {
+			failedAttempts++;
 			logger.error("Couldn't connect to server");
 
 			Sleep(3000);
@@ -175,5 +176,7 @@ string ClientConnection::getIP()
 void ClientConnection::closeConnection()
 {
 	closesocket(connection);
+
+	logger.log("Closed connection to " + this->ip + ":" + to_string(this->port));
 }
 

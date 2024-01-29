@@ -47,6 +47,8 @@ public:
 	void closeConnection();
 
 private:
+	int failedAttempts = 0;
+
 	SOCKET connection;
 	string ip;
 	unsigned short port;

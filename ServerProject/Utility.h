@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iomanip>
 
 typedef unsigned char byte;
 
@@ -32,6 +33,7 @@ public:
     static bool isValidTime(const string& input);
     static bool isPrime(unsigned long int n);
     static unsigned long int findModuloBase(unsigned long int n, unsigned short port);
+    static string asHex(string input);
 
     static string hashStr(const string& input);
     static unsigned long int generateNonPrime();
