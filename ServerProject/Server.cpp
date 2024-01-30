@@ -144,7 +144,7 @@ void Server::handleClient(SOCKET clientSocket)
 			return;
 		}
 
-		string decrypted = AesHandler::decryptAES(received, aesKey, aesIv);
+		string decrypted = AesHandler::decryptAES(received, AesKey(aesKey, aesIv));
 		logger.log("Decrypted data from client: " + decrypted);
 
 		if (!isNode(decrypted)) {

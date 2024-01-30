@@ -36,6 +36,23 @@ using namespace Constants;
 #define KEY_SIZE_BITS 128
 #define BLOCK_SIZE_BITS 128
 
+class AesKey {
+private:
+	SecByteBlock key;
+	SecByteBlock iv;
+
+public:
+	AesKey();
+	AesKey(string key, string iv);
+	AesKey(SecByteBlock key, SecByteBlock iv);
+	~AesKey();
+
+	void initialize(string key, string iv);
+
+	SecByteBlock getKey();
+	SecByteBlock getIv();
+};
+
 class AesHandler {
 public:
 	AesHandler();
@@ -54,26 +71,11 @@ public:
 
 	string serializeKey();
 
-	static string encryptAES(const string& plaintext, SecByteBlock key, SecByteBlock iv);
-	static string decryptAES(const string& ciphertext, SecByteBlock key, SecByteBlock iv);
+	static string encryptAES(const string& plaintext, AesKey keys);
+	static string decryptAES(const string& ciphertext, AesKey keys);
 	static string SecByteBlockToString(const CryptoPP::SecByteBlock& secByteBlock);
 	static CryptoPP::SecByteBlock StringToSecByteBlock(const string& str);
 
 private:
-	SecByteBlock key;
-	SecByteBlock iv;
-};
-
-class AesKey {
-private:
-	SecByteBlock key;
-	SecByteBlock iv;
-
-public:
-	AesKey();
-	AesKey(string* key, string* iv);
-	~AesKey();
-
-	SecByteBlock getKey();
-	SecByteBlock getIv();
+	AesKey selfKeys;
 };

@@ -3,60 +3,48 @@
 #include "AesHandler.h"
 
 AesHandler::AesHandler() {
-	// Generate a random key and iv
-	AutoSeededRandomPool prng;
-
-	// Set the key size (16 bytes for AES-128, 24 bytes for AES-192, 32 bytes for AES-256)
-	const size_t keySize = CryptoPP::AES::DEFAULT_KEYLENGTH;
-	this->key.resize(keySize);
-	prng.GenerateBlock(this->key, keySize);
-
-	// Set the IV size (16 bytes for AES)
-	const size_t ivSize = CryptoPP::AES::BLOCKSIZE;
-	this->iv.resize(ivSize);
-	prng.GenerateBlock(this->iv, ivSize);
+	// Keys will be generated in the ctor of AesKey
 }
 
 AesHandler::AesHandler(string key, string iv) {
-	this->key = reformatKeyForReceiving(key);
-	this->iv = reformatKeyForReceiving(iv);
+	selfKeys.initialize(key, iv);
 }
 
 AesHandler::~AesHandler() {
 }
 
 string AesHandler::encrypt(const string& plaintext) {
-	string ciphertext = AesHandler::encryptAES(plaintext, this->key, this->iv);
+	string ciphertext = AesHandler::encryptAES(plaintext, selfKeys);
 	return ciphertext;
 }
 
 string AesHandler::decrypt(const string& ciphertext) {
-	string plaintext = AesHandler::decryptAES(ciphertext, this->key, this->iv);
+	string plaintext = AesHandler::decryptAES(ciphertext, selfKeys);
 	return plaintext;
 }
 
 string AesHandler::getKeys()
 {
-	string formatted = AesHandler::formatKeyForSending(this->key);
+	string formatted = AesHandler::formatKeyForSending(selfKeys.getKey());
 	formatted += SPLITER;
-	formatted += AesHandler::formatKeyForSending(this->iv);
+	formatted += AesHandler::formatKeyForSending(selfKeys.getIv());
 
 	return formatted;
 }
 
 SecByteBlock AesHandler::getKey() {
-	return this->key;
+	return this->selfKeys.getKey();
 }
 
 SecByteBlock AesHandler::getIv() {
-	return this->iv;
+	return this->selfKeys.getIv();
 }
 
-string AesHandler::encryptAES(const string& plaintext, SecByteBlock key, SecByteBlock iv) {
+string AesHandler::encryptAES(const string& plaintext, AesKey keys) {
 	string ciphertext;
 
 	try {
-		CBC_Mode<AES>::Encryption encryption(key, key.size(), iv);
+		CBC_Mode<AES>::Encryption encryption(keys.getKey(), keys.getKey().size(), keys.getIv());
 		StringSource(plaintext, true, new StreamTransformationFilter(encryption, new StringSink(ciphertext)));
 	}
 	catch (const Exception& e) {
@@ -66,11 +54,11 @@ string AesHandler::encryptAES(const string& plaintext, SecByteBlock key, SecByte
 	return ciphertext;
 }
 
-string AesHandler::decryptAES(const string& ciphertext, SecByteBlock key, SecByteBlock iv) {
+string AesHandler::decryptAES(const string& ciphertext, AesKey keys) {
 	string decryptedText;
 
 	try {
-		CBC_Mode<AES>::Decryption decryption(key, key.size(), iv);
+		CBC_Mode<AES>::Decryption decryption(keys.getKey(), keys.getKey().size(), keys.getIv());
 		StringSource(ciphertext, true, new StreamTransformationFilter(decryption, new StringSink(decryptedText)));
 	}
 	catch (const Exception& e) {
@@ -121,12 +109,23 @@ AesKey::AesKey() {
 	prng.GenerateBlock(this->iv, ivSize);
 }
 
-AesKey::AesKey(string* key, string* iv) {
-	StringSource(*key, true, new HexDecoder(new ArraySink(this->key, this->key.size())));
-	StringSource(*iv, true, new HexDecoder(new ArraySink(this->iv, this->iv.size())));
+AesKey::AesKey(string key, string iv) {
+	initialize(key, iv);
+}
+
+AesKey::AesKey(SecByteBlock key, SecByteBlock iv)
+{
+	this->key = key;
+	this->iv = iv;
 }
 
 AesKey::~AesKey() {
+}
+
+void AesKey::initialize(string key, string iv)
+{
+	StringSource(key, true, new HexDecoder(new ArraySink(this->key, this->key.size())));
+	StringSource(iv, true, new HexDecoder(new ArraySink(this->iv, this->iv.size())));
 }
 
 SecByteBlock AesKey::getKey() {

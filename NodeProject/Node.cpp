@@ -147,12 +147,12 @@ void Node::clientHandshake(SOCKET clientSocket)
 
 	// Build conversation object
 	string conversationId = ConversationObject::generateID();
-	AesKey aesPair(&extractedAes, &extractedIv);
+	AesKey aesPair(extractedAes, extractedIv);
 	ConversationObject currentConversation(conversationId, aesPair);
 
 	conversations.push_back(currentConversation);
 
-	string encryptedId = AesHandler::encryptAES(conversationId, aesPair.getKey(), aesPair.getIv());
+	string encryptedId = AesHandler::encryptAES(conversationId, aesPair);
 
 	sendData(clientSocket, encryptedId);
 
