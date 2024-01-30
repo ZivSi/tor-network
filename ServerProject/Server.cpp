@@ -170,9 +170,8 @@ void Server::handleClient(SOCKET clientSocket)
 
 		NodeData* node = getNodeInVector(port);
 
-		emptyNodeMutex.lock();
-		if (*node == EMPTY_NODE) {
-			emptyNodeMutex.unlock();
+		if (node->isEmpty()) {
+			delete node;
 
 			aliveNodesMutex.lock();
 			this->aliveNodes.push_back(new NodeData(port, receivedECCKeys, Utility::capture_time(), 1, 0));
@@ -184,7 +183,6 @@ void Server::handleClient(SOCKET clientSocket)
 
 			return;
 		}
-		emptyNodeMutex.unlock();
 
 		node->updateLastAliveMessageTime();
 
@@ -322,7 +320,7 @@ NodeData* Server::getNodeInVector(unsigned short port) {
 
 	aliveNodesMutex.unlock();
 
-	return &EMPTY_NODE;
+	return new NodeData();
 }
 
 void Server::checkAliveNodes()

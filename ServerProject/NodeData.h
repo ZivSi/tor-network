@@ -53,6 +53,8 @@ public:
 	string toString();
 	vector<unsigned char> toSend();
 
+	bool isEmpty();
+
 	operator int() const;
 	bool operator==(const NodeData& other) const;
 };

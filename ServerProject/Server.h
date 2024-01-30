@@ -64,9 +64,6 @@ private:
 	mutex nodesMutex;
 	Logger logger;
 
-	mutex emptyNodeMutex;
-	NodeData EMPTY_NODE;
-
 	string decrypt(string encrypted);
 
 	void sendECCKeys(SOCKET clientSocket);

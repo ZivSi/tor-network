@@ -101,6 +101,11 @@ vector<unsigned char> NodeData::toSend() {
 	return result;
 }
 
+bool NodeData::isEmpty()
+{
+	return this->port == 0;
+}
+
 NodeData::operator int() const {
 	return this->port;
 }
