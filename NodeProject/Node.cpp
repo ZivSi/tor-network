@@ -14,6 +14,14 @@ Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false), ICon
 Node::~Node()
 {
 	closeConnection();
+
+	for (auto it = conversationsMap.begin(); it != conversationsMap.end(); ++it) {
+		delete it->second;
+	}
+
+	conversationsMap.clear();
+
+	delete parentConnection;
 }
 
 
@@ -85,6 +93,37 @@ void Node::handleClient(SOCKET clientSocket)
 
 	sendToNode(nextNode, receivedDecrypted);
 	*/
+
+	string conversationId = Utility::extractConversationId(received);
+	string decryptedConversationId = eccHandler.decrypt(conversationId);
+
+	ConversationObject* currentConversation = findConversationBy(decryptedConversationId);
+
+	if (currentConversation->isEmpty()) {
+		delete currentConversation;
+
+		closesocket(clientSocket);
+
+		return;
+	}
+
+	string receivedDecrypted = AesHandler::decryptAES(received.substr(UUID_LEN), currentConversation->getKey());
+
+	SOCKET nextNode = currentConversation->getNxtNode();
+
+	if (nextNode == INVALID_SOCKET) {
+
+	}
+}
+
+ConversationObject* Node::findConversationBy(string conversationId) {
+	auto it = conversationsMap.find(conversationId);
+
+	if (it != conversationsMap.end()) {
+		return it->second;
+	}
+
+	return new ConversationObject();
 }
 
 bool Node::isHandshake(string received)
@@ -99,18 +138,6 @@ bool Node::isHandshake(string received)
 
 void Node::clientHandshake(SOCKET clientSocket)
 {
-	/*
--	receiveECCKeys() // Done
--	sendECCKeys() // Done
--	receive AES key
--	decrypt the rest using the client’s key
--	generate conversation id and AES key
--	send the AES key and conversation id
--	create conversation object
--	close connection
-
-	*/
-
 	sendKeys(clientSocket, eccHandler.serializeKey());
 
 	string receivedAES;
@@ -148,10 +175,12 @@ void Node::clientHandshake(SOCKET clientSocket)
 	// Build conversation object
 	string conversationId = ConversationObject::generateID();
 	AesKey aesPair(extractedAes, extractedIv);
-	ConversationObject currentConversation(conversationId, aesPair);
+	ConversationObject* currentConversation = new ConversationObject(conversationId, aesPair);
 
-	conversations.push_back(currentConversation);
+	std::pair<string, ConversationObject*> newPair(conversationId, currentConversation);
 
+	conversationsMap.insert(newPair);
+	
 	string encryptedId = AesHandler::encryptAES(conversationId, aesPair);
 
 	sendData(clientSocket, encryptedId);

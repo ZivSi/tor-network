@@ -1,10 +1,10 @@
 #pragma once
 
 #include "AesHandler.h"
-#include "Utility.h"
 #include <string>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
+#include <random>
 
 #define UUID_LEN 4 // Good enough
 
@@ -14,7 +14,11 @@ class ConversationObject
 {
 private:
 	SOCKET prvNode;
+	unsigned short prvPort;
+
 	SOCKET nxtNode;
+	unsigned short nxtPort;
+
 	string conversationId; // UUID
 	AesKey key; // Agreed between client and current node
 
@@ -28,13 +32,23 @@ public:
 
 	SOCKET getPrvNode();
 	SOCKET getNxtNode();
+
+	unsigned short getPrvPort();
+	unsigned short getNxtPort();
+
 	string getConversationId();
 	AesKey getKey();
 
 	void setPrvNode(SOCKET prvNode);
 	void setNxtNode(SOCKET nxtNode);
+
+	void setPrvPort(unsigned short prvPort);
+	void setNxtPort(unsigned short nxtPort);
+
 	void setConversationId(string conversationId);
 	void setKey(AesKey key);
 
 	static string generateID();
+
+	bool isEmpty();
 };

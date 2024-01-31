@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include "ConversationObject.h"
 
 typedef unsigned char byte;
 
@@ -38,4 +39,6 @@ public:
 	static string hashStr(const string& input);
 	static unsigned long int generateNonPrime();
 	static unsigned long int generateRandomNumber(unsigned long int lowerLimit, unsigned long int upperLimit);
+
+	static string extractConversationId(const string& received);
 };

@@ -33,6 +33,17 @@ SOCKET ConversationObject::getNxtNode() {
 	return this->nxtNode;
 }
 
+unsigned short ConversationObject::getPrvPort()
+{
+	return this->prvPort;
+}
+
+unsigned short ConversationObject::getNxtPort()
+{
+	return this->nxtPort;
+}
+
+
 string ConversationObject::getConversationId() {
 	return this->conversationId;
 }
@@ -47,6 +58,16 @@ void ConversationObject::setPrvNode(SOCKET prvNode) {
 
 void ConversationObject::setNxtNode(SOCKET nxtNode) {
 	this->nxtNode = nxtNode;
+}
+
+void ConversationObject::setPrvPort(unsigned short prvPort)
+{
+	this->prvPort = prvPort;
+}
+
+void ConversationObject::setNxtPort(unsigned short nxtPort)
+{
+	this->nxtPort = nxtPort;
 }
 
 void ConversationObject::setConversationId(string conversationId) {
@@ -71,4 +92,9 @@ string ConversationObject::generateID() {
 	}
 
 	return uuid;
+}
+
+bool ConversationObject::isEmpty()
+{
+	return conversationId == "";
 }

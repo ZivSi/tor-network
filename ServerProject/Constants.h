@@ -11,6 +11,7 @@ namespace Constants {
 	extern const unsigned short SERVER_PORT;
 	extern const string SPLITER;
 	extern const string NODE_INIT_FORMAT;
+	extern const string CLIENT_NODE_HANDSHAKE_FORMAT;
 	extern const int NODE_SPLIT_SIZE;
 	extern const string CLIENT_INIT_FORMAT;
 	extern const int DEFAULT_PATH_LENGTH;

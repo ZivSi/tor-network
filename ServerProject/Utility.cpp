@@ -120,3 +120,8 @@ unsigned long int Utility::generateRandomNumber(unsigned long int lowerLimit, un
 
 	return dis(gen);
 }
+
+string Utility::extractConversationId(const string& received)
+{
+	return received.substr(0, UUID_LEN);
+}

@@ -64,15 +64,15 @@ void ECCHandler::initialize(const string& serializedPublicKey)
 
 string ECCHandler::encrypt(const string& plaintext)
 {
-	return encrypt(plaintext, &encryptor, &rng);
+	return encryptECC(plaintext, &encryptor, &rng);
 }
 
 string ECCHandler::decrypt(const string& ciphertext)
 {
-	return decrypt(ciphertext, &decryptor, &rng);
+	return decryptECC(ciphertext, &decryptor, &rng);
 }
 
-string ECCHandler::encrypt(const string& plaintext, ECIES<ECP>::Encryptor* encryptor, AutoSeededRandomPool* rng)
+string ECCHandler::encryptECC(const string& plaintext, ECIES<ECP>::Encryptor* encryptor, AutoSeededRandomPool* rng)
 {
 	string ciphertext;
 
@@ -85,7 +85,7 @@ string ECCHandler::encrypt(const string& plaintext, ECIES<ECP>::Encryptor* encry
 	return ciphertext;
 }
 
-string ECCHandler::decrypt(const string& ciphertext, ECIES<ECP>::Decryptor* decryptor, AutoSeededRandomPool* rng)
+string ECCHandler::decryptECC(const string& ciphertext, ECIES<ECP>::Decryptor* decryptor, AutoSeededRandomPool* rng)
 {
 	string decryptedText;
 

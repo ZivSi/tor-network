@@ -59,8 +59,8 @@ public:
 
 
 	static ECIES<ECP>::Encryptor buildEncryptor(string serializedPublicKey);
-	static string encrypt(const string& plaintext, ECIES<ECP>::Encryptor* encryptor, AutoSeededRandomPool* rng);
-	static string decrypt(const string& ciphertext, ECIES<ECP>::Decryptor* decryptor, AutoSeededRandomPool* rng);
+	static string encryptECC(const string& plaintext, ECIES<ECP>::Encryptor* encryptor, AutoSeededRandomPool* rng);
+	static string decryptECC(const string& ciphertext, ECIES<ECP>::Decryptor* decryptor, AutoSeededRandomPool* rng);
 
 
 private:

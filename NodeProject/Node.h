@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "unordered_map"
 #include <thread>
 #include <mutex>
 #include <xstring>
@@ -26,6 +27,7 @@
 
 using std::string;
 using std::vector;
+using std::unordered_map;
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -53,7 +55,7 @@ private:
 	/*
 	* List of active conversations the server involved in
 	*/
-	vector<ConversationObject> conversations;
+	unordered_map<string, ConversationObject*> conversationsMap;
 	ECCHandler eccHandler;
 	AesHandler aesHandler;
 
@@ -67,7 +69,6 @@ private:
 	/*
 	* The node's server socket
 	*/
-	SOCKET myServerSocket;
 	bool stop;
 	unsigned short myPort;
 
@@ -80,7 +81,6 @@ private:
 	* Set actions to perform when new connection is made
 	*/
 	void acceptSocket(SOCKET socket) override;
-	ClientConnection* connectToParent(string parentIp, unsigned short parentPort, bool repeat);
 
 	/*
 	* Handle node or client connected
@@ -105,5 +105,7 @@ private:
 	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
 
 	void sendAlive();
+
+	ConversationObject* findConversationBy(string conversationId);
 };
 

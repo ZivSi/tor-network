@@ -8,6 +8,7 @@
 #include "Logger.h"
 #include "ClientConnection.h"
 #include "Constants.h"
+#include "NodeData.h"
 
 #pragma comment (lib, "ws2_32.lib")
 
@@ -26,7 +27,6 @@ public:
 
 	void receiveResponseFromServer();
 	void receiveResponseFromServerInLoop();
-	void formatResponseFromServer();
 
 	void startPathDesign();
 	void handshakeWithNode(int nodePort);
@@ -42,5 +42,9 @@ private:
 	Logger logger;
 
 	vector<unsigned short> receivedPorts;
+	vector<NodeData*> currentPath;
+
+	void clearCurrentPath();
+	void printPath();
 };
 
