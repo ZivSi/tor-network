@@ -55,6 +55,7 @@ public:
 
 	static CryptoPP::SecByteBlock StringToSecByteBlock(const string& str);
 	static string SecByteBlockToString(const CryptoPP::SecByteBlock& secByteBlock);
+	static AesKey decryptedAESKeysToPair(string decryptedAESKeys);
 
 	string formatKeyForSending(CryptoPP::SecByteBlock key);
 	SecByteBlock reformatKeyForReceiving(const std::string& key);

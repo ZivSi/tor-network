@@ -168,3 +168,17 @@ string AesKey::serializeKey()
 
 	return keySerialized + ivSerialized;
 }
+
+
+AesKey AesKey::decryptedAESKeysToPair(string decryptedAESKeys) {
+	string extractedAes = "";
+	string extractedIv = "";
+
+	Utility::extractAESKey(decryptedAESKeys, extractedAes);
+	Utility::extractAESIv(decryptedAESKeys, extractedIv);
+
+	SecByteBlock aesKey = AesKey::StringToSecByteBlock(extractedAes);
+	SecByteBlock aesIv = AesKey::StringToSecByteBlock(extractedIv);
+
+	return AesKey(aesKey, aesIv);
+}

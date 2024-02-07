@@ -98,31 +98,44 @@ void IConnection::sendECCKey(SOCKET connection)
 }
 
 string IConnection::receiveData(SOCKET connection) {
-	try {
 		size_t dataSize = 0;
 
 		// First, receive the size of the data
-		recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
+		if (recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0) < 0) {
+			
+			throw std::runtime_error("Failed to receive data size");
+		}
 
-		// Allocate a buffer to store the received data
-		char* buffer = new char[dataSize];
 
-		// Receive the key
-		recv(connection, buffer, dataSize, 0);
+		string data;
+		data.reserve(dataSize); // Reserve space for the entire data
 
-		// Create a string from the received data
-		string data(buffer, dataSize);
+		// Receive the data in chunks
+		constexpr size_t chunkSize = 4096;
+		vector<char> buffer(chunkSize);
 
-		delete[] buffer;
+		size_t totalReceived = 0;
+		while (totalReceived < dataSize) {
+			size_t bytesToReceive = min(chunkSize, dataSize - totalReceived);
+			size_t bytesReceived = recv(connection, buffer.data(), bytesToReceive, 0);
 
+			if (bytesReceived < 0) {
+				// Handle receive error
+				throw std::runtime_error("Failed to receive data");
+			}
+			else if (bytesReceived == 0) {
+				// Connection closed prematurely
+				throw std::runtime_error("Connection closed prematurely");
+			}
+
+			// Append received data to the string
+			data.append(buffer.data(), bytesReceived);
+			totalReceived += bytesReceived;
+		}
 
 		return data;
 	}
-	catch (...) {
-		logger->error("Couldn't receive data. Client disconnected");
-		return "";
-	}
-}
+
 
 string IConnection::receiveKeys(SOCKET connection) {
 	return receiveData(connection);

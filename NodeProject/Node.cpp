@@ -158,21 +158,11 @@ void Node::clientHandshake(SOCKET clientSocket)
 	}
 
 
-	string extractedAes = "";
-	string extractedIv = "";
-
-	Utility::extractAESKey(decryptedAESKeys, extractedAes);
-	Utility::extractAESIv(decryptedAESKeys, extractedIv);
-
-	SecByteBlock aesKey = AesKey::StringToSecByteBlock(extractedAes);
-	SecByteBlock aesIv = AesKey::StringToSecByteBlock(extractedIv);
-
-	logger.keysInfo("Extracted AES key and IV from received data");
+	AesKey aesPair = AesKey::decryptedAESKeysToPair(decryptedAESKeys);
 
 	// ----------- Build conversation object and send conversation id to client ------------
 	string conversationId = ConversationObject::generateID();
 
-	AesKey aesPair(aesKey, aesIv);
 	ConversationObject* currentConversation = new ConversationObject(conversationId, aesPair);
 
 	std::pair<string, ConversationObject*> newPair(conversationId, currentConversation);

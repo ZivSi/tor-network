@@ -117,17 +117,20 @@ string ClientConnection::receiveData() {
 
 	// First, receive the size of the data
 	if (recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0) < 0) {
-		// Handle receive error
 		throw std::runtime_error("Failed to receive data size");
 	}
 
-	// Allocate a buffer to store the received data
-	vector<char> buffer(dataSize);
+	string data;
+	data.reserve(dataSize); // Reserve space for the entire data
 
-	// Receive the data
+	// Receive the data in chunks
+	constexpr size_t chunkSize = 4096;
+	vector<char> buffer(chunkSize);
+
 	size_t totalReceived = 0;
 	while (totalReceived < dataSize) {
-		size_t bytesReceived = recv(connection, buffer.data() + totalReceived, dataSize - totalReceived, 0);
+		size_t bytesToReceive = min(chunkSize, dataSize - totalReceived);
+		size_t bytesReceived = recv(connection, buffer.data(), bytesToReceive, 0);
 
 		if (bytesReceived < 0) {
 			// Handle receive error
@@ -137,14 +140,15 @@ string ClientConnection::receiveData() {
 			// Connection closed prematurely
 			throw std::runtime_error("Connection closed prematurely");
 		}
+
+		// Append received data to the string
+		data.append(buffer.data(), bytesReceived);
 		totalReceived += bytesReceived;
 	}
 
-	// Create a string from the received data
-	string data(buffer.begin(), buffer.end());
-
 	return data;
 }
+
 
 string ClientConnection::receiveKeys(bool initialize = true)
 {

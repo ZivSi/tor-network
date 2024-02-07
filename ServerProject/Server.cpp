@@ -103,16 +103,7 @@ void Server::handleClient(SOCKET clientSocket)
 		}
 
 
-		string extractedAes = "";
-		string extractedIv = "";
-
-		Utility::extractAESKey(decryptedAESKeys, extractedAes);
-		Utility::extractAESIv(decryptedAESKeys, extractedIv);
-
-		SecByteBlock aesKey = AesKey::StringToSecByteBlock(extractedAes);
-		SecByteBlock aesIv = AesKey::StringToSecByteBlock(extractedIv);
-
-		logger.keysInfo("Extracted AES key and IV from received data");
+		AesKey temp = AesKey::decryptedAESKeysToPair(decryptedAESKeys);
 
 		string received = receiveData(clientSocket);
 
@@ -124,7 +115,6 @@ void Server::handleClient(SOCKET clientSocket)
 			return;
 		}
 
-		AesKey temp(aesKey, aesIv);
 		string decrypted = AesHandler::decryptAES(received, &temp);
 		logger.log("Decrypted data from client: " + decrypted);
 
