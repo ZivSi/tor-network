@@ -66,6 +66,9 @@
     <ClCompile Include="..\ServerProject\IConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RelayObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerProject\ECCHandler.h">
@@ -111,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\ServerProject\IConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RelayObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

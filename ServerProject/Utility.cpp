@@ -9,10 +9,6 @@ long long Utility::calculate_time(long long start_time) {
 	return capture_time() - start_time;
 }
 
-void Utility::print_path() {
-	// implementation
-}
-
 vector<string> Utility::splitString(const string& input, const string& delimiter) {
 	vector<string> tokens;
 	size_t start = 0, end = 0;
@@ -123,5 +119,5 @@ unsigned long int Utility::generateRandomNumber(unsigned long int lowerLimit, un
 
 string Utility::extractConversationId(const string& received)
 {
-	return received.substr(0, UUID_LEN);
+	return received.substr(0, 4); // TODO: Replace with constant
 }

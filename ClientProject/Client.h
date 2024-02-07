@@ -9,6 +9,7 @@
 #include "ClientConnection.h"
 #include "Constants.h"
 #include "NodeData.h"
+#include "RelayObject.h";
 
 #pragma comment (lib, "ws2_32.lib")
 
@@ -29,12 +30,17 @@ public:
 	void receiveResponseFromServerInLoop();
 
 	void startPathDesign();
-	void handshakeWithNode(int nodePort);
+	void handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex);
 
 	void checkConnectionAliveTimer();
 
+	void sendData(string ip, unsigned short port, string message);
+	string encrypt(string data);
+
 
 private:
+	ECCHandler eccHandler;
+
 	ClientConnection clientConnection;
 	int connectionAliveSeconds = 0;
 	bool desginPath = true; // Will turn false after the first path design, and true when connectionAliveSeconds > 10 minutes
@@ -42,7 +48,7 @@ private:
 	Logger logger;
 
 	vector<unsigned short> receivedPorts;
-	vector<NodeData*> currentPath;
+	vector<RelayObject*> currentPath;
 
 	void clearCurrentPath();
 	void printPath();

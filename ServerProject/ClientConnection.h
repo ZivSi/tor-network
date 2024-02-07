@@ -5,6 +5,8 @@
 #include <exception>
 #include "ECCHandler.h"
 #include "AesHandler.h"
+#include "Utility.h"
+#include <sys/types.h>
 
 #include <WS2tcpip.h>
 #include <WinSock2.h>
@@ -19,6 +21,7 @@ class ClientConnection
 {
 public:
 	ClientConnection(string ip, unsigned short port, Logger logger);
+	ClientConnection(string ip, unsigned short port, Logger logger, ECCHandler* eccHandler);
 	~ClientConnection();
 
 	void initWSASocket();
@@ -38,11 +41,17 @@ public:
 	void initializeParentECC(string receivedECCKeys);
 
 	void sendECCKeys();
+	void sendECCKeys(ECCHandler* eccHandler); // If already has one of its own
 	void sendAESKeys();
 
 	SOCKET getSocket();
 	unsigned short getPort();
 	string getIP();
+
+	AesKey getAesKey();
+	ECCHandler* getParentECCHandler();
+
+	AesHandler* getAesHandler();
 
 	void closeConnection();
 

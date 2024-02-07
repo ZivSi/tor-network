@@ -9,6 +9,16 @@ ClientConnection::ClientConnection(string ip, unsigned short port, Logger logger
 	connectInLoop();
 }
 
+ClientConnection::ClientConnection(string ip, unsigned short port, Logger logger, ECCHandler* eccHandler) : logger(logger)
+{
+	this->ip = ip;
+	this->port = port;
+	this->eccHandler = *eccHandler;
+
+	initWSASocket();
+	connectInLoop();
+}
+
 ClientConnection::~ClientConnection()
 {
 	closeConnection();
@@ -75,7 +85,7 @@ SOCKET ClientConnection::connectInLoop()
 
 void ClientConnection::handshake()
 {
-	receiveKeys(true);
+	receiveKeys(true); // Initialize parent ECC
 	sendECCKeys();
 	sendAESKeys();
 }
@@ -102,23 +112,36 @@ void ClientConnection::sendEncrypted(string data)
 	sendData(aesHandler.encrypt(data));
 }
 
-string ClientConnection::receiveData()
-{
+string ClientConnection::receiveData() {
 	size_t dataSize = 0;
 
 	// First, receive the size of the data
-	recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
+	if (recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0) < 0) {
+		// Handle receive error
+		throw std::runtime_error("Failed to receive data size");
+	}
 
 	// Allocate a buffer to store the received data
-	char* buffer = new char[dataSize];
+	vector<char> buffer(dataSize);
 
 	// Receive the data
-	recv(connection, buffer, dataSize, 0);
+	size_t totalReceived = 0;
+	while (totalReceived < dataSize) {
+		size_t bytesReceived = recv(connection, buffer.data() + totalReceived, dataSize - totalReceived, 0);
+
+		if (bytesReceived < 0) {
+			// Handle receive error
+			throw std::runtime_error("Failed to receive data");
+		}
+		else if (bytesReceived == 0) {
+			// Connection closed prematurely
+			throw std::runtime_error("Connection closed prematurely");
+		}
+		totalReceived += bytesReceived;
+	}
 
 	// Create a string from the received data
-	string data(buffer, dataSize);
-
-	delete[] buffer;
+	string data(buffer.begin(), buffer.end());
 
 	return data;
 }
@@ -146,15 +169,31 @@ void ClientConnection::sendECCKeys()
 	logger.keysInfo("Sent public key");
 }
 
+void ClientConnection::sendECCKeys(ECCHandler* eccHandler)
+{
+
+	string eccKeysSerialized = eccHandler->serializeKey();
+	sendKeys(eccKeysSerialized);
+
+	logger.keysInfo("Sent public key");
+}
+
 void ClientConnection::sendAESKeys()
 {
-	string keysStr = aesHandler.serializeKey();
+	string keysStr = aesHandler.getAesKey().serializeKey();
 
 	string encryptedKeys = parentECCHandler.encrypt(keysStr);
 
 	sendData(encryptedKeys);
 
-	logger.keysInfo("Sent symmetric key (AES)");
+	logger.keysInfo("Sent symmetric key (AES) with hex: " + Utility::asHex(keysStr));
+
+	if (this->port == SERVER_PORT) {
+		return;
+	}
+
+	cout << "Sent AES keys: " << encryptedKeys << endl;
+	cout << "AES keys decrypted: " << keysStr << endl;
 }
 
 
@@ -171,6 +210,21 @@ unsigned short ClientConnection::getPort()
 string ClientConnection::getIP()
 {
 	return ip;
+}
+
+AesKey ClientConnection::getAesKey()
+{
+	return this->aesHandler.getAesKey();
+}
+
+ECCHandler* ClientConnection::getParentECCHandler()
+{
+	return &(this->parentECCHandler);
+}
+
+AesHandler* ClientConnection::getAesHandler()
+{
+	return &(this->aesHandler);
 }
 
 void ClientConnection::closeConnection()

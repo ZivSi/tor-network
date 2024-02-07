@@ -55,7 +55,7 @@ private:
 	/*
 	* List of active conversations the server involved in
 	*/
-	unordered_map<string, ConversationObject*> conversationsMap;
+	unordered_map<string, ConversationObject*> conversationsMap; // Conversations involved in
 	ECCHandler eccHandler;
 	AesHandler aesHandler;
 
@@ -106,6 +106,11 @@ private:
 
 	void sendAlive();
 
+	string receiveECCKeys(SOCKET clientSocket);
+
 	ConversationObject* findConversationBy(string conversationId);
+	bool isConnectedTo(ClientConnection* nextNode);
+
+	void removeConversationFromMap(string conversationId);
 };
 

@@ -66,7 +66,7 @@ void IConnection::handleClient(SOCKET clientSocket) {
 	// Meant to be overrided
 }
 
-void IConnection::sendData(SOCKET connection, string data) {
+void IConnection::sendData(SOCKET connection, const string& data) {
 	try {
 		// First send size of data
 		size_t dataSize = data.size();
@@ -80,10 +80,21 @@ void IConnection::sendData(SOCKET connection, string data) {
 	}
 }
 
-void IConnection::sendKeys(SOCKET connection, string keyStr) {
+void IConnection::sendKeys(SOCKET connection, const string& keyStr) {
 	sendData(connection, keyStr);
 
 	logger->log("Sent keys: " + to_string(keyStr.size()));
+}
+
+void IConnection::sendECCKey(SOCKET connection)
+{
+	eccHandlerMutex.lock();
+	string keysStr = eccHandler.serializeKey();
+	eccHandlerMutex.unlock();
+
+	sendKeys(connection, keysStr);
+
+	logger->keysInfo("Sent public key");
 }
 
 string IConnection::receiveData(SOCKET connection) {
@@ -135,4 +146,40 @@ unsigned short IConnection::getPort()
 string IConnection::getIP()
 {
 	return ip;
+}
+
+ECCHandler* IConnection::getECCHandler()
+{
+	return &eccHandler;
+}
+
+string IConnection::encryptECC(string data)
+{
+	eccHandlerMutex.lock();
+	try {
+		string encryptedData = this->eccHandler.encrypt(data);
+		eccHandlerMutex.unlock();
+
+		return encryptedData;
+	}
+	catch (...) {
+		eccHandlerMutex.unlock();
+		throw;
+	}
+}
+
+string IConnection::decryptECC(string data)
+{
+	eccHandlerMutex.lock();
+	try {
+		string decryptedData = this->eccHandler.decrypt(data);
+		eccHandlerMutex.unlock();
+
+		return decryptedData;
+	}
+	catch (...) {
+		eccHandlerMutex.unlock();
+		cout << "Error during decryption: " << data << endl;
+		throw "Error during decryption";
+	}
 }

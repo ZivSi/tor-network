@@ -18,6 +18,9 @@ using CryptoPP::ECP;
 using CryptoPP::SHA256;
 using CryptoPP::ECIES;
 
+/*
+Class that will be stored on the server.
+*/
 
 class NodeData {
 private:

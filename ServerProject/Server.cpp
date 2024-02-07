@@ -62,18 +62,6 @@ void Server::acceptSocket(SOCKET socket) {
 	}
 }
 
-void Server::sendECCKeys(SOCKET clientSocket)
-{
-	eccHandlerMutex.lock();
-	string keysStr = eccHandler.serializeKey();
-	eccHandlerMutex.unlock();
-
-	sendKeys(clientSocket, keysStr);
-
-	logger.log("Sent public key");
-}
-
-
 string Server::receiveECCKeys(SOCKET clientSocket)
 {
 	return receiveKeys(clientSocket);
@@ -87,9 +75,7 @@ string Server::receiveAESKey(SOCKET clientSocket) {
 void Server::handleClient(SOCKET clientSocket)
 {
 	try {
-		this->sendECCKeys(clientSocket);
-		logger.keysInfo("Sent ECC keys to the client");
-
+		sendECCKey(clientSocket);
 
 		string receivedECCKeys = this->receiveECCKeys(clientSocket);
 		logger.keysInfo("Received ECC keys from client: " + Utility::asHex(receivedECCKeys));
@@ -106,19 +92,13 @@ void Server::handleClient(SOCKET clientSocket)
 		}
 
 		string decryptedAESKeys;
+
 		try {
-			eccHandlerMutex.lock();
-			decryptedAESKeys = eccHandler.decrypt(receivedAESKeys); // If client, we will get something like "Hi from client"
-			eccHandlerMutex.unlock();
+			decryptedAESKeys = decryptECC(receivedAESKeys);
 
 			logger.keysInfo("Decrypted AES keys from client: " + Utility::asHex(decryptedAESKeys));
 		}
-		catch (Exception e) {
-			eccHandlerMutex.unlock();
-
-			logger.error("Error in eccHandler.decrypt");
-			cout << e.what() << endl << "Input was: " << receivedAESKeys << endl;
-
+		catch (...) {
 			return;
 		}
 
@@ -129,8 +109,8 @@ void Server::handleClient(SOCKET clientSocket)
 		Utility::extractAESKey(decryptedAESKeys, extractedAes);
 		Utility::extractAESIv(decryptedAESKeys, extractedIv);
 
-		SecByteBlock aesKey = AesHandler::StringToSecByteBlock(extractedAes);
-		SecByteBlock aesIv = AesHandler::StringToSecByteBlock(extractedIv);
+		SecByteBlock aesKey = AesKey::StringToSecByteBlock(extractedAes);
+		SecByteBlock aesIv = AesKey::StringToSecByteBlock(extractedIv);
 
 		logger.keysInfo("Extracted AES key and IV from received data");
 
@@ -144,7 +124,8 @@ void Server::handleClient(SOCKET clientSocket)
 			return;
 		}
 
-		string decrypted = AesHandler::decryptAES(received, AesKey(aesKey, aesIv));
+		AesKey temp(aesKey, aesIv);
+		string decrypted = AesHandler::decryptAES(received, &temp);
 		logger.log("Decrypted data from client: " + decrypted);
 
 		if (!isNode(decrypted)) {
@@ -191,16 +172,12 @@ void Server::handleClient(SOCKET clientSocket)
 	catch (...) {
 		aliveNodesMutex.unlock();
 
-		logger.error("Error in handleConnection(). Quitting");
+		logger.error("Can't handle connection. Closing...");
 
 		closesocket(clientSocket);
 	}
 }
 
-
-string Server::decrypt(string encrypted) {
-	return eccHandler.decrypt(encrypted);
-}
 
 bool Server::isNode(string data) {
 	int currentSplitSize = Utility::splitString(data, SPLITER).size();
@@ -333,7 +310,7 @@ void Server::checkAliveNodes()
 			for (int i = 0; i < this->aliveNodes.size(); i++) {
 				NodeData* node = aliveNodes[i];
 
-				if (Utility::capture_time() - node->getLastAliveMessageTime() > Constants::MAX_TIME_ALIVE) {
+				if (nodeIsDead(node)) {
 
 					logger.error("Node " + to_string(node->getPort()) + " is dead");
 					delete node;
@@ -378,4 +355,9 @@ void Server::initializeNodes(vector<NodeData*> nodes)
 	aliveNodesMutex.lock();
 	this->aliveNodes = nodes;
 	aliveNodesMutex.unlock();
+}
+
+bool Server::nodeIsDead(NodeData* node)
+{
+	return Utility::capture_time() - node->getLastAliveMessageTime() > Constants::MAX_TIME_ALIVE;
 }

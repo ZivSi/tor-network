@@ -6,10 +6,13 @@
 #include <string>
 #include "Logger.h"
 #include <string>
+#include "ECCHandler.h"
+#include <mutex>
 
 using std::cerr;
 using std::string;
 using std::to_string;
+using std::mutex;
 
 enum class KeyType
 {
@@ -30,8 +33,10 @@ public:
 	virtual void acceptSocket(SOCKET socket) = 0;
 	virtual void handleClient(SOCKET clientSocket) = 0;
 
-	void sendData(SOCKET connection, string data);
-	void sendKeys(SOCKET connection, string keyStr);
+	void sendData(SOCKET connection, const string& data);
+	void sendKeys(SOCKET connection, const string& keyStr);
+
+	void sendECCKey(SOCKET connection);
 
 	string receiveData(SOCKET connection);
 	string receiveKeys(SOCKET connection);
@@ -41,7 +46,11 @@ public:
 	SOCKET getSocket();
 	unsigned short getPort();
 	string getIP();
+	ECCHandler* getECCHandler();
 
+protected:
+	string encryptECC(string data);
+	string decryptECC(string data);
 
 private:
 	SOCKET connection;
@@ -49,5 +58,8 @@ private:
 	string ip;
 
 	Logger* logger;
+
+	mutex eccHandlerMutex;
+	ECCHandler eccHandler;
 };
 

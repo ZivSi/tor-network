@@ -1,16 +1,11 @@
-﻿  Constants.cpp
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\format(42): warning STL4038: The contents of <format> are available only with C++20 or later.
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\Constants.cpp(15,82): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\Constants.cpp(15,28): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
-  DatabaseHelper.cpp
-  NodeData.cpp
-  Utility.cpp
+﻿  ClientConnection.cpp
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(102,32): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(130,83): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
   Node.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(132,28): warning C4566: character represented by universal-character-name '\u256C' cannot be represented in the current code page (1252)
-  main.cpp
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(190,34): warning C4242: 'initializing': conversion from 'int' to 'unsigned short', possible loss of data
   Generating code
-  242 of 4654 functions ( 5.2%) were compiled, the rest were copied from previous compilation.
-    170 functions were new in current compilation
-    262 functions had inline decision re-evaluated but remain unchanged
+  2 of 4738 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    73 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   NodeProject.vcxproj -> C:\Users\zivsi\source\repos\TorNetwork\x64\Release\NodeProject.exe

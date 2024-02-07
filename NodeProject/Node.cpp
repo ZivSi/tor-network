@@ -9,6 +9,9 @@ Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false), ICon
 	Node::PORT += 1;
 
 	this->parentConnection = new ClientConnection("127.0.0.1", SERVER_PORT, logger);
+
+	thread acceptInThread(&Node::acceptSocket, this, getSocket());
+	acceptInThread.detach();
 }
 
 Node::~Node()
@@ -34,10 +37,13 @@ void Node::acceptSocket(SOCKET socket)
 	logger.log("Waiting for connections...");
 
 	SOCKET clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
+
 	if (clientSocket == INVALID_SOCKET) {
 		cerr << "Accept failed with error: " << WSAGetLastError() << endl;
 		exit(1);
 	}
+
+	cout << "Node [" << myPort << "] accepted connection from client" << endl;
 
 	// Handle the client in a new thread
 	thread clientThread(&Node::handleClient, this, clientSocket);
@@ -47,7 +53,10 @@ void Node::acceptSocket(SOCKET socket)
 
 void Node::handleClient(SOCKET clientSocket)
 {
-	string received = receiveData(clientSocket); // ConversationId/0Data
+	sendECCKey(clientSocket);
+	cout << "\b\b to the client" << endl;
+
+	string received = this->receiveECCKeys(clientSocket); // eccEncrypted(ConversationId) + aesEncrypted(Data) or handshake (begins with 0Y0*åH╬)
 
 	if (isHandshake(received)) {
 		logger.clientEvent("Client wants to perform handshake");
@@ -56,43 +65,6 @@ void Node::handleClient(SOCKET clientSocket)
 		return;
 	}
 
-	/*
-	// Node sending data
-	string conversationId = received.until("\0");
-	string conversationIdDecrypted = eccHandler.decrypt(conversationId);
-
-
-	ConversationObject* currentConversation;
-	// Extract appropriate aes key by the conversation id
-	for (ConversationObject& tempConversation : conversations) {
-		if (tempConversation.getConversationId() == conversationIdDecrypted) {
-			currentConversation = &tempConversation;
-			return;
-		}
-	}
-
-	AesKey currentKey = currentConversation->getKey();
-	SOCKET nextNode = currentConversation->getNxtNode();
-
-	received = received.from('\0');
-	string receivedDecrypted = AesHandler::decryptAES(received, currentKey.getKey(), currentKey.getIv());
-
-	if (nextNode not in aliveSockets) // We are already connected to the node
-	{
-		try {
-			connectToNode();
-		}
-		catch () {
-			sendErrorToClient(currentConversation);
-
-			deleteConversation(currentConversation);
-
-			return;
-		}
-	}
-
-	sendToNode(nextNode, receivedDecrypted);
-	*/
 
 	string conversationId = Utility::extractConversationId(received);
 	string decryptedConversationId = eccHandler.decrypt(conversationId);
@@ -109,11 +81,16 @@ void Node::handleClient(SOCKET clientSocket)
 
 	string receivedDecrypted = AesHandler::decryptAES(received.substr(UUID_LEN), currentConversation->getKey());
 
-	SOCKET nextNode = currentConversation->getNxtNode();
+	ClientConnection* nextNode = currentConversation->getNxtNode();
+	unsigned short nextNodePort = currentConversation->getNxtPort();
 
-	if (nextNode == INVALID_SOCKET) {
-
+	if (!isConnectedTo(nextNode)) {
+		ClientConnection* nextNodeConnection = new ClientConnection("127.0.0.1", nextNodePort, logger);
+		currentConversation->setNxtNode(nextNodeConnection);
 	}
+
+
+	sendData(currentConversation->getNxtNode()->getSocket(), receivedDecrypted);
 }
 
 ConversationObject* Node::findConversationBy(string conversationId) {
@@ -126,10 +103,27 @@ ConversationObject* Node::findConversationBy(string conversationId) {
 	return new ConversationObject();
 }
 
+bool Node::isConnectedTo(ClientConnection* nextNode)
+{
+	return nextNode != nullptr;
+}
+
+void Node::removeConversationFromMap(string conversationId)
+{
+	auto it = conversationsMap.find(conversationId);
+
+	if (it != conversationsMap.end()) {
+		delete it->second;
+		conversationsMap.erase(it);
+	}
+
+	logger.log("Removed conversation from map: " + conversationId);
+}
+
 bool Node::isHandshake(string received)
 {
-	// If client handshake, the beggining will be ECC key
-	string typicalBeggining = "0Y0*åH╬";
+	// If client handshake, the beggining will be ECC key. Another node won't send ECC key
+	string typicalBeggining = "0"; // TODO: Change to ECC key
 
 	string keyPart = received.substr(0, typicalBeggining.size());
 
@@ -137,26 +131,29 @@ bool Node::isHandshake(string received)
 }
 
 void Node::clientHandshake(SOCKET clientSocket)
-{
-	sendKeys(clientSocket, eccHandler.serializeKey());
 
-	string receivedAES;
+{
+	string receivedAESKeys;
+
 	try {
-		receivedAES = receiveKeys(clientSocket);
+		receivedAESKeys = receiveKeys(clientSocket);
 		logger.keysInfo("Received AES keys from client");
+
 	}
 	catch (Exception) {
 		logger.error("Error in receiving AES keys");
 		return;
 	}
 
-	string aesKeys;
+
+	string decryptedAESKeys;
 	try {
-		aesKeys = eccHandler.decrypt(receivedAES);
+		decryptedAESKeys = decryptECC(receivedAESKeys);
+
+		logger.keysInfo("Decrypted AES keys from client: " + Utility::asHex(decryptedAESKeys));
+
 	}
-	catch (Exception e) {
-		logger.error("Error in eccHandler.decrypt");
-		cout << e.what() << endl;
+	catch (...) {
 		return;
 	}
 
@@ -164,26 +161,46 @@ void Node::clientHandshake(SOCKET clientSocket)
 	string extractedAes = "";
 	string extractedIv = "";
 
-	Utility::extractAESKey(aesKeys, extractedAes);
-	Utility::extractAESIv(aesKeys, extractedIv);
+	Utility::extractAESKey(decryptedAESKeys, extractedAes);
+	Utility::extractAESIv(decryptedAESKeys, extractedIv);
 
-	SecByteBlock aesKey = AesHandler::StringToSecByteBlock(extractedAes);
-	SecByteBlock aesIv = AesHandler::StringToSecByteBlock(extractedIv);
+	SecByteBlock aesKey = AesKey::StringToSecByteBlock(extractedAes);
+	SecByteBlock aesIv = AesKey::StringToSecByteBlock(extractedIv);
 
 	logger.keysInfo("Extracted AES key and IV from received data");
 
-	// Build conversation object
+	// ----------- Build conversation object and send conversation id to client ------------
 	string conversationId = ConversationObject::generateID();
-	AesKey aesPair(extractedAes, extractedIv);
+
+	AesKey aesPair(aesKey, aesIv);
 	ConversationObject* currentConversation = new ConversationObject(conversationId, aesPair);
 
 	std::pair<string, ConversationObject*> newPair(conversationId, currentConversation);
 
 	conversationsMap.insert(newPair);
-	
-	string encryptedId = AesHandler::encryptAES(conversationId, aesPair);
+
+	string encryptedId = AesHandler::encryptAES(conversationId, &aesPair, true);
 
 	sendData(clientSocket, encryptedId);
+
+	// Receive next node port
+	string nextNodePort = receiveData(clientSocket);
+	string decryptedNextNodePort = AesHandler::decryptAES(nextNodePort, &aesPair);
+	try {
+		unsigned short nextNodePortInt = stoi(decryptedNextNodePort);
+		currentConversation->setNxtPort(nextNodePortInt);
+	}
+	catch (Exception) {
+		logger.error("Error in stoi(decryptedNextNodePort)");
+
+		closesocket(clientSocket);
+
+
+		removeConversationFromMap(conversationId);
+		delete currentConversation;
+
+		return;
+	}
 
 	closesocket(clientSocket);
 }
@@ -211,8 +228,7 @@ void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKey
 	cout << "Server's public key is: " << receivedECCKeys << endl;
 	ECCHandler serverECCHandler(receivedECCKeys);
 
-	string keysStr = aesHandler.formatKeyForSending(aesHandler.getKey());
-	keysStr += aesHandler.formatKeyForSending(aesHandler.getIv());
+	string keysStr = aesHandler.getAesKey().serializeKey();
 
 	string encryptedKeys = serverECCHandler.encrypt(keysStr);
 
@@ -251,4 +267,9 @@ void Node::sendAlive()
 			logger.error("Error in sendAlive (probably handshake)");
 		}
 	}
+}
+
+string Node::receiveECCKeys(SOCKET clientSocket)
+{
+	return receiveKeys(clientSocket);
 }

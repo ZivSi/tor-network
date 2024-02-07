@@ -10,6 +10,7 @@
 #include <secblock.h>
 #include <base64.h>
 #include "Constants.h"
+#include "Utility.h"
 
 
 using CryptoPP::AES;
@@ -43,14 +44,22 @@ private:
 
 public:
 	AesKey();
-	AesKey(string key, string iv);
+	AesKey(const string& key, const string& iv);
 	AesKey(SecByteBlock key, SecByteBlock iv);
 	~AesKey();
 
-	void initialize(string key, string iv);
+	void initialize(const std::string& key, const std::string& iv);
 
 	SecByteBlock getKey();
 	SecByteBlock getIv();
+
+	static CryptoPP::SecByteBlock StringToSecByteBlock(const string& str);
+	static string SecByteBlockToString(const CryptoPP::SecByteBlock& secByteBlock);
+
+	string formatKeyForSending(CryptoPP::SecByteBlock key);
+	SecByteBlock reformatKeyForReceiving(const std::string& key);
+
+	string serializeKey();
 };
 
 class AesHandler {
@@ -62,19 +71,16 @@ public:
 	string encrypt(const string& plaintext);
 	string decrypt(const string& ciphertext);
 
-	string getKeys();
-	SecByteBlock getKey();
-	SecByteBlock getIv();
+	string encrypt(const string& plaintext, bool log);
+	string decrypt(const string& ciphertext, bool log);
 
-	string formatKeyForSending(SecByteBlock key);
-	SecByteBlock reformatKeyForReceiving(const std::string& key);
+	AesKey getAesKey();
 
-	string serializeKey();
+	static string encryptAES(const string& plaintext, AesKey* keys, bool log);
+	static string decryptAES(const string& ciphertext, AesKey* keys, bool log);
 
-	static string encryptAES(const string& plaintext, AesKey keys);
-	static string decryptAES(const string& ciphertext, AesKey keys);
-	static string SecByteBlockToString(const CryptoPP::SecByteBlock& secByteBlock);
-	static CryptoPP::SecByteBlock StringToSecByteBlock(const string& str);
+	static string encryptAES(const string& plaintext, AesKey* keys);
+	static string decryptAES(const string& ciphertext, AesKey* keys);
 
 private:
 	AesKey selfKeys;

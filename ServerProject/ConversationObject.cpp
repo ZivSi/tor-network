@@ -3,12 +3,12 @@
 string ConversationObject::LETTERS = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 ConversationObject::ConversationObject() {
-	this->prvNode = INVALID_SOCKET;
-	this->nxtNode = INVALID_SOCKET;
+	this->prvNode = nullptr;
+	this->nxtNode = nullptr;
 	this->conversationId = "";
 }
 
-ConversationObject::ConversationObject(SOCKET prvNode, SOCKET nxtNode, string conversationId, AesKey key) {
+ConversationObject::ConversationObject(ClientConnection* prvNode, ClientConnection* nxtNode, string conversationId, AesKey key) {
 	this->prvNode = prvNode;
 	this->nxtNode = nxtNode;
 	this->conversationId = conversationId;
@@ -16,8 +16,8 @@ ConversationObject::ConversationObject(SOCKET prvNode, SOCKET nxtNode, string co
 }
 
 ConversationObject::ConversationObject(string conversationId, AesKey key) {
-	this->prvNode = INVALID_SOCKET;
-	this->nxtNode = INVALID_SOCKET;
+	this->prvNode = nullptr;
+	this->nxtNode = nullptr;
 	this->conversationId = conversationId;
 	this->key = key;
 }
@@ -25,11 +25,11 @@ ConversationObject::ConversationObject(string conversationId, AesKey key) {
 ConversationObject::~ConversationObject() {
 }
 
-SOCKET ConversationObject::getPrvNode() {
+ClientConnection* ConversationObject::getPrvNode() {
 	return this->prvNode;
 }
 
-SOCKET ConversationObject::getNxtNode() {
+ClientConnection* ConversationObject::getNxtNode() {
 	return this->nxtNode;
 }
 
@@ -48,15 +48,15 @@ string ConversationObject::getConversationId() {
 	return this->conversationId;
 }
 
-AesKey ConversationObject::getKey() {
-	return this->key;
+AesKey* ConversationObject::getKey() {
+	return &(this->key);
 }
 
-void ConversationObject::setPrvNode(SOCKET prvNode) {
+void ConversationObject::setPrvNode(ClientConnection* prvNode) {
 	this->prvNode = prvNode;
 }
 
-void ConversationObject::setNxtNode(SOCKET nxtNode) {
+void ConversationObject::setNxtNode(ClientConnection* nxtNode) {
 	this->nxtNode = nxtNode;
 }
 

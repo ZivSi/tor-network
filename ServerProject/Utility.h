@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <iomanip>
-#include "ConversationObject.h"
 
 typedef unsigned char byte;
 
@@ -25,7 +24,6 @@ class Utility {
 public:
 	static unsigned long long capture_time();
 	static long long calculate_time(long long start_time);
-	static void print_path();
 	static vector<string> splitString(const string& input, const string& delimiter = Constants::SPLITER);
 	static void extractAESKey(const string& input, string& output);
 	static void extractAESIv(const string& input, string& output);

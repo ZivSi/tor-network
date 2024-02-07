@@ -55,22 +55,17 @@ public:
 private:
 	bool stop;
 
-	mutex eccHandlerMutex;
-	ECCHandler eccHandler;
-
 	mutex aliveNodesMutex;
 	vector<NodeData*> aliveNodes;
 
 	mutex nodesMutex;
 	Logger logger;
 
-	string decrypt(string encrypted);
-
-	void sendECCKeys(SOCKET clientSocket);
 	string receiveECCKeys(SOCKET clientSocket);
 	string receiveAESKey(SOCKET clientSocket);
 
 	bool isNode(string decrypted);
+	bool nodeIsDead(NodeData* node);
 
 	// If true
 	bool isValidFormat(string decrypted);

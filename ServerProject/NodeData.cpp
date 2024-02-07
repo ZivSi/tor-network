@@ -66,6 +66,8 @@ void NodeData::setLastAliveMessageTime(unsigned long long lastAliveMessageTime) 
 
 void NodeData::updateLastAliveMessageTime() {
 	this->lastAliveMessageTime = Utility::capture_time();
+
+	this->aliveMessagesCount++;
 }
 
 void NodeData::setAliveMessagesCount(unsigned long aliveMessagesCount) {

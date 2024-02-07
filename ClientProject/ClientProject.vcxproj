@@ -147,6 +147,7 @@
     <ClCompile Include="..\ServerProject\Utility.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RelayObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerProject\AesHandler.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="..\ServerProject\StatsData.h" />
     <ClInclude Include="..\ServerProject\Utility.h" />
     <ClInclude Include="Client.h" />
+    <ClInclude Include="RelayObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
