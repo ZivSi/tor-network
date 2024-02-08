@@ -68,5 +68,7 @@ private:
 	ECCHandler eccHandler; // My key
 
 	AesHandler aesHandler;
+
+	bool conversationClosed = false;
 };
 

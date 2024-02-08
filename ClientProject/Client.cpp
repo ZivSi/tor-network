@@ -20,6 +20,23 @@ Client::~Client() {
 	logger.log("Client destroyed");
 }
 
+void Client::waitForNodes()
+{
+	receiveResponseFromServer();
+
+	while (receivedPorts.empty()) {
+		clientConnection.closeConnection();
+		
+		Sleep(3000);
+
+		clientConnection.connectInLoop();
+		clientConnection.handshake();
+		clientConnection.sendEncrypted("Hi. I'm a client");
+
+		receiveResponseFromServer();
+	}
+}
+
 void Client::receiveResponseFromServer()
 {
 	string received = clientConnection.receiveData();
@@ -46,31 +63,6 @@ void Client::receiveResponseFromServer()
 
 	// Delete last comma
 	cout << "\b\b]" << endl;
-
-	startPathDesign();
-
-	for (int i = 0; i < currentPath.size(); i++) {
-		RelayObject* currentNodeData = currentPath.at(i);
-
-		handshakeWithNode(currentNodeData->getPort(), i);
-	}
-
-	cout << "Handshake completed" << endl;
-}
-
-void Client::receiveResponseFromServerInLoop()
-{
-	while (true) {
-		receiveResponseFromServer();
-
-		clientConnection.closeConnection();
-
-		Sleep(3000);
-
-		clientConnection.connectInLoop();
-		clientConnection.handshake();
-		clientConnection.sendEncrypted("Hi. I'm a client");
-	}
 }
 
 void Client::startPathDesign()
@@ -89,6 +81,15 @@ void Client::startPathDesign()
 	printPath();
 }
 
+void Client::handshakeWithCurrentPath()
+{
+	for (int i = 0; i < currentPath.size(); i++) {
+		RelayObject* currentNodeData = currentPath.at(i);
+
+		handshakeWithNode(currentNodeData->getPort(), i);
+	}
+}
+
 void Client::handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex)
 {
 	ClientConnection nodeConnection("127.0.0.1", nodePort, logger, &(this->eccHandler));
@@ -97,7 +98,7 @@ void Client::handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex)
 
 	string conversationIdEncrypted = nodeConnection.receiveData();
 
-	string conversationIdDecrypted = nodeConnection.getAesHandler()->decrypt(conversationIdEncrypted, true);
+	string conversationIdDecrypted = nodeConnection.getAesHandler()->decrypt(conversationIdEncrypted);
 	logger.success("Received conversationId: " + conversationIdDecrypted);
 
 	RelayObject* currentRelay = new RelayObject(nodePort, nodeConnection.getAesKey(), nodeConnection.getParentECCHandler(), conversationIdDecrypted);

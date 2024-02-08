@@ -21,7 +21,8 @@ ClientConnection::ClientConnection(string ip, unsigned short port, Logger logger
 
 ClientConnection::~ClientConnection()
 {
-	closeConnection();
+	if (!conversationClosed) { closeConnection(); }
+
 	WSACleanup();
 }
 
@@ -59,7 +60,9 @@ SOCKET ClientConnection::connectToServer()
 		throw "Can't connect to server! Quitting";
 	}
 
-	logger.log("Connected to " + this->ip + ":" + to_string(this->port));
+	if (this->port != SERVER_PORT) {
+		logger.log("Connected to " + this->ip + ":" + to_string(this->port));
+	}
 
 	return connection;
 }
@@ -190,14 +193,7 @@ void ClientConnection::sendAESKeys()
 
 	sendData(encryptedKeys);
 
-	logger.keysInfo("Sent symmetric key (AES) with hex: " + Utility::asHex(keysStr));
-
-	if (this->port == SERVER_PORT) {
-		return;
-	}
-
-	cout << "Sent AES keys: " << encryptedKeys << endl;
-	cout << "AES keys decrypted: " << keysStr << endl;
+	// logger.keysInfo("Sent symmetric key (AES) with hex: " + Utility::asHex(keysStr));
 }
 
 
@@ -235,6 +231,10 @@ void ClientConnection::closeConnection()
 {
 	closesocket(connection);
 
-	logger.log("Closed connection to " + this->ip + ":" + to_string(this->port));
+	if (this->port != SERVER_PORT) {
+		logger.log("Closed connection to " + this->ip + ":" + to_string(this->port));
+	}
+
+	conversationClosed = true;
 }
 

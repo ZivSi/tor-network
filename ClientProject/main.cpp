@@ -7,8 +7,12 @@ int main()
 {
 	cout << "Client started" << endl;
 	Client client;
-	thread clientThread(&Client::receiveResponseFromServerInLoop, &client);
-	clientThread.join();
+
+	client.waitForNodes();
+
+	client.receiveResponseFromServer();
+	client.startPathDesign();
+	client.handshakeWithCurrentPath();
 	
 	return 0;
 }

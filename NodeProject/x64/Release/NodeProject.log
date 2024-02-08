@@ -1,21 +1,8 @@
-﻿  ClientConnection.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(102,32): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(135,58): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-  ConversationObject.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(84,56): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(84,56): warning C4267:         with
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(84,56): warning C4267:         [
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(84,56): warning C4267:             _Ty=int
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(84,56): warning C4267:         ]
-  IConnection.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\IConnection.cpp(76,33): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\IConnection.cpp(120,59): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-  Node.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(180,34): warning C4242: 'initializing': conversion from 'int' to 'unsigned short', possible loss of data
-  main.cpp
+﻿  Node.cpp
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\Node.cpp(189,34): warning C4242: 'initializing': conversion from 'int' to 'unsigned short', possible loss of data
   Generating code
-  33 of 4730 functions ( 0.7%) were compiled, the rest were copied from previous compilation.
+  30 of 4730 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    124 functions had inline decision re-evaluated but remain unchanged
+    72 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   NodeProject.vcxproj -> C:\Users\zivsi\source\repos\TorNetwork\x64\Release\NodeProject.exe

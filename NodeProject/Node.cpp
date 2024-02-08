@@ -3,7 +3,7 @@
 // Port variable
 unsigned short Node::PORT = SERVER_PORT + 1;
 
-Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false), IConnection("127.0.0.1", Node::PORT, &logger)
+Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), IConnection("127.0.0.1", Node::PORT, &logger)
 {
 	myPort = Node::PORT;
 	Node::PORT += 1;
@@ -30,31 +30,31 @@ Node::~Node()
 
 void Node::acceptSocket(SOCKET socket)
 {
-	// Accept a client socket
-	sockaddr_in client;
-	int clientSize = sizeof(client);
+	while (true) {
+		sockaddr_in client;
+		int clientSize = sizeof(client);
 
-	logger.log("Waiting for connections...");
+		logger.log("Waiting for connections...");
 
-	SOCKET clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
+		SOCKET clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
 
-	if (clientSocket == INVALID_SOCKET) {
-		cerr << "Accept failed with error: " << WSAGetLastError() << endl;
-		exit(1);
+		if (clientSocket == INVALID_SOCKET) {
+			cerr << "Accept failed with error: " << WSAGetLastError() << endl;
+			exit(1);
+		}
+
+		logger.clientEvent("accepted connection from client");
+
+		// Handle the client in a new thread
+		thread clientThread(&Node::handleClient, this, clientSocket);
+		clientThread.detach();
 	}
-
-	cout << "Node [" << myPort << "] accepted connection from client" << endl;
-
-	// Handle the client in a new thread
-	thread clientThread(&Node::handleClient, this, clientSocket);
-	clientThread.detach();
 }
 
 
 void Node::handleClient(SOCKET clientSocket)
 {
 	sendECCKey(clientSocket);
-	cout << "\b\b to the client" << endl;
 
 	string received = this->receiveECCKeys(clientSocket); // eccEncrypted(ConversationId) + aesEncrypted(Data) or handshake (begins with 0Y0*åH╬)
 
@@ -154,44 +154,57 @@ void Node::clientHandshake(SOCKET clientSocket)
 
 	}
 	catch (...) {
+		logger.error("Error in decryptECC(receivedAESKeys)");
+
 		return;
 	}
 
+	ConversationObject* currentConversation = nullptr;
+	string conversationId;
+	AesKey aesPair;
+	string encryptedId;
+	string nextNodePort;
+	string decryptedNextNodePort;
 
-	AesKey aesPair = AesKey::decryptedAESKeysToPair(decryptedAESKeys);
-
-	// ----------- Build conversation object and send conversation id to client ------------
-	string conversationId = ConversationObject::generateID();
-
-	ConversationObject* currentConversation = new ConversationObject(conversationId, aesPair);
-
-	std::pair<string, ConversationObject*> newPair(conversationId, currentConversation);
-
-	conversationsMap.insert(newPair);
-
-	string encryptedId = AesHandler::encryptAES(conversationId, &aesPair, true);
-
-	sendData(clientSocket, encryptedId);
-
-	// Receive next node port
-	string nextNodePort = receiveData(clientSocket);
-	string decryptedNextNodePort = AesHandler::decryptAES(nextNodePort, &aesPair);
 	try {
+		aesPair = AesKey::decryptedAESKeysToPair(decryptedAESKeys);
+
+		// ----------- Build conversation object and send conversation id to client ------------
+		conversationId = ConversationObject::generateID();
+
+		currentConversation = new ConversationObject(conversationId, aesPair);
+
+		std::pair<string, ConversationObject*> newPair(conversationId, currentConversation);
+
+		conversationsMap.insert(newPair);
+
+		encryptedId = AesHandler::encryptAES(conversationId, &aesPair);
+
+		sendData(clientSocket, encryptedId);
+
+		// Receive next node port
+		nextNodePort = receiveData(clientSocket);
+		decryptedNextNodePort = AesHandler::decryptAES(nextNodePort, &aesPair);
+
 		unsigned short nextNodePortInt = stoi(decryptedNextNodePort);
 		currentConversation->setNxtPort(nextNodePortInt);
 	}
+
 	catch (Exception) {
 		logger.error("Error in stoi(decryptedNextNodePort)");
 
 		closesocket(clientSocket);
 
-
 		removeConversationFromMap(conversationId);
-		delete currentConversation;
+
+		if (currentConversation != nullptr) {
+			delete currentConversation;
+		}
 
 		return;
 	}
 
+	logger.success("Handhsake with client successful. Closing socket...");
 	closesocket(clientSocket);
 }
 

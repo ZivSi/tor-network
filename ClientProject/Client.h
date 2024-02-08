@@ -26,10 +26,12 @@ public:
 	Client();
 	~Client();
 
+	void waitForNodes();
+
 	void receiveResponseFromServer();
-	void receiveResponseFromServerInLoop();
 
 	void startPathDesign();
+	void handshakeWithCurrentPath();
 	void handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex);
 
 	void checkConnectionAliveTimer();
