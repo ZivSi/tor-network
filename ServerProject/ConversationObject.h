@@ -29,6 +29,8 @@ private:
 
 	static string LETTERS;
 
+	bool isExitNode = false;
+
 public:
 	ConversationObject();
 	ConversationObject(ClientConnection* prvNode, ClientConnection* nxtNode, string conversationId, AesKey key);
@@ -52,6 +54,8 @@ public:
 
 	void setConversationId(string conversationId);
 	void setKey(AesKey key);
+
+	void setAsExitNode();
 
 	static string generateID();
 

@@ -98,3 +98,8 @@ bool ConversationObject::isEmpty()
 {
 	return conversationId == "";
 }
+
+void ConversationObject::setAsExitNode()
+{
+	this->isExitNode = true;
+}

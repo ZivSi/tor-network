@@ -42,6 +42,18 @@ string RelayObject::getConversationIdEncrypted()
 	return this->conversationIdEncrypted;
 }
 
+void RelayObject::setAesKeys(AesKey aesKeys)
+{
+
+	this->aesKey = aesKeys;
+}
+
+void RelayObject::setEccHandler(ECCHandler* eccHandler)
+{
+	this->eccHandler = eccHandler;
+}
+
+
 void RelayObject::setConversationId(string conversationId)
 {
 	this->conversationId = conversationId;

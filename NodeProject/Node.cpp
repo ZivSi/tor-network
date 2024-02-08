@@ -25,6 +25,8 @@ Node::~Node()
 	conversationsMap.clear();
 
 	delete parentConnection;
+
+	logger.log("Node destroyed");
 }
 
 
@@ -186,22 +188,26 @@ void Node::clientHandshake(SOCKET clientSocket)
 		nextNodePort = receiveData(clientSocket);
 		decryptedNextNodePort = AesHandler::decryptAES(nextNodePort, &aesPair);
 
-		unsigned short nextNodePortInt = stoi(decryptedNextNodePort);
-		currentConversation->setNxtPort(nextNodePortInt);
+		try {
+			unsigned short nextNodePortInt = stoi(decryptedNextNodePort);
+			currentConversation->setNxtPort(nextNodePortInt);
+		}
+		catch (...) {
+			// We received destination. We are the exit node
+			currentConversation->setAsExitNode();
+
+			logger.log("Received destination. I am the exit node");
+		}
 	}
 
 	catch (Exception) {
-		logger.error("Error in stoi(decryptedNextNodePort)");
-
-		closesocket(clientSocket);
+		logger.error("Error in clientHandshake");
 
 		removeConversationFromMap(conversationId);
 
 		if (currentConversation != nullptr) {
 			delete currentConversation;
 		}
-
-		return;
 	}
 
 	logger.success("Handhsake with client successful. Closing socket...");

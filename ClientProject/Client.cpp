@@ -101,9 +101,10 @@ void Client::handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex)
 	string conversationIdDecrypted = nodeConnection.getAesHandler()->decrypt(conversationIdEncrypted);
 	logger.success("Received conversationId: " + conversationIdDecrypted);
 
-	RelayObject* currentRelay = new RelayObject(nodePort, nodeConnection.getAesKey(), nodeConnection.getParentECCHandler(), conversationIdDecrypted);
-	delete currentPath.at(nodeIndex);
-	currentPath.at(nodeIndex) = currentRelay;
+	RelayObject* currentRelay = currentPath.at(nodeIndex);
+	currentRelay->setAesKeys(nodeConnection.getAesHandler()->getAesKey());
+	currentRelay->setEccHandler(nodeConnection.getParentECCHandler());
+	currentRelay->setConversationId(conversationIdDecrypted);
 
 	// Hey node, your next node is...
 	if (nodeIndex < currentPath.size() - 1) {
