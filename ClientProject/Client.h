@@ -39,6 +39,7 @@ public:
 	void sendData(string ip, unsigned short port, string message);
 	string encrypt(string data);
 
+	void printNodes();
 
 private:
 	ECCHandler eccHandler;

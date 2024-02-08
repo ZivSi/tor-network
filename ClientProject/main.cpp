@@ -13,6 +13,8 @@ int main()
 	client.receiveResponseFromServer();
 	client.startPathDesign();
 	client.handshakeWithCurrentPath();
+
+	client.printNodes();
 	
 	return 0;
 }

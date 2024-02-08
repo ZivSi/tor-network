@@ -102,6 +102,8 @@ void Client::handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex)
 	logger.success("Received conversationId: " + conversationIdDecrypted);
 
 	RelayObject* currentRelay = new RelayObject(nodePort, nodeConnection.getAesKey(), nodeConnection.getParentECCHandler(), conversationIdDecrypted);
+	delete currentPath.at(nodeIndex);
+	currentPath.at(nodeIndex) = currentRelay;
 
 	// Hey node, your next node is...
 	if (nodeIndex < currentPath.size() - 1) {
@@ -138,6 +140,15 @@ string Client::encrypt(string data)
 	}
 
 	return encrypted;
+}
+
+void Client::printNodes()
+{
+	for (RelayObject* relay : currentPath) {
+		cout << "Node: " << relay->getPort() << " - " << relay->getConversationId() << endl;
+	}
+
+	cout << "\n\n\n";
 }
 
 void Client::clearCurrentPath()
