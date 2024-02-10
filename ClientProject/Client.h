@@ -36,8 +36,9 @@ public:
 
 	void checkConnectionAliveTimer();
 
-	void sendData(string ip, unsigned short port, string message);
-	string encrypt(string data);
+	ClientConnection* connectToEntryNode();
+	void sendData(string ip, unsigned short port, string message, ClientConnection* entryNodeConnection); // Call connectToEntryNode() before this
+	string encrypt(string ip, unsigned short port, string data);
 
 	void printNodes();
 

@@ -3,20 +3,20 @@
 string ConversationObject::LETTERS = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 ConversationObject::ConversationObject() {
-	this->prvNode = nullptr;
+	this->prvNodeSocket = -1;
 	this->nxtNode = nullptr;
 	this->conversationId = "";
 }
 
-ConversationObject::ConversationObject(ClientConnection* prvNode, ClientConnection* nxtNode, string conversationId, AesKey key) {
-	this->prvNode = prvNode;
+ConversationObject::ConversationObject(SOCKET prvNode, ClientConnection* nxtNode, string conversationId, AesKey key) {
+	this->prvNodeSocket = prvNode;
 	this->nxtNode = nxtNode;
 	this->conversationId = conversationId;
 	this->key = key;
 }
 
 ConversationObject::ConversationObject(string conversationId, AesKey key) {
-	this->prvNode = nullptr;
+	this->prvNodeSocket = -1;
 	this->nxtNode = nullptr;
 	this->conversationId = conversationId;
 	this->key = key;
@@ -25,8 +25,8 @@ ConversationObject::ConversationObject(string conversationId, AesKey key) {
 ConversationObject::~ConversationObject() {
 }
 
-ClientConnection* ConversationObject::getPrvNode() {
-	return this->prvNode;
+SOCKET ConversationObject::getPrvNodeSOCKET() {
+	return this->prvNodeSocket;
 }
 
 ClientConnection* ConversationObject::getNxtNode() {
@@ -52,8 +52,8 @@ AesKey* ConversationObject::getKey() {
 	return &(this->key);
 }
 
-void ConversationObject::setPrvNode(ClientConnection* prvNode) {
-	this->prvNode = prvNode;
+void ConversationObject::setPrvNode(SOCKET prvNode) {
+	this->prvNodeSocket = prvNode;
 }
 
 void ConversationObject::setNxtNode(ClientConnection* nxtNode) {
@@ -78,6 +78,8 @@ void ConversationObject::setKey(AesKey key) {
 	this->key = key;
 }
 
+
+// TODO: make sure that the generated ID is unique
 string ConversationObject::generateID() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -101,5 +103,10 @@ bool ConversationObject::isEmpty()
 
 void ConversationObject::setAsExitNode()
 {
-	this->isExitNode = true;
+	this->exitNode = true;
+}
+
+bool ConversationObject::isExitNode()
+{
+	return this->exitNode;
 }

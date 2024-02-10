@@ -8,6 +8,10 @@
 using std::string;
 
 namespace Constants {
+	extern const int IP_SIZE;
+	extern const int PORT_SIZE;
+	extern const int UUID_SIZE;
+	extern const int UUID_ENCRYPTED_SIZE;
 	extern const unsigned short SERVER_PORT;
 	extern const string SPLITER;
 	extern const string NODE_INIT_FORMAT;

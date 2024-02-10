@@ -77,6 +77,8 @@ void IConnection::sendData(SOCKET connection, const string& data) {
 	}
 	catch (...) {
 		logger->error("Couldn't send data. Client disconnected");
+
+		throw std::runtime_error("Couldn't send data. Client disconnected");
 	}
 }
 
@@ -98,9 +100,10 @@ void IConnection::sendECCKey(SOCKET connection)
 string IConnection::receiveData(SOCKET connection) {
 	size_t dataSize = 0;
 
+	unsigned long long received = recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
 	// First, receive the size of the data
-	if (recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0) < 0) {
-
+	if (received < 0) {
+		logger->error("Data size is: " + to_string(dataSize));
 		throw std::runtime_error("Failed to receive data size");
 	}
 

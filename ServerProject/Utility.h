@@ -39,4 +39,7 @@ public:
 	static unsigned long int generateRandomNumber(unsigned long int lowerLimit, unsigned long int upperLimit);
 
 	static string extractConversationId(const string& received);
+	static string extractIpAddress(const string& received);
+	static unsigned short extractPort(const string& received);
+	static string extractData(const string& received);
 };

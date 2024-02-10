@@ -119,5 +119,30 @@ unsigned long int Utility::generateRandomNumber(unsigned long int lowerLimit, un
 
 string Utility::extractConversationId(const string& received)
 {
-	return received.substr(0, 4); // TODO: Replace with constant
+	// received = UUID + IP + PORT
+	// return received.substr(0, Constants::UUID_SIZE); // TODO: Replace with constant
+
+	string idEncrypted = "";
+
+	for (int i = 0; i < Constants::UUID_ENCRYPTED_SIZE; i++) {
+		idEncrypted += received[i];
+	}
+
+	return idEncrypted;
+}
+
+string Utility::extractIpAddress(const string& received)
+{
+	return received.substr(Constants::UUID_ENCRYPTED_SIZE, Constants::IP_SIZE);
+}
+
+unsigned short Utility::extractPort(const string& received)
+{
+	return static_cast<unsigned short>(std::stoi(received.substr(Constants::UUID_ENCRYPTED_SIZE + Constants::IP_SIZE, Constants::PORT_SIZE)));
+}
+
+// The string might be big, so it will be more optimal to pass by reference
+string Utility::extractData(const string& received)
+{
+	return received.substr(Constants::UUID_ENCRYPTED_SIZE + Constants::IP_SIZE + Constants::PORT_SIZE);
 }

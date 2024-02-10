@@ -16,6 +16,7 @@
 #include <thread>
 #include <mutex>
 #include <xstring>
+#include <chrono>
 
 // Encryptor
 #include <cryptlib.h>
@@ -56,8 +57,6 @@ private:
 	* List of active conversations the server involved in
 	*/
 	unordered_map<string, ConversationObject*> conversationsMap; // Conversations involved in
-	ECCHandler eccHandler;
-	AesHandler aesHandler;
 
 	Logger logger;
 
@@ -89,6 +88,8 @@ private:
 	*/
 	void handleClient(SOCKET clientSocket) override;
 
+	bool conversationExists(ConversationObject* currentConversation);
+
 
 	/*
 	* The conversation will start with ECC key
@@ -104,9 +105,13 @@ private:
 	void handshake(ClientConnection* parentConnection);
 	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
 
+	void handleNode(SOCKET nodeSocket, ConversationObject* conversation);
+
 	void sendAlive();
 
 	string receiveECCKeys(SOCKET clientSocket);
+
+	string receiveBlock(SOCKET clientSocket);
 
 	ConversationObject* findConversationBy(string conversationId);
 	bool isConnectedTo(ClientConnection* nextNode);

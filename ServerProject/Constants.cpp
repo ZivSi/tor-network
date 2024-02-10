@@ -1,9 +1,14 @@
 #include "Constants.h"
 #include "Utility.h"
 #include <format>
+#include <string>
 
 
 namespace Constants {
+	const int IP_SIZE = string("XXX.XXX.XXX.XXX").size();
+	const int PORT_SIZE = 5; // 65535
+	const int UUID_SIZE = 4; // bytes
+	const int UUID_ENCRYPTED_SIZE = 89;
 	const unsigned short SERVER_PORT = 5060;
 	const string SPLITER = "::::";
 

@@ -21,7 +21,7 @@ ClientConnection::ClientConnection(string ip, unsigned short port, Logger logger
 
 ClientConnection::~ClientConnection()
 {
-	if (!conversationClosed) { closeConnection(); }
+	if (conversationActive) { closeConnection(); }
 
 	WSACleanup();
 }
@@ -64,6 +64,8 @@ SOCKET ClientConnection::connectToServer()
 		logger.log("Connected to " + this->ip + ":" + to_string(this->port));
 	}
 
+	conversationActive = true;
+
 	return connection;
 }
 
@@ -83,6 +85,10 @@ SOCKET ClientConnection::connectInLoop()
 		}
 	}
 
+	if (failedAttempts == 20) {
+		throw "Couldn't connect to server";
+	}
+
 	return this->connection;
 }
 
@@ -94,15 +100,41 @@ void ClientConnection::handshake()
 }
 
 
-void ClientConnection::sendData(string data)
-{
+void ClientConnection::sendData(string data) {
 	size_t dataSize = data.size();
 
-	// First send the size of the data
-	send(connection, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
+	try {
+		// Send the size of the data
+		size_t bytesSent = send(connection, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
 
-	// Send the data
-	send(connection, data.data(), dataSize, 0);
+		if (bytesSent == -1) {
+			// If send() returns -1, handle the error
+			throw std::runtime_error("Failed to send data size");
+		}
+
+		if (static_cast<size_t>(bytesSent) != sizeof(size_t)) {
+			// Handle the case where not all bytes of the size were sent
+			throw std::runtime_error("Incomplete data size sent");
+		}
+
+		// Send the data itself
+		bytesSent = send(connection, data.data(), dataSize, 0);
+		if (bytesSent == -1) {
+			// If send() returns -1, handle the error
+			throw std::runtime_error("Failed to send data");
+		}
+
+		if (static_cast<size_t>(bytesSent) != dataSize) {
+			// Handle the case where not all bytes of the data were sent
+			throw std::runtime_error("Incomplete data sent");
+		}
+	}
+	catch (std::runtime_error e) {
+		logger.error(e.what());
+		closeConnection();
+
+		throw e;
+	}
 }
 
 void ClientConnection::sendKeys(string keysStr)
@@ -118,38 +150,47 @@ void ClientConnection::sendEncrypted(string data)
 string ClientConnection::receiveData() {
 	size_t dataSize = 0;
 
-	// First, receive the size of the data
-	if (recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0) < 0) {
-		throw std::runtime_error("Failed to receive data size");
-	}
-
-	string data;
-	data.reserve(dataSize); // Reserve space for the entire data
-
-	// Receive the data in chunks
-	constexpr size_t chunkSize = 4096;
-	vector<char> buffer(chunkSize);
-
-	size_t totalReceived = 0;
-	while (totalReceived < dataSize) {
-		size_t bytesToReceive = min(chunkSize, dataSize - totalReceived);
-		size_t bytesReceived = recv(connection, buffer.data(), bytesToReceive, 0);
-
-		if (bytesReceived < 0) {
-			// Handle receive error
-			throw std::runtime_error("Failed to receive data");
-		}
-		else if (bytesReceived == 0) {
-			// Connection closed prematurely
-			throw std::runtime_error("Connection closed prematurely");
+	try {
+		// First, receive the size of the data
+		if (recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0) < 0) {
+			throw std::runtime_error("Failed to receive data size");
 		}
 
-		// Append received data to the string
-		data.append(buffer.data(), bytesReceived);
-		totalReceived += bytesReceived;
-	}
+		string data;
+		data.reserve(dataSize); // Reserve space for the entire data
 
-	return data;
+		// Receive the data in chunks
+		constexpr size_t chunkSize = 4096;
+		vector<char> buffer(chunkSize);
+
+		size_t totalReceived = 0;
+		while (totalReceived < dataSize) {
+			size_t bytesToReceive = min(chunkSize, dataSize - totalReceived);
+			size_t bytesReceived = recv(connection, buffer.data(), bytesToReceive, 0);
+
+			if (bytesReceived < 0) {
+				// Handle receive error
+				throw std::runtime_error("Failed to receive data");
+			}
+			else if (bytesReceived == 0) {
+				// Connection closed prematurely
+				throw std::runtime_error("Connection closed prematurely");
+			}
+
+			// Append received data to the string
+			data.append(buffer.data(), bytesReceived);
+			totalReceived += bytesReceived;
+		}
+
+		return data;
+	}
+	catch (std::runtime_error& e) {
+		logger.error(e.what());
+		closeConnection();
+
+
+		throw e;
+	}
 }
 
 
@@ -235,6 +276,11 @@ void ClientConnection::closeConnection()
 		logger.log("Closed connection to " + this->ip + ":" + to_string(this->port));
 	}
 
-	conversationClosed = true;
+	conversationActive = false;
+}
+
+bool ClientConnection::isConversationActive()
+{
+	return conversationActive;
 }
 

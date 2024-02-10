@@ -55,6 +55,8 @@ public:
 
 	void closeConnection();
 
+	bool isConversationActive();
+
 private:
 	int failedAttempts = 0;
 
@@ -69,6 +71,6 @@ private:
 
 	AesHandler aesHandler;
 
-	bool conversationClosed = false;
+	bool conversationActive = false;
 };
 

@@ -26,7 +26,7 @@ void Client::waitForNodes()
 
 	while (receivedPorts.empty()) {
 		clientConnection.closeConnection();
-		
+
 		Sleep(3000);
 
 		clientConnection.connectInLoop();
@@ -120,20 +120,33 @@ void Client::handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex)
 	nodeConnection.closeConnection();
 }
 
-void Client::sendData(string ip, unsigned short port, string message)
+ClientConnection* Client::connectToEntryNode()
 {
-	string encryptedData = encrypt(message);
+	RelayObject* entryNode = currentPath.at(0);
+	cout << "Connecting to entry node whice is at port: " << entryNode->getPort() << endl;
 
-	cout << "Encrypted message:\n" << encryptedData << endl;
+	ClientConnection* entryNodeConnection = new ClientConnection("127.0.0.1", entryNode->getPort(), logger); // Connection made
+
+	return entryNodeConnection;
 }
 
-string Client::encrypt(string data)
+void Client::sendData(string ip, unsigned short port, string message, ClientConnection* entryNodeConnection)
 {
-	string encrypted = data;
+	string encryptedData = encrypt(ip, port, message);
+
+	cout << "Encrypted message:\n" << encryptedData << endl;
+
+	entryNodeConnection->sendData(encryptedData);
+}
+
+string Client::encrypt(string ip, unsigned short port, string data)
+{
+	string encrypted = ip + SPLITER + to_string(port) + SPLITER + data;
+	RelayObject* relayObject;
 
 	// encrypted = eccEncrypted(conversationId) + aesEncrypted(data)
 	for (int i = currentPath.size() - 1; i >= 0; i--) {
-		RelayObject* relayObject = currentPath.at(i);
+		relayObject = currentPath.at(i);
 		AesKey* currentKeys = relayObject->getAesKeys();
 
 		encrypted = AesHandler::encryptAES(encrypted, currentKeys);

@@ -50,3 +50,9 @@ __pycache__/
 .idea/
 .vscode/
 x64/
+
+# Ignore additional files
+*.tlog
+*.obj
+*.ipbj
+*.ipdb

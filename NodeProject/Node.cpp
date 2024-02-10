@@ -32,16 +32,17 @@ Node::~Node()
 
 void Node::acceptSocket(SOCKET socket)
 {
+	logger.log("Waiting for connections...");
+
 	while (true) {
 		sockaddr_in client;
 		int clientSize = sizeof(client);
-
-		logger.log("Waiting for connections...");
 
 		SOCKET clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
 
 		if (clientSocket == INVALID_SOCKET) {
 			cerr << "Accept failed with error: " << WSAGetLastError() << endl;
+			WSACleanup();
 			exit(1);
 		}
 
@@ -58,22 +59,36 @@ void Node::handleClient(SOCKET clientSocket)
 {
 	sendECCKey(clientSocket);
 
-	string received = this->receiveECCKeys(clientSocket); // eccEncrypted(ConversationId) + aesEncrypted(Data) or handshake (begins with 0Y0*åH╬)
+	string received = "";
+	try {
+		received = receiveBlock(clientSocket);
+	}
+	catch (std::runtime_error e) {
 
-	if (isHandshake(received)) {
+		logger.error("Error in receiving ECC keys (or data from previous node)");
+
+		return;
+	}
+
+	const string receivedConst = received;
+
+	if (isHandshake(receivedConst)) {
 		logger.clientEvent("Client wants to perform handshake");
 
 		clientHandshake(clientSocket);
 		return;
 	}
 
+	logger.log("Node connected");
 
-	string conversationId = Utility::extractConversationId(received);
-	string decryptedConversationId = eccHandler.decrypt(conversationId);
+	// --------------- Determine the conversation and set the prvNode ---------------
+
+	string conversationId = Utility::extractConversationId(receivedConst);
+	string decryptedConversationId = getECCHandler()->decrypt(conversationId);
 
 	ConversationObject* currentConversation = findConversationBy(decryptedConversationId);
 
-	if (currentConversation->isEmpty()) {
+	if (!conversationExists(currentConversation)) {
 		delete currentConversation;
 
 		closesocket(clientSocket);
@@ -81,19 +96,109 @@ void Node::handleClient(SOCKET clientSocket)
 		return;
 	}
 
-	string receivedDecrypted = AesHandler::decryptAES(received.substr(UUID_LEN), currentConversation->getKey());
+	currentConversation->setPrvNode(clientSocket);
 
-	ClientConnection* nextNode = currentConversation->getNxtNode();
-	unsigned short nextNodePort = currentConversation->getNxtPort();
+	// --------------- We handle the first packet here before handling the rest of the packets in the node ---------------
+	string dataPart = receivedConst.substr(UUID_ENCRYPTED_SIZE, receivedConst.size());
 
-	if (!isConnectedTo(nextNode)) {
-		ClientConnection* nextNodeConnection = new ClientConnection("127.0.0.1", nextNodePort, logger);
-		currentConversation->setNxtNode(nextNodeConnection);
+	string decryptedData = AesHandler::decryptAES(dataPart, currentConversation->getKey());
+
+
+	// If we are the exit node, we send the data to the destination
+	if (currentConversation->isExitNode()) {
+		string ip = Utility::extractIpAddress(decryptedData);
+		unsigned short port = Utility::extractPort(decryptedData);
+
+		logger.log("Received destination. Sending data to " + ip + ":" + to_string(port));
+
+		decryptedData = decryptedData.substr(ip.size() + SPLITER.size() + to_string(port).size() + SPLITER.size(), decryptedData.size());
+
+		ClientConnection destinationConnection(ip, port, logger);
+
+		try {
+			destinationConnection.connectInLoop();
+		}
+		catch (Exception) {
+			logger.error("Error in connecting to destination");
+			return;
+		}
+
+		destinationConnection.sendData(decryptedData);
+
+		destinationConnection.closeConnection();
+	}
+
+	// Is next node (/ dest) active?
+	else {
+		if (!currentConversation->getNxtNode()->isConversationActive()) {
+			try {
+				currentConversation->getNxtNode()->connectInLoop();
+			}
+			catch (Exception) {
+				logger.error("Error in connecting to next node");
+				return;
+			}
+		}
+
+		currentConversation->getNxtNode()->sendData(decryptedData);
 	}
 
 
-	sendData(currentConversation->getNxtNode()->getSocket(), receivedDecrypted);
+	// --------------- Handle the rest of the packets in the handler ---------------
+	handleNode(clientSocket, currentConversation);
 }
+
+bool Node::conversationExists(ConversationObject* currentConversation)
+{
+	return !currentConversation->isEmpty();
+}
+
+void Node::handleNode(SOCKET nodeSocket, ConversationObject* conversation)
+{
+	string received;
+
+	while (true) {
+		try {
+			received = receiveData(nodeSocket);
+		}
+		catch (Exception) { // Lets hope the node will be able to recover and reconnect
+			logger.error("Error in receiving data from node. Closing socket...");
+
+			closesocket(nodeSocket);
+			return;
+		}
+
+		if (received.empty()) {
+			logger.error("Received empty data from node. Closing socket...");
+			closesocket(nodeSocket);
+			return;
+		}
+
+		string decrypted = AesHandler::decryptAES(received, conversation->getKey());
+
+		if (decrypted.empty()) {
+			logger.error("Received empty data from node. Closing socket...");
+			closesocket(nodeSocket);
+			return;
+		}
+
+		try {
+			conversation->getNxtNode()->sendData(decrypted);
+
+		}
+		catch (Exception) {
+
+			try {
+				conversation->getNxtNode()->connectInLoop();
+			}
+			catch (...) {
+				logger.error("Error in connecting to next node");
+				return;
+			}
+		}
+	}
+}
+
 
 ConversationObject* Node::findConversationBy(string conversationId) {
 	auto it = conversationsMap.find(conversationId);
@@ -237,7 +342,7 @@ void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKey
 	cout << "Server's public key is: " << receivedECCKeys << endl;
 	ECCHandler serverECCHandler(receivedECCKeys);
 
-	string keysStr = aesHandler.getAesKey().serializeKey();
+	string keysStr = parentConnection->getAesKey().serializeKey();
 
 	string encryptedKeys = serverECCHandler.encrypt(keysStr);
 
@@ -260,6 +365,7 @@ string Node::buildAliveFormat() {
 	return formattedData;
 }
 
+
 void Node::sendAlive()
 {
 	while (true) {
@@ -281,4 +387,20 @@ void Node::sendAlive()
 string Node::receiveECCKeys(SOCKET clientSocket)
 {
 	return receiveKeys(clientSocket);
+}
+
+string Node::receiveBlock(SOCKET clientSocket)
+{
+	int maxTries = 40;
+	string received = "";
+
+	do {
+		received = this->receiveData(clientSocket);
+	} while (received.empty() && maxTries--);
+
+	if (received.empty()) {
+		throw std::runtime_error("Error in receiving data");
+	}
+
+	return received;
 }

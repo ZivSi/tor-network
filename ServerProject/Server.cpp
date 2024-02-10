@@ -165,6 +165,13 @@ void Server::handleClient(SOCKET clientSocket)
 		logger.error("Can't handle connection. Closing...");
 
 		closesocket(clientSocket);
+
+		if (this->aliveNodes.empty()) {
+			this->stop = true;
+			stopServer();
+
+			exit(1);
+		}
 	}
 }
 
@@ -338,6 +345,15 @@ void Server::printNodes()
 	aliveNodesMutex.unlock();
 
 	cout << "--------------------------------------------" << endl;
+
+	if (this->aliveNodes.empty()) {
+		cout << "No nodes" << endl;
+
+		this->stop = true;
+		stopServer();
+
+		exit(1);
+	}
 }
 
 void Server::initializeNodes(vector<NodeData*> nodes)

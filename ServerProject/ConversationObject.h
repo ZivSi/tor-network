@@ -18,7 +18,7 @@ A class to be stored on the nodes. Each node can have multiple conversations it'
 class ConversationObject
 {
 private:
-	ClientConnection* prvNode;
+	SOCKET prvNodeSocket; // Previous node is socket because we are it's server
 	unsigned short prvPort;
 
 	ClientConnection* nxtNode;
@@ -29,15 +29,15 @@ private:
 
 	static string LETTERS;
 
-	bool isExitNode = false;
+	bool exitNode = false;
 
 public:
 	ConversationObject();
-	ConversationObject(ClientConnection* prvNode, ClientConnection* nxtNode, string conversationId, AesKey key);
+	ConversationObject(SOCKET prvNode, ClientConnection* nxtNode, string conversationId, AesKey key);
 	ConversationObject(string conversationId, AesKey key);
 	~ConversationObject();
 
-	ClientConnection* getPrvNode();
+	SOCKET getPrvNodeSOCKET();
 	ClientConnection* getNxtNode();
 
 	unsigned short getPrvPort();
@@ -46,7 +46,7 @@ public:
 	string getConversationId();
 	AesKey* getKey();
 
-	void setPrvNode(ClientConnection* prvNode);
+	void setPrvNode(SOCKET prvNodeSocket);
 	void setNxtNode(ClientConnection* nxtNode);
 
 	void setPrvPort(unsigned short prvPort);
@@ -60,4 +60,6 @@ public:
 	static string generateID();
 
 	bool isEmpty();
+
+	bool isExitNode();
 };
