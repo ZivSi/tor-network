@@ -105,13 +105,11 @@ private:
 	void handshake(ClientConnection* parentConnection);
 	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
 
-	void handleNode(SOCKET nodeSocket, ConversationObject* conversation);
+	void handleNode(SOCKET nodeSocket, string initialMessage);
 
 	void sendAlive();
 
 	string receiveECCKeys(SOCKET clientSocket);
-
-	string receiveBlock(SOCKET clientSocket);
 
 	ConversationObject* findConversationBy(string conversationId);
 	bool isConnectedTo(ClientConnection* nextNode);

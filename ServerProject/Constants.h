@@ -21,6 +21,7 @@ namespace Constants {
 	extern const int DEFAULT_PATH_LENGTH;
 	extern const int MAX_TIME_ALIVE;
 	extern const int MAX_PING_ALIVE_MS;
+	extern const int CONVERSATION_TIMEOUT;
 
 	extern const int AES_KEY_SIZE_BYTES;
 

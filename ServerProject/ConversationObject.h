@@ -18,6 +18,8 @@ A class to be stored on the nodes. Each node can have multiple conversations it'
 class ConversationObject
 {
 private:
+	unsigned long long creationTime;
+
 	SOCKET prvNodeSocket; // Previous node is socket because we are it's server
 	unsigned short prvPort;
 
@@ -62,4 +64,6 @@ public:
 	bool isEmpty();
 
 	bool isExitNode();
+
+	bool isTooOld();
 };

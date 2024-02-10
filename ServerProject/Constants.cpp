@@ -21,6 +21,7 @@ namespace Constants {
 	const int DEFAULT_PATH_LENGTH = 3;
 	const int MAX_TIME_ALIVE = 10000;
 	const int MAX_PING_ALIVE_MS = 2000;
+	const int CONVERSATION_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 
 	const int AES_KEY_SIZE_BYTES = 32;
 

@@ -6,6 +6,8 @@ ConversationObject::ConversationObject() {
 	this->prvNodeSocket = -1;
 	this->nxtNode = nullptr;
 	this->conversationId = "";
+
+	this->creationTime = Utility::capture_time();
 }
 
 ConversationObject::ConversationObject(SOCKET prvNode, ClientConnection* nxtNode, string conversationId, AesKey key) {
@@ -13,6 +15,8 @@ ConversationObject::ConversationObject(SOCKET prvNode, ClientConnection* nxtNode
 	this->nxtNode = nxtNode;
 	this->conversationId = conversationId;
 	this->key = key;
+
+	this->creationTime = Utility::capture_time();
 }
 
 ConversationObject::ConversationObject(string conversationId, AesKey key) {
@@ -20,6 +24,8 @@ ConversationObject::ConversationObject(string conversationId, AesKey key) {
 	this->nxtNode = nullptr;
 	this->conversationId = conversationId;
 	this->key = key;
+
+	this->creationTime = Utility::capture_time();
 }
 
 ConversationObject::~ConversationObject() {
@@ -109,4 +115,9 @@ void ConversationObject::setAsExitNode()
 bool ConversationObject::isExitNode()
 {
 	return this->exitNode;
+}
+
+bool ConversationObject::isTooOld()
+{
+	return Utility::capture_time() - creationTime > Constants::CONVERSATION_TIMEOUT;
 }
