@@ -138,6 +138,19 @@ void Node::handleNode(SOCKET nodeSocket, string initialMessage)
 			// if exists, send the packet. if not, create new clientconnection, connect, send data and add to the map
 			logger.success("Received data from exit node: " + decryptedData);
 
+			// Extract data
+			vector<string> parts = Utility::splitString(decryptedData, SPLITER);
+
+			string ip = parts[0];
+			unsigned short port = static_cast<unsigned short>(stoi(parts[1]));
+
+			// TODO: Check if conversation is open in the map
+			// For now just create new client connection and send data
+			ClientConnection* destination = new ClientConnection(ip, port, logger);
+			
+			destination->sendData(parts[2]);
+			destination->closeConnection();
+
 			return;
 		}
 
