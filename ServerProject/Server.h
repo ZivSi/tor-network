@@ -73,6 +73,6 @@ private:
 	// If not
 	void sendNodesToClient(SOCKET clientSocket);
 
-	NodeData* getNodeInVector(unsigned short port);
+	NodeData* getNodeInVector(unsigned short port); // TODO: add ip
 	void checkAliveNodes();
 };

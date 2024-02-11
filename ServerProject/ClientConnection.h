@@ -58,6 +58,8 @@ public:
 	bool isConversationActive();
 
 private:
+	const int MAX_ATTEMPTS = 20;
+
 	int failedAttempts = 0;
 
 	SOCKET connection;

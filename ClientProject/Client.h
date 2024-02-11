@@ -32,7 +32,7 @@ public:
 
 	void startPathDesign();
 	void handshakeWithCurrentPath();
-	void handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex);
+	void handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex); // TODO: Change
 
 	void checkConnectionAliveTimer();
 
@@ -51,7 +51,7 @@ private:
 
 	Logger logger;
 
-	vector<unsigned short> receivedPorts;
+	vector<unsigned short> receivedPorts;  // TODO: Change
 	vector<RelayObject*> currentPath;
 
 	void clearCurrentPath();

@@ -22,9 +22,11 @@ private:
 
 	SOCKET prvNodeSocket; // Previous node is socket because we are it's server
 	unsigned short prvPort;
+	// TODO: add ip
 
 	ClientConnection* nxtNode;
 	unsigned short nxtPort;
+	// TODO: add ip
 
 	string conversationId; // UUID
 	AesKey key; // Agreed between client and current node
@@ -43,7 +45,10 @@ public:
 	ClientConnection* getNxtNode();
 
 	unsigned short getPrvPort();
+	// TODO: add ip getter
+
 	unsigned short getNxtPort();
+	// TODO: add ip getter
 
 	string getConversationId();
 	AesKey* getKey();
@@ -52,7 +57,9 @@ public:
 	void setNxtNode(ClientConnection* nxtNode);
 
 	void setPrvPort(unsigned short prvPort);
+	// TODO: add ip setter
 	void setNxtPort(unsigned short nxtPort);
+	// TODO: add ip setter
 
 	void setConversationId(string conversationId);
 	void setKey(AesKey key);

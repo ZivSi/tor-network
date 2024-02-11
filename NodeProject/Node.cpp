@@ -8,6 +8,7 @@ Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), IConnection
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
+	stop = false;
 	this->parentConnection = new ClientConnection("127.0.0.1", SERVER_PORT, logger);
 
 	thread acceptInThread(&Node::acceptSocket, this, getSocket());
@@ -27,6 +28,8 @@ Node::~Node()
 	delete parentConnection;
 
 	logger.log("Node destroyed");
+
+	stop = true;
 }
 
 
@@ -34,7 +37,7 @@ void Node::acceptSocket(SOCKET socket)
 {
 	logger.log("Waiting for connections...");
 
-	while (true) {
+	while (!stop) {
 		sockaddr_in client;
 		int clientSize = sizeof(client);
 
@@ -80,7 +83,19 @@ void Node::handleClient(SOCKET clientSocket)
 
 	logger.log("Node connected");
 
+	try {
 	handleNode(clientSocket, received);
+	}
+	catch (std::runtime_error e) {
+		logger.error("Error in handleNode");
+
+		cout << e.what() << endl;
+	}
+	catch (std::exception e) {
+		logger.error("Error in handleNode");
+
+		cout << e.what() << endl;
+	}
 }
 
 bool Node::conversationExists(ConversationObject* currentConversation)
@@ -167,7 +182,7 @@ void Node::handleNode(SOCKET nodeSocket, string initialMessage)
 
 		received = this->receiveData(nodeSocket);
 
-	} while (true);
+	} while (!stop);
 }
 
 
@@ -261,10 +276,12 @@ void Node::clientHandshake(SOCKET clientSocket)
 		sendData(clientSocket, encryptedId);
 
 		// Receive next node port
+		// TODO: add ip.
 		nextNodePort = receiveData(clientSocket);
 		decryptedNextNodePort = AesHandler::decryptAES(nextNodePort, &aesPair);
 
 		try {
+			// TODO: split and only then try to convert to int and ip
 			unsigned short nextNodePortInt = stoi(decryptedNextNodePort);
 			currentConversation->setNxtPort(nextNodePortInt);
 		}
@@ -349,8 +366,9 @@ void Node::sendAlive()
 
 			parentConnection->closeConnection();
 		}
-		catch (Exception) {
+		catch (Exception e) {
 			logger.error("Error in sendAlive (probably handshake)");
+			cout << e.what() << endl;
 		}
 	}
 }

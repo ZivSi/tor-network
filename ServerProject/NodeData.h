@@ -25,6 +25,7 @@ Class that will be stored on the server.
 class NodeData {
 private:
 	unsigned short port;
+	// TODO: add ip
 	ECCHandler ecchandler;
 
 	unsigned long long lastAliveMessageTime;
@@ -32,19 +33,21 @@ private:
 	unsigned long averageResponseTime;
 
 public:
-	NodeData(unsigned short port);
-	NodeData(unsigned short port, string serializedPublicKey);
-	NodeData(unsigned short port, string serializedPublicKey, unsigned long long lastAliveMessageTime, unsigned long aliveMessagesCount, unsigned long averageResponseTime);
+	NodeData(unsigned short port); // TODO: add ip
+	NodeData(unsigned short port, string serializedPublicKey); // TODO: add ip
+	NodeData(unsigned short port, string serializedPublicKey, unsigned long long lastAliveMessageTime, unsigned long aliveMessagesCount, unsigned long averageResponseTime); // TODO: add ip
 	NodeData();
 	~NodeData();
 
 	unsigned short getPort();
+	// TODO: add ip getter
 	ECCHandler* getECCHandler();
 	unsigned long long getLastAliveMessageTime();
 	unsigned long getAliveMessagesCount();
 	unsigned long getAverageResponseTime();
 
 	void setPort(unsigned short port);
+	// TODO: add ip setter
 	void setECCKey(string serializedPublicKey);
 	void setLastAliveMessageTime(unsigned long long lastAliveMessageTime);
 	void updateLastAliveMessageTime();

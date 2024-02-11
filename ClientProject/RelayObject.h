@@ -13,6 +13,7 @@ using std::endl;
 class RelayObject
 {
 private:
+	// TODO: Change. add ip
 	unsigned short port;
 	AesKey aesKey;
 	ECCHandler* eccHandler;
@@ -20,11 +21,12 @@ private:
 	string conversationIdEncrypted;
 
 public:
-	RelayObject(unsigned short port, AesKey aesKeys, ECCHandler* eccHandler, string conversationId);
-	RelayObject(unsigned short port);
+	RelayObject(unsigned short port, AesKey aesKeys, ECCHandler* eccHandler, string conversationId);  // TODO: Change
+	RelayObject(unsigned short port);  // TODO: Change
 	~RelayObject();
 
 	unsigned short getPort();
+	// TODO: Change. add getIp
 	AesKey* getAesKeys();
 	ECCHandler* getEccHandler();
 	string getConversationId();

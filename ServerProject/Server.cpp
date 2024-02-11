@@ -32,9 +32,9 @@ Server::~Server() {
 	for (NodeData* node : this->aliveNodes) {
 		delete node;
 	}
-	aliveNodesMutex.unlock();
 
 	this->aliveNodes.clear();
+	aliveNodesMutex.unlock();
 }
 
 
@@ -48,7 +48,10 @@ void Server::acceptSocket(SOCKET socket) {
 
 			if (clientSocket == INVALID_SOCKET) {
 				logger.error("Can't accept client socket, Err #" + WSAGetLastError());
-				exit(1);
+
+				closesocket(clientSocket);
+
+				continue;
 			}
 
 			logger.log("Client connected");
@@ -88,6 +91,8 @@ void Server::handleClient(SOCKET clientSocket)
 		}
 		catch (Exception) {
 			logger.error("Error in receiving AES keys");
+
+			closesocket(clientSocket);
 			return;
 		}
 
@@ -99,6 +104,8 @@ void Server::handleClient(SOCKET clientSocket)
 			logger.keysInfo("Decrypted AES keys from client: " + Utility::asHex(decryptedAESKeys));
 		}
 		catch (...) {
+
+			closesocket(clientSocket);
 			return;
 		}
 
@@ -115,8 +122,16 @@ void Server::handleClient(SOCKET clientSocket)
 			return;
 		}
 
-		string decrypted = AesHandler::decryptAES(received, &temp);
-		logger.log("Decrypted data from client: " + decrypted);
+		string decrypted;
+		try {
+			decrypted = AesHandler::decryptAES(received, &temp);
+			logger.log("Decrypted data from client: " + decrypted);
+		}
+		catch (Exception) {
+			logger.error("Error in decrypting data from client");
+			closesocket(clientSocket);
+			return;
+		}
 
 		if (!isNode(decrypted)) {
 			logger.success("Client authorized");
@@ -158,6 +173,8 @@ void Server::handleClient(SOCKET clientSocket)
 		node->updateLastAliveMessageTime();
 
 		logger.success("Updated node's last alive time: " + to_string(port));
+
+		closesocket(clientSocket);
 	}
 	catch (...) {
 		aliveNodesMutex.unlock();
@@ -166,11 +183,11 @@ void Server::handleClient(SOCKET clientSocket)
 
 		closesocket(clientSocket);
 
+
+		// TODO: remove this
 		if (this->aliveNodes.empty()) {
 			this->stop = true;
 			stopServer();
-
-			exit(1);
 		}
 	}
 }
@@ -266,6 +283,7 @@ void Server::sendNodesToClient(SOCKET clientSocket)
 		unsigned short port = node->getPort();
 		portsStream.push_back(port);
 	}
+
 	aliveNodesMutex.unlock();
 
 	if (portsStream.empty()) {
@@ -299,9 +317,10 @@ NodeData* Server::getNodeInVector(unsigned short port) {
 
 void Server::checkAliveNodes()
 {
-	try {
-		logger.log("Checking alive nodes..");
-		while (true) {
+	logger.log("Checking alive nodes..");
+
+	while (!stop) {
+		try {
 			aliveNodesMutex.lock();
 
 			for (int i = 0; i < this->aliveNodes.size(); i++) {
@@ -321,15 +340,15 @@ void Server::checkAliveNodes()
 			aliveNodesMutex.unlock();
 			Sleep(1000);
 		}
-	}
-	catch (...) {
-		aliveNodesMutex.unlock();
+		catch (...) {
+			aliveNodesMutex.unlock();
 
-		logger.error("Error in checkAliveNodes()");
-
-		checkAliveNodes();
+			logger.error("Error in checkAliveNodes()");
+			// Log the error, but avoid recursion
+		}
 	}
 }
+
 
 void Server::printNodes()
 {
@@ -350,9 +369,8 @@ void Server::printNodes()
 		cout << "No nodes" << endl;
 
 		this->stop = true;
-		stopServer();
-
-		exit(1);
+		
+		stopServer(); // <--- This is a temporary solution, we need to remove it
 	}
 }
 

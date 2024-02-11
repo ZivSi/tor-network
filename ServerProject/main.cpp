@@ -12,8 +12,15 @@ using std::thread;
 using std::string;
 using std::to_string;
 
+#define _CRTDBG_MAP_ALLOC //to get more details
+
 int main()
 {
+	_CrtMemState sOld;
+	_CrtMemState sNew;
+	_CrtMemState sDiff;
+	_CrtMemCheckpoint(&sOld); //take a snapshot
+
 	Server server;
 	try {
 		thread serverThread(&Server::startServer, &server);
@@ -33,6 +40,21 @@ int main()
 	catch (Exception) {
 		server.stopServer();
 		main();
+	}
+
+	cout << "Server closed" << endl;
+	_CrtMemCheckpoint(&sNew); //take a snapshot 
+	if (_CrtMemDifference(&sDiff, &sOld, &sNew)) // if there is a difference
+	{
+		OutputDebugString(L"-----------_CrtMemDumpStatistics ---------");
+		_CrtMemDumpStatistics(&sDiff);
+		OutputDebugString(L"-----------_CrtMemDumpAllObjectsSince ---------");
+		_CrtMemDumpAllObjectsSince(&sOld);
+		OutputDebugString(L"-----------_CrtDumpMemoryLeaks ---------");
+		_CrtDumpMemoryLeaks();
+	}
+	else {
+		OutputDebugString(L"No memory leaks");
 	}
 
 

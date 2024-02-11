@@ -33,7 +33,7 @@ void ClientConnection::initWSASocket()
 	int wsOk = WSAStartup(version, &wsaData);
 	if (wsOk != 0)
 	{
-		throw string("Can't initialize winsock! Quitting");
+		throw std::runtime_error("Can't initialize winsock! Quitting");
 	}
 }
 
@@ -44,7 +44,8 @@ SOCKET ClientConnection::connectToServer()
 	{
 		cout << "Can't create socket! Quitting" << endl;
 
-		throw "Can't create socket! Quitting";
+		// std runtime error
+		throw std::runtime_error("INVALID_SOCKET");
 	}
 
 	sockaddr_in hint;
@@ -57,7 +58,7 @@ SOCKET ClientConnection::connectToServer()
 	{
 		cout << "Can't connect to server! Quitting" << endl;
 
-		throw "Can't connect to server! Quitting";
+		throw std::runtime_error("SOCKET_ERROR");
 	}
 
 	if (this->port != SERVER_PORT) {
@@ -71,22 +72,24 @@ SOCKET ClientConnection::connectToServer()
 
 SOCKET ClientConnection::connectInLoop()
 {
-	while (failedAttempts < 20) {
+	while (failedAttempts < MAX_ATTEMPTS) {
 		try {
 			this->connection = connectToServer();
+			this->failedAttempts = 0;
 
 			break;
 		}
-		catch (...) {
+		catch (std::runtime_error e) {
 			failedAttempts++;
 			logger.error("Couldn't connect to server");
+			cout << "Runtime error: " << e.what() << endl;
 
 			Sleep(3000);
 		}
 	}
 
-	if (failedAttempts == 20) {
-		throw "Couldn't connect to server";
+	if (failedAttempts == MAX_ATTEMPTS) {
+		throw std::runtime_error("Reached maximum number of failed attempts to connect to server");
 	}
 
 	return this->connection;
