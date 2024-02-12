@@ -1,16 +1,16 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <aes.h>
-#include <modes.h>
-#include <filters.h>
-#include <osrng.h>
-#include <hex.h>
-#include <secblock.h>
-#include <base64.h>
 #include "Constants.h"
 #include "Utility.h"
+#include <aes.h>
+#include <base64.h>
+#include <filters.h>
+#include <hex.h>
+#include <iostream>
+#include <modes.h>
+#include <osrng.h>
+#include <secblock.h>
+#include <string>
 
 
 using CryptoPP::AES;
@@ -50,8 +50,8 @@ public:
 
 	void initialize(const std::string& key, const std::string& iv);
 
-	SecByteBlock getKey();
-	SecByteBlock getIv();
+	SecByteBlock getKey() const;
+	SecByteBlock getIv() const;
 
 	static CryptoPP::SecByteBlock StringToSecByteBlock(const string& str);
 	static string SecByteBlockToString(const CryptoPP::SecByteBlock& secByteBlock);
@@ -75,7 +75,7 @@ public:
 	string encrypt(const string& plaintext, bool log);
 	string decrypt(const string& ciphertext, bool log);
 
-	AesKey getAesKey();
+	AesKey getAesKey() const;
 
 	static string encryptAES(const string& plaintext, AesKey* keys, bool log);
 	static string decryptAES(const string& ciphertext, AesKey* keys, bool log);

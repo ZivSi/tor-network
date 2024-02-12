@@ -41,13 +41,13 @@ public:
 	ConversationObject(string conversationId, AesKey key);
 	~ConversationObject();
 
-	SOCKET getPrvNodeSOCKET();
+	SOCKET getPrvNodeSOCKET() const;
 	ClientConnection* getNxtNode();
 
 	unsigned short getPrvPort();
 	// TODO: add ip getter
 
-	unsigned short getNxtPort();
+	unsigned short getNxtPort() const;
 	// TODO: add ip getter
 
 	string getConversationId();
@@ -68,9 +68,9 @@ public:
 
 	static string generateID();
 
-	bool isEmpty();
+	bool isEmpty() const;
 
-	bool isExitNode();
+	bool isExitNode() const;
 
-	bool isTooOld();
+	bool isTooOld() const;
 };

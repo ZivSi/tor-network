@@ -2,7 +2,7 @@
 
 string ConversationObject::LETTERS = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-ConversationObject::ConversationObject() {
+ConversationObject::ConversationObject() : nxtPort(0), prvPort(0) {
 	this->prvNodeSocket = -1;
 	this->nxtNode = nullptr;
 	this->conversationId = "";
@@ -10,7 +10,7 @@ ConversationObject::ConversationObject() {
 	this->creationTime = Utility::capture_time();
 }
 
-ConversationObject::ConversationObject(SOCKET prvNode, ClientConnection* nxtNode, string conversationId, AesKey key) {
+ConversationObject::ConversationObject(SOCKET prvNode, ClientConnection* nxtNode, string conversationId, AesKey key) : nxtPort(0), prvPort(0) {
 	this->prvNodeSocket = prvNode;
 	this->nxtNode = nxtNode;
 	this->conversationId = conversationId;
@@ -19,7 +19,7 @@ ConversationObject::ConversationObject(SOCKET prvNode, ClientConnection* nxtNode
 	this->creationTime = Utility::capture_time();
 }
 
-ConversationObject::ConversationObject(string conversationId, AesKey key) {
+ConversationObject::ConversationObject(string conversationId, AesKey key) : nxtPort(0), prvPort(0) {
 	this->prvNodeSocket = -1;
 	this->nxtNode = nullptr;
 	this->conversationId = conversationId;
@@ -31,7 +31,7 @@ ConversationObject::ConversationObject(string conversationId, AesKey key) {
 ConversationObject::~ConversationObject() {
 }
 
-SOCKET ConversationObject::getPrvNodeSOCKET() {
+SOCKET ConversationObject::getPrvNodeSOCKET() const {
 	return this->prvNodeSocket;
 }
 
@@ -44,7 +44,7 @@ unsigned short ConversationObject::getPrvPort()
 	return this->prvPort;
 }
 
-unsigned short ConversationObject::getNxtPort()
+unsigned short ConversationObject::getNxtPort() const
 {
 	return this->nxtPort;
 }
@@ -102,7 +102,7 @@ string ConversationObject::generateID() {
 	return uuid;
 }
 
-bool ConversationObject::isEmpty()
+bool ConversationObject::isEmpty() const
 {
 	return conversationId == "";
 }
@@ -112,12 +112,12 @@ void ConversationObject::setAsExitNode()
 	this->exitNode = true;
 }
 
-bool ConversationObject::isExitNode()
+bool ConversationObject::isExitNode() const
 {
 	return this->exitNode;
 }
 
-bool ConversationObject::isTooOld()
+bool ConversationObject::isTooOld() const
 {
 	return Utility::capture_time() - creationTime > Constants::CONVERSATION_TIMEOUT;
 }

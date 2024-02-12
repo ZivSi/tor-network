@@ -1,15 +1,15 @@
 #pragma once
 
-#include <string>
-#include "Logger.h"
-#include <exception>
-#include "ECCHandler.h"
 #include "AesHandler.h"
+#include "ECCHandler.h"
+#include "Logger.h"
 #include "Utility.h"
+#include <exception>
+#include <string>
 #include <sys/types.h>
 
-#include <WS2tcpip.h>
 #include <WinSock2.h>
+#include <WS2tcpip.h>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -44,18 +44,18 @@ public:
 	void sendECCKeys(ECCHandler* eccHandler); // If already has one of its own
 	void sendAESKeys();
 
-	SOCKET getSocket();
-	unsigned short getPort();
-	string getIP();
+	SOCKET getSocket() const;
+	unsigned short getPort() const;
+	string getIP() const;
 
-	AesKey getAesKey();
+	AesKey getAesKey() const;
 	ECCHandler* getParentECCHandler();
 
 	AesHandler* getAesHandler();
 
 	void closeConnection();
 
-	bool isConversationActive();
+	bool isConversationActive() const;
 
 private:
 	const int MAX_ATTEMPTS = 20;

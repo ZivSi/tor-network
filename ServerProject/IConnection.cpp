@@ -147,17 +147,17 @@ void IConnection::closeConnection() {
 	closesocket(connection);
 }
 
-SOCKET IConnection::getSocket()
+SOCKET IConnection::getSocket() const
 {
 	return connection;
 }
 
-unsigned short IConnection::getPort()
+unsigned short IConnection::getPort() const
 {
 	return port;
 }
 
-string IConnection::getIP()
+string IConnection::getIP() const
 {
 	return ip;
 }
@@ -194,6 +194,6 @@ string IConnection::decryptECC(string data)
 	catch (...) {
 		eccHandlerMutex.unlock();
 		cout << "Error during decryption: " << data << endl;
-		throw "Error during decryption";
+		throw std::runtime_error("Error during decryption");
 	}
 }

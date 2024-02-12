@@ -5,7 +5,7 @@
 
 
 namespace Constants {
-	const int IP_SIZE = string("XXX.XXX.XXX.XXX").size();
+	const int IP_SIZE = static_cast<const int>(string("XXX.XXX.XXX.XXX").size());
 	const int PORT_SIZE = 5; // 65535
 	const int UUID_SIZE = 4; // bytes
 	const int UUID_ENCRYPTED_SIZE = 89;
@@ -16,7 +16,7 @@ namespace Constants {
 	const string NODE_INIT_FORMAT = "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}";
 
 
-	const int NODE_SPLIT_SIZE = Utility::splitString(NODE_INIT_FORMAT, SPLITER).size();
+	const int NODE_SPLIT_SIZE = static_cast<const int>(Utility::splitString(NODE_INIT_FORMAT, SPLITER).size());
 	const int DEFAULT_PATH_LENGTH = 3;
 	const int MAX_TIME_ALIVE = 10000;
 	const int MAX_PING_ALIVE_MS = 2000;

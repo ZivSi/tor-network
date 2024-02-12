@@ -1,13 +1,13 @@
 #pragma once
 
+#include "ECCHandler.h"
+#include "Logger.h"
+#include <iostream>
+#include <mutex>
+#include <string>
+#include <string>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#include <iostream>
-#include <string>
-#include "Logger.h"
-#include <string>
-#include "ECCHandler.h"
-#include <mutex>
 
 using std::cerr;
 using std::string;
@@ -43,9 +43,9 @@ public:
 
 	void closeConnection();
 
-	SOCKET getSocket();
-	unsigned short getPort();
-	string getIP();
+	SOCKET getSocket() const;
+	unsigned short getPort() const;
+	string getIP() const;
 	ECCHandler* getECCHandler();
 
 protected:

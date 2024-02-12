@@ -8,7 +8,6 @@ Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), IConnection
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
-	stop = false;
 	this->parentConnection = new ClientConnection("127.0.0.1", SERVER_PORT, logger);
 
 	thread acceptInThread(&Node::acceptSocket, this, getSocket());
@@ -33,27 +32,37 @@ Node::~Node()
 }
 
 
-void Node::acceptSocket(SOCKET socket)
-{
+void Node::acceptSocket(SOCKET socket) {
+	sockaddr_in client{};
+	int clientSize = sizeof(client);
+	SOCKET clientSocket;
+
 	logger.log("Waiting for connections...");
 
-	while (!stop) {
-		sockaddr_in client;
-		int clientSize = sizeof(client);
+	try {
+		while (!stop) {
+			clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
 
-		SOCKET clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
+			if (clientSocket == INVALID_SOCKET) {
+				int error = WSAGetLastError();
+				if (error != WSAEWOULDBLOCK) {
+					logger.error("Can't accept client socket, Error: " + std::to_string(error));
+				}
 
-		if (clientSocket == INVALID_SOCKET) {
-			cerr << "Accept failed with error: " << WSAGetLastError() << endl;
-			WSACleanup();
-			exit(1);
+				continue;
+			}
+
+			logger.clientEvent("Accepted connection from client");
+
+			std::thread clientThread(&Node::handleClient, this, clientSocket);
+			clientThread.detach();
 		}
-
-		logger.clientEvent("accepted connection from client");
-
-		// Handle the client in a new thread
-		thread clientThread(&Node::handleClient, this, clientSocket);
-		clientThread.detach();
+	}
+	catch (const std::exception& e) {
+		cerr << "Error in acceptSocket(): " << e.what() << endl;
+	}
+	catch (...) {
+		cerr << "Unknown error in acceptSocket()" << endl;
 	}
 }
 
@@ -84,7 +93,7 @@ void Node::handleClient(SOCKET clientSocket)
 	logger.log("Node connected");
 
 	try {
-	handleNode(clientSocket, received);
+		handleNode(clientSocket, received);
 	}
 	catch (std::runtime_error e) {
 		logger.error("Error in handleNode");
@@ -162,7 +171,7 @@ void Node::handleNode(SOCKET nodeSocket, string initialMessage)
 			// TODO: Check if conversation is open in the map
 			// For now just create new client connection and send data
 			ClientConnection* destination = new ClientConnection(ip, port, logger);
-			
+
 			destination->sendData(parts[2]);
 			destination->closeConnection();
 
@@ -357,8 +366,6 @@ string Node::buildAliveFormat() {
 void Node::sendAlive()
 {
 	while (true) {
-		Sleep(MAX_TIME_ALIVE / 3);
-
 		try {
 			parentConnection->connectInLoop();
 
@@ -370,6 +377,8 @@ void Node::sendAlive()
 			logger.error("Error in sendAlive (probably handshake)");
 			cout << e.what() << endl;
 		}
+
+		Sleep(MAX_TIME_ALIVE / 3);
 	}
 }
 

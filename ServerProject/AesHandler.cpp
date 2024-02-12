@@ -34,7 +34,7 @@ string AesHandler::decrypt(const string& ciphertext) {
 }
 
 
-AesKey AesHandler::getAesKey()
+AesKey AesHandler::getAesKey() const
 {
 	return this->selfKeys;
 }
@@ -136,11 +136,11 @@ void AesKey::initialize(const std::string& key, const std::string& iv) {
 	}
 }
 
-SecByteBlock AesKey::getKey() {
+SecByteBlock AesKey::getKey() const {
 	return this->key;
 }
 
-SecByteBlock AesKey::getIv() {
+SecByteBlock AesKey::getIv() const {
 	return this->iv;
 }
 

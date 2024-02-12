@@ -24,7 +24,6 @@
 #include <WS2tcpip.h>
 #include "IConnection.h"
 
-
 #pragma comment(lib, "Ws2_32.lib")
 
 using std::string;

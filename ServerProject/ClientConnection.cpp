@@ -48,7 +48,7 @@ SOCKET ClientConnection::connectToServer()
 		throw std::runtime_error("INVALID_SOCKET");
 	}
 
-	sockaddr_in hint;
+	sockaddr_in hint{};
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(port);
 	inet_pton(AF_INET, ip.c_str(), &hint.sin_addr);
@@ -241,22 +241,22 @@ void ClientConnection::sendAESKeys()
 }
 
 
-SOCKET ClientConnection::getSocket()
+SOCKET ClientConnection::getSocket() const
 {
 	return connection;
 }
 
-unsigned short ClientConnection::getPort()
+unsigned short ClientConnection::getPort() const
 {
 	return port;
 }
 
-string ClientConnection::getIP()
+string ClientConnection::getIP() const
 {
 	return ip;
 }
 
-AesKey ClientConnection::getAesKey()
+AesKey ClientConnection::getAesKey() const
 {
 	return this->aesHandler.getAesKey();
 }
@@ -282,7 +282,7 @@ void ClientConnection::closeConnection()
 	conversationActive = false;
 }
 
-bool ClientConnection::isConversationActive()
+bool ClientConnection::isConversationActive() const
 {
 	return conversationActive;
 }

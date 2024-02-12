@@ -1,9 +1,11 @@
 #include "Server.h"
 
-Server::Server() : logger("Server"), IConnection("127.0.0.1", SERVER_PORT, &logger) {
+Server::Server() : logger("Server"), IConnection("127.0.0.1", SERVER_PORT, &logger), stop(true) {
 }
 
 void Server::startServer() {
+	stop = false;
+
 	logger.log("Server is listening on port " + to_string(Constants::SERVER_PORT));
 
 	thread acceptInThread(&Server::acceptSocket, this, getSocket());
@@ -39,31 +41,39 @@ Server::~Server() {
 
 
 void Server::acceptSocket(SOCKET socket) {
+	sockaddr_in client;
+	int clientSize = sizeof(client);
+	SOCKET clientSocket;
+
 	try {
 		while (!stop) {
-			sockaddr_in client;
-			int clientSize = sizeof(client);
 
-			SOCKET clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
+			// Move clientSocket declaration outside the loop
+			clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
 
 			if (clientSocket == INVALID_SOCKET) {
-				logger.error("Can't accept client socket, Err #" + WSAGetLastError());
-
-				closesocket(clientSocket);
+				int error = WSAGetLastError();
+				if (error != WSAEWOULDBLOCK) {
+					logger.error("Can't accept client socket, Error: " + std::to_string(error));
+				}
 
 				continue;
 			}
 
 			logger.log("Client connected");
 
-			thread clientThread(&Server::handleClient, this, clientSocket);
+			std::thread clientThread(&Server::handleClient, this, clientSocket);
 			clientThread.detach();
 		}
 	}
+	catch (const std::exception& e) {
+		logger.error("Error in acceptSocket(): " + std::string(e.what()));
+	}
 	catch (...) {
-		logger.error("Error in acceptSocket()");
+		logger.error("Unknown error in acceptSocket()");
 	}
 }
+
 
 string Server::receiveECCKeys(SOCKET clientSocket)
 {
@@ -103,8 +113,8 @@ void Server::handleClient(SOCKET clientSocket)
 
 			logger.keysInfo("Decrypted AES keys from client: " + Utility::asHex(decryptedAESKeys));
 		}
-		catch (...) {
-
+		catch (std::runtime_error e) {
+			logger.error("Couldn't decrypt AES keys from client. Closing connection");
 			closesocket(clientSocket);
 			return;
 		}
@@ -127,8 +137,9 @@ void Server::handleClient(SOCKET clientSocket)
 			decrypted = AesHandler::decryptAES(received, &temp);
 			logger.log("Decrypted data from client: " + decrypted);
 		}
-		catch (Exception) {
+		catch (std::runtime_error e) {
 			logger.error("Error in decrypting data from client");
+
 			closesocket(clientSocket);
 			return;
 		}
@@ -152,8 +163,10 @@ void Server::handleClient(SOCKET clientSocket)
 
 		vector<string> parts = Utility::splitString(decrypted, SPLITER);
 
+		// Add ip extraction
 		unsigned short port = static_cast<unsigned short>(stoi(parts[0]));
 
+		// Add search by ip
 		NodeData* node = getNodeInVector(port);
 
 		if (node->isEmpty()) {
@@ -176,10 +189,11 @@ void Server::handleClient(SOCKET clientSocket)
 
 		closesocket(clientSocket);
 	}
-	catch (...) {
+	catch (std::runtime_error e) {
 		aliveNodesMutex.unlock();
 
 		logger.error("Can't handle connection. Closing...");
+		logger.error(e.what());
 
 		closesocket(clientSocket);
 
@@ -192,9 +206,8 @@ void Server::handleClient(SOCKET clientSocket)
 	}
 }
 
-
 bool Server::isNode(string data) {
-	int currentSplitSize = Utility::splitString(data, SPLITER).size();
+	int currentSplitSize = static_cast<int>(Utility::splitString(data, SPLITER).size());
 
 	return currentSplitSize == NODE_SPLIT_SIZE;
 }
@@ -369,7 +382,7 @@ void Server::printNodes()
 		cout << "No nodes" << endl;
 
 		this->stop = true;
-		
+
 		stopServer(); // <--- This is a temporary solution, we need to remove it
 	}
 }
