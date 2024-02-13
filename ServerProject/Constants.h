@@ -1,13 +1,14 @@
 #pragma once
 
-#include <string>
 #include <math.h>
+#include <string>
 
 #define RECEIVE_SIZE 2 << 18
 
 using std::string;
 
 namespace Constants {
+	extern const string LOCALHOST;
 	extern const int IP_SIZE;
 	extern const int PORT_SIZE;
 	extern const int UUID_SIZE;
@@ -28,16 +29,15 @@ namespace Constants {
 
 	extern const string NO_NOEDS_REPONSE;
 
-	// Port||||PublicKeyAsString||||CurrentTime||||randomNonPrimeNumber||||number that make(random % (number – port) == 0
 	enum NodeIndexes {
-		// TODO: Change add ip index as 0
-		PORT = 0,
-		ECC_PUBLIC_KEY = 1,
-		CURRENT_TIME = 2,
-		RANDOM_NON_PRIME_NUMBER = 3,
-		RANDOM_NUMBER = 4,
-		CONDITION_NUMBER = 5,
-		HASH = 6,
-		EXTENDED_HASH = 7
+		IP = 0,
+		PORT = 1,
+		ECC_PUBLIC_KEY = 2,
+		CURRENT_TIME = 3,
+		RANDOM_NON_PRIME_NUMBER = 4,
+		RANDOM_NUMBER = 5,
+		CONDITION_NUMBER = 6,
+		HASH = 7,
+		EXTENDED_HASH = 8
 	};
 }

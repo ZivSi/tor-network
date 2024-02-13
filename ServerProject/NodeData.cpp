@@ -1,20 +1,23 @@
 #include "NodeData.h"
 
-NodeData::NodeData(unsigned short port) {
+NodeData::NodeData(string ip, unsigned short port) {
+	this->ip = ip;
 	this->port = port;
 	this->lastAliveMessageTime = Utility::capture_time();
 	this->aliveMessagesCount = 0;
 	this->averageResponseTime = 0;
 }
 
-NodeData::NodeData(unsigned short port, string serializedPublicKey) : ecchandler(serializedPublicKey) {
+NodeData::NodeData(string ip, unsigned short port, string serializedPublicKey) : ecchandler(serializedPublicKey) {
+	this->ip = ip;
 	this->port = port;
 	this->lastAliveMessageTime = Utility::capture_time();
 	this->aliveMessagesCount = 0;
 	this->averageResponseTime = 0;
 }
 
-NodeData::NodeData(unsigned short port, string serializedPublicKey, unsigned long long lastAliveMessageTime, unsigned long aliveMessagesCount, unsigned long averageResponseTime) {
+NodeData::NodeData(string ip, unsigned short port, string serializedPublicKey, unsigned long long lastAliveMessageTime, unsigned long aliveMessagesCount, unsigned long averageResponseTime) {
+	this->ip = ip;
 	this->port = port;
 	this->lastAliveMessageTime = lastAliveMessageTime;
 	this->aliveMessagesCount = aliveMessagesCount;
@@ -30,6 +33,11 @@ NodeData::NodeData() {
 
 NodeData::~NodeData() {
 	// Destructor implementation (if needed)
+}
+
+string NodeData::getIp()
+{
+	return this->ip;
 }
 
 unsigned short NodeData::getPort() {
@@ -50,6 +58,10 @@ unsigned long NodeData::getAliveMessagesCount() {
 
 unsigned long NodeData::getAverageResponseTime() {
 	return this->averageResponseTime;
+}
+
+void NodeData::setIp(string ip) {
+	this->ip = ip;
 }
 
 void NodeData::setPort(unsigned short port) {
@@ -89,7 +101,7 @@ string NodeData::toString() {
 
 vector<unsigned char> NodeData::toSend() {
 	vector<unsigned char> result;
-	
+
 	// Port
 	result.push_back((this->port >> 8) & 0xFF);
 	result.push_back(this->port & 0xFF);
@@ -98,7 +110,7 @@ vector<unsigned char> NodeData::toSend() {
 	string serializedPublicKey = this->ecchandler.serializeKey();
 	for (int i = 0; i < serializedPublicKey.length(); i++) {
 		result.push_back(serializedPublicKey[i]);
-	}	
+	}
 
 	return result;
 }

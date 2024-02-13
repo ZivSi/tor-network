@@ -68,6 +68,9 @@
     <ClCompile Include="ServerProject\ClientConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ClientProject\RelayObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServerProject\AesHandler.h">
@@ -113,6 +116,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ServerProject\ClientConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientProject\RelayObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
