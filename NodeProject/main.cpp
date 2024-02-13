@@ -1,7 +1,7 @@
-#include <iostream>
-#include <thread>
 #include "Node.h"
 #include "Utility.h"
+#include <iostream>
+#include <thread>
 
 using std::thread;
 
