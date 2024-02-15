@@ -185,7 +185,7 @@ void Server::handleClient(SOCKET clientSocket)
 
 		node->updateLastAliveMessageTime();
 
-		logger.success("Updated node's last alive time: " + to_string(port));
+		logger.success("Updated node's last alive for: " + ip + ":" + to_string(port));
 
 		closesocket(clientSocket);
 	}

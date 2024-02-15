@@ -19,7 +19,6 @@
 #include <xstring>
 
 #include <cstring> // For memset
-
 // Encryptor
 #include <cryptlib.h>
 

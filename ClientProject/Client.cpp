@@ -112,9 +112,10 @@ void Client::handshakeWithNode(string ip, unsigned short nodePort, unsigned int 
 	// Hey node, your next node is...
 	if (nodeIndex < currentPath.size() - 1) {
 		RelayObject* nextNode = currentPath.at(nodeIndex + 1);
+		string nextNodeIp = nextNode->getIp();
 		string nextNodePort = to_string(nextNode->getPort());
 
-		nodeConnection.sendEncrypted(nextNodePort);
+		nodeConnection.sendEncrypted(nextNodeIp + SPLITER + nextNodePort);
 	}
 	else {
 		nodeConnection.sendEncrypted("Destination");

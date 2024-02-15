@@ -146,3 +146,36 @@ string Utility::extractData(const string& received)
 {
 	return received.substr(Constants::UUID_ENCRYPTED_SIZE + Constants::IP_SIZE + Constants::PORT_SIZE);
 }
+
+string Utility::formatIp(const string& ip) {
+	std::stringstream ss(ip);
+	string token;
+	string formattedIp;
+
+	while (std::getline(ss, token, '.')) {
+		// Ensure each part of the IP address has leading zeros
+		formattedIp += addLeadingZeros(token);
+		formattedIp += ".";
+	}
+
+	// Remove the last extra dot
+	formattedIp.pop_back();
+
+	return formattedIp;
+}
+
+string Utility::addLeadingZeros(const string& part) {
+	int num = std::stoi(part);
+
+	return (num < 10 ? "00" : (num < 100 ? "0" : "")) + part;
+}
+
+string Utility::formatPort(unsigned short port)
+{
+	// Ensure the port has leading zeros
+
+	std::stringstream ss;
+	ss << std::setw(5) << std::setfill('0') << port;
+
+	return ss.str();
+}

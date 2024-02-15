@@ -14,7 +14,7 @@ namespace Constants {
 	const string SPLITER = "::::";
 
 	// Server port::::publicKey::::Current time in ms::::Random non prime number::::Random number::::Condition number::::Hash of the first parts::::Extended hash of the rest
-	const string NODE_INIT_FORMAT = "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}";
+	const string NODE_INIT_FORMAT = "{ip}" + SPLITER + "{port}" + SPLITER + "{publickey}" + SPLITER + "{time}" + SPLITER + "{nonprime}" + SPLITER + "{randmomNumber}" + SPLITER + "{modulus base}" + SPLITER + "{hash}" + SPLITER + "{ext_hash}";
 
 
 	const int NODE_SPLIT_SIZE = static_cast<const int>(Utility::splitString(NODE_INIT_FORMAT, SPLITER).size());

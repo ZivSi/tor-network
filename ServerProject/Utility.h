@@ -42,4 +42,9 @@ public:
 	static string extractIpAddress(const string& received);
 	static unsigned short extractPort(const string& received);
 	static string extractData(const string& received);
+
+	static string formatIp(const string& ip);
+	static string addLeadingZeros(const string& part);
+
+	static string formatPort(unsigned short port);
 };

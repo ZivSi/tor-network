@@ -225,6 +225,41 @@ void Node::removeConversationFromMap(string conversationId)
 	logger.log("Removed conversation from map: " + conversationId);
 }
 
+string Node::getLocalIpv4() {
+	char hostbuffer[256];
+	struct addrinfo hints, * res, * p;
+	int status;
+	char ipstr[INET6_ADDRSTRLEN];
+
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC; // Use AF_INET to force IPv4
+	hints.ai_socktype = SOCK_STREAM;
+
+	// Retrieve hostname
+	if (gethostname(hostbuffer, sizeof(hostbuffer)) == -1) {
+		throw std::runtime_error("Error getting hostname.");
+	}
+
+	// Retrieve host information
+	if ((status = getaddrinfo(hostbuffer, NULL, &hints, &res)) != 0) {
+		throw std::runtime_error("Error on status getaddrinfo");
+	}
+
+	// Loop through all the results and get the first IPv4 address
+	for (p = res; p != NULL; p = p->ai_next) {
+		if (p->ai_family == AF_INET) { // IPv4
+			struct sockaddr_in* ipv4 = (struct sockaddr_in*)p->ai_addr;
+			// Convert the IP to a string and return it
+			inet_ntop(AF_INET, &(ipv4->sin_addr), ipstr, sizeof ipstr);
+			freeaddrinfo(res); // Free memory allocated by getaddrinfo
+			return std::string(ipstr);
+		}
+	}
+
+	freeaddrinfo(res); // Free memory allocated by getaddrinfo
+	throw std::runtime_error("Error getting local IPv4.");
+}
+
 bool Node::isHandshake(string received)
 {
 	// If client handshake, the beggining will be ECC key. Another node won't send ECC key
@@ -288,14 +323,22 @@ void Node::clientHandshake(SOCKET clientSocket)
 		sendData(clientSocket, encryptedId);
 
 		// Receive next node port
-		// TODO: add ip
 		string nextNodeProperties = receiveData(clientSocket);
 		decryptedNextNodeProperties = AesHandler::decryptAES(nextNodeProperties, &aesPair);
 
+		cout << "Received next node properties: " << decryptedNextNodeProperties << endl;
+
 		try {
-			// TODO: split and only then try to convert to int and ip
-			string nextNodeIP = decryptedNextNodeProperties.substr(0, Constants::IP_SIZE);
-			unsigned short nextNodePortInt = stoi(decryptedNextNodeProperties.substr(Constants::IP_SIZE, Constants::PORT_SIZE));
+			if (decryptedNextNodeProperties == "Destination") {
+				throw std::runtime_error("Received destination. I am the exit node");
+			}
+
+			vector<string> parts = Utility::splitString(decryptedNextNodeProperties, SPLITER);
+
+			string nextNodeIP = parts[0];
+			unsigned short nextNodePortInt = static_cast<unsigned short>(stoi(parts[1]));
+
+			logger.clientEvent("Received next node properties: " + nextNodeIP + ":" + to_string(nextNodePortInt));
 
 			currentConversation->setNxtIP(nextNodeIP);
 			currentConversation->setNxtPort(nextNodePortInt);
@@ -391,33 +434,4 @@ void Node::sendAlive()
 string Node::receiveECCKeys(SOCKET clientSocket)
 {
 	return receiveKeys(clientSocket);
-}
-
-
-string Node::getLocalIp() {
-	/*
-	char hostbuffer[256];
-	char* IPbuffer;
-	struct hostent* host_entry;
-	int hostname;
-
-	// Retrieve hostname
-	hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-	if (hostname == -1) {
-		throw std::runtime_error("Error getting hostname.");
-	}
-
-	// Retrieve host information
-	host_entry = gethostbyname(hostbuffer);
-	if (host_entry == nullptr) {
-		throw std::runtime_error("Error getting host information.");
-	}
-
-	// Convert the network address to a string
-	IPbuffer = inet_ntoa(*((struct in_addr*)host_entry->h_addr_list[0]));
-
-	return std::string(IPbuffer);
-	*/
-
-	return LOCALHOST;
 }
