@@ -3,8 +3,9 @@
 // Port variable
 unsigned short Node::PORT = SERVER_PORT + 1;
 
-Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), IConnection("127.0.0.1", Node::PORT, &logger)
+Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
 {
+	//  Set by the local ip of the current machine (such as 10.0.0.10);
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
@@ -175,11 +176,13 @@ void Node::handleNode(SOCKET nodeSocket, string initialMessage)
 			destination->sendData(parts[2]);
 			destination->closeConnection();
 
+			delete destination;
+
 			return;
 		}
 
 		if (currentConversation->getNxtNode() == nullptr) {
-			ClientConnection* nextNodeConnection = new ClientConnection("127.0.0.1", currentConversation->getNxtPort(), this->logger);
+			ClientConnection* nextNodeConnection = new ClientConnection(currentConversation->getNxtIP(), currentConversation->getNxtPort(), this->logger);
 			currentConversation->setNxtNode(nextNodeConnection);
 		}
 
@@ -385,4 +388,33 @@ void Node::sendAlive()
 string Node::receiveECCKeys(SOCKET clientSocket)
 {
 	return receiveKeys(clientSocket);
+}
+
+
+string Node::getLocalIp() {
+	/*
+	char hostbuffer[256];
+	char* IPbuffer;
+	struct hostent* host_entry;
+	int hostname;
+
+	// Retrieve hostname
+	hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+	if (hostname == -1) {
+		throw std::runtime_error("Error getting hostname.");
+	}
+
+	// Retrieve host information
+	host_entry = gethostbyname(hostbuffer);
+	if (host_entry == nullptr) {
+		throw std::runtime_error("Error getting host information.");
+	}
+
+	// Convert the network address to a string
+	IPbuffer = inet_ntoa(*((struct in_addr*)host_entry->h_addr_list[0]));
+
+	return std::string(IPbuffer);
+	*/
+
+	return LOCALHOST;
 }

@@ -18,6 +18,8 @@
 #include <xstring>
 #include <chrono>
 
+#include <cstring> // For memset
+
 // Encryptor
 #include <cryptlib.h>
 
@@ -115,5 +117,7 @@ private:
 	bool isConnectedTo(ClientConnection* nextNode);
 
 	void removeConversationFromMap(string conversationId);
+
+	string getLocalIpv4();
 };
 

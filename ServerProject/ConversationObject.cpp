@@ -29,6 +29,13 @@ ConversationObject::ConversationObject(string conversationId, AesKey key) : nxtP
 }
 
 ConversationObject::~ConversationObject() {
+	if (this->nxtNode != nullptr) {
+		delete this->nxtNode;
+	}
+
+	if (this->prvNodeSocket != -1) {
+		closesocket(this->prvNodeSocket);
+	}
 }
 
 SOCKET ConversationObject::getPrvNodeSOCKET() const {
