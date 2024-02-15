@@ -1,9 +1,9 @@
 #pragma once
 
-#include "AesHandler.h"
-#include <string>
+#include "../ServerProject/AesHandler.h"
+#include "../ServerProject/ECCHandler.h"
 #include <iostream>
-#include "ECCHandler.h"
+#include <string>
 
 using std::string;
 using std::cout;
@@ -13,7 +13,7 @@ using std::endl;
 class RelayObject
 {
 private:
-	// TODO: Change. add ip
+	string ip;
 	unsigned short port;
 	AesKey aesKey;
 	ECCHandler* eccHandler;
@@ -21,12 +21,12 @@ private:
 	string conversationIdEncrypted;
 
 public:
-	RelayObject(unsigned short port, AesKey aesKeys, ECCHandler* eccHandler, string conversationId);  // TODO: Change
-	RelayObject(unsigned short port);  // TODO: Change
+	RelayObject(string ip, unsigned short port, AesKey aesKeys, ECCHandler* eccHandler, string conversationId);
+	RelayObject(string ip, unsigned short port);  // TODO: Change
 	~RelayObject();
 
+	string getIp();
 	unsigned short getPort();
-	// TODO: Change. add getIp
 	AesKey* getAesKeys();
 	ECCHandler* getEccHandler();
 	string getConversationId();
@@ -37,3 +37,20 @@ public:
 	void setConversationId(string conversationId);
 };
 
+
+class RelayProperties
+{
+private:
+	string ip;
+	unsigned short port;
+
+public:
+	RelayProperties(string ip, unsigned short port);
+	RelayProperties();
+	~RelayProperties();
+
+	string getIp();
+	unsigned short getPort();
+	void setIp(string ip);
+	void setPort(unsigned short port);
+};

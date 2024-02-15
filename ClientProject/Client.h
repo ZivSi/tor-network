@@ -1,15 +1,15 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <WS2tcpip.h>
-#include "Logger.h"
 #include "ClientConnection.h"
 #include "Constants.h"
+#include "Logger.h"
 #include "NodeData.h"
 #include "RelayObject.h";
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <WS2tcpip.h>
 
 #pragma comment (lib, "ws2_32.lib")
 
@@ -32,7 +32,7 @@ public:
 
 	void startPathDesign();
 	void handshakeWithCurrentPath();
-	void handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex); // TODO: Change
+	void handshakeWithNode(string ip, unsigned short nodePort, unsigned int nodeIndex);
 
 	void checkConnectionAliveTimer();
 
@@ -51,7 +51,7 @@ private:
 
 	Logger logger;
 
-	vector<unsigned short> receivedPorts;  // TODO: Change
+	vector<RelayProperties> receivedRelays;
 	vector<RelayObject*> currentPath;
 
 	void clearCurrentPath();

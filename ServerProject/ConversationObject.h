@@ -1,11 +1,11 @@
 #pragma once
 
 #include "AesHandler.h"
+#include "ClientConnection.h"
+#include <random>
 #include <string>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#include <random>
-#include "ClientConnection.h"
 
 #define UUID_LEN 4 // Good enough
 
@@ -21,12 +21,12 @@ private:
 	unsigned long long creationTime;
 
 	SOCKET prvNodeSocket; // Previous node is socket because we are it's server
+	string prvIP;
 	unsigned short prvPort;
-	// TODO: add ip
 
 	ClientConnection* nxtNode;
+	string nxtIP;
 	unsigned short nxtPort;
-	// TODO: add ip
 
 	string conversationId; // UUID
 	AesKey key; // Agreed between client and current node
@@ -44,11 +44,11 @@ public:
 	SOCKET getPrvNodeSOCKET() const;
 	ClientConnection* getNxtNode();
 
+	string getPrvIP() const;
 	unsigned short getPrvPort();
-	// TODO: add ip getter
 
+	string getNxtIP() const;
 	unsigned short getNxtPort() const;
-	// TODO: add ip getter
 
 	string getConversationId();
 	AesKey* getKey();
@@ -56,10 +56,11 @@ public:
 	void setPrvNode(SOCKET prvNodeSocket);
 	void setNxtNode(ClientConnection* nxtNode);
 
+	void setPrvIP(string prvIP);
 	void setPrvPort(unsigned short prvPort);
-	// TODO: add ip setter
+
+	void setNxtIP(string nxtIP);
 	void setNxtPort(unsigned short nxtPort);
-	// TODO: add ip setter
 
 	void setConversationId(string conversationId);
 	void setKey(AesKey key);

@@ -1,28 +1,29 @@
 #pragma once
 
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <thread>
-#include "NodeData.h"
+#include "../ClientProject/RelayObject.h"
 #include "AesHandler.h"
-#include "RSAHandler.h"
-#include "ECCHandler.h"
-#include "Utility.h"
 #include "Constants.h"
-#include <mutex>
-#include <secblock.h>
+#include "ECCHandler.h"
+#include "IConnection.h"
+#include "Logger.h"
+#include "NodeData.h"
+#include "RSAHandler.h"
+#include "Utility.h"
 #include <cryptlib.h>
 #include <eccrypto.h>
-#include <stdexcept>
+#include <iostream>
+#include <mutex>
 #include <oids.h>
-#include "Logger.h"
 #include <random>
+#include <secblock.h>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <thread>
+#include <vector>
 #include <WinSock2.h>
 #include <winsock2.h>
 #include <WS2tcpip.h>
-#include "IConnection.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -72,6 +73,6 @@ private:
 	// If not
 	void sendNodesToClient(SOCKET clientSocket);
 
-	NodeData* getNodeInVector(unsigned short port); // TODO: add ip
+	NodeData* getNodeInVector(string ip, unsigned short port);
 	void checkAliveNodes();
 };

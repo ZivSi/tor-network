@@ -15,7 +15,7 @@ Client::~Client() {
 
 	currentPath.clear();
 
-	receivedPorts.clear();
+	receivedRelays.clear();
 
 	logger.log("Client destroyed");
 }
@@ -24,7 +24,7 @@ void Client::waitForNodes()
 {
 	receiveResponseFromServer();
 
-	while (receivedPorts.empty()) {
+	while (receivedRelays.empty()) {
 		clientConnection.closeConnection();
 
 		Sleep(3000);
@@ -44,36 +44,39 @@ void Client::receiveResponseFromServer()
 
 	if (received.empty() || received == NO_NOEDS_REPONSE) {
 		logger.error("No nodes available");
-
 		return;
 	}
 
-	receivedPorts.clear();
+	receivedRelays.clear();
 
-	// Deserialize the received data
-	size_t numPorts = received.size() / sizeof(unsigned short);
-	receivedPorts.resize(numPorts);
+	// Put data inside receivedRelays
+	const RelayProperties* relayData = reinterpret_cast<const RelayProperties*>(received.data());
+	size_t relayCount = received.size() / sizeof(RelayProperties);
 
-	std::memcpy(receivedPorts.data(), received.data(), received.size());
-
-	cout << "Received ports: [";
-	for (unsigned short port : receivedPorts) {
-		cout << port << ", ";
+	// Populate the receivedRelays vector
+	for (size_t i = 0; i < relayCount; ++i) {
+		receivedRelays.push_back(relayData[i]);
 	}
 
-	// Delete last comma
-	cout << "\b\b]" << endl;
+	cout << "Received " << receivedRelays.size() << " nodes" << endl;
+	for (RelayProperties relay : receivedRelays) {
+		cout << relay.getIp() << ":" << relay.getPort() << endl;
+	}
+
+	cout << "\n\n\n";
 }
+
 
 void Client::startPathDesign()
 {
 	clearCurrentPath();
 
 	for (int i = 0; i < DEFAULT_PATH_LENGTH; i++) {
-		unsigned int randomIndex = Utility::generateRandomNumber(0, this->receivedPorts.size() - 1);
-		unsigned short currentPort = receivedPorts.at(randomIndex);
+		unsigned int randomIndex = Utility::generateRandomNumber(0, this->receivedRelays.size() - 1);
+		string currentIp = receivedRelays.at(randomIndex).getIp();
+		unsigned short currentPort = receivedRelays.at(randomIndex).getPort();
 
-		RelayObject* currentNodeData = new RelayObject(currentPort);
+		RelayObject* currentNodeData = new RelayObject(currentIp, currentPort);
 
 		currentPath.push_back(currentNodeData);
 	}
@@ -86,13 +89,13 @@ void Client::handshakeWithCurrentPath()
 	for (int i = 0; i < currentPath.size(); i++) {
 		RelayObject* currentNodeData = currentPath.at(i);
 
-		handshakeWithNode(currentNodeData->getPort(), i);
+		handshakeWithNode(currentNodeData->getIp(), currentNodeData->getPort(), i);
 	}
 }
 
-void Client::handshakeWithNode(unsigned short nodePort, unsigned int nodeIndex)
+void Client::handshakeWithNode(string ip, unsigned short nodePort, unsigned int nodeIndex)
 {
-	ClientConnection nodeConnection("127.0.0.1", nodePort, logger, &(this->eccHandler));
+	ClientConnection nodeConnection(ip, nodePort, logger, &(this->eccHandler));
 	nodeConnection.handshake();
 	logger.success("Handshake with node " + to_string(nodePort) + " completed");
 
@@ -125,7 +128,7 @@ ClientConnection* Client::connectToEntryNode()
 	RelayObject* entryNode = currentPath.at(0);
 	cout << "Connecting to entry node whice is at port: " << entryNode->getPort() << endl;
 
-	ClientConnection* entryNodeConnection = new ClientConnection("127.0.0.1", entryNode->getPort(), logger); // Connection made
+	ClientConnection* entryNodeConnection = new ClientConnection(entryNode->getIp(), entryNode->getPort(), logger); // Connection made
 
 	return entryNodeConnection;
 }
@@ -179,7 +182,7 @@ void Client::printPath()
 	cout << "Path: [";
 
 	for (RelayObject* tempNodeData : currentPath) {
-		cout << tempNodeData->getPort() << " -> ";
+		cout << tempNodeData->getIp() << ":" << tempNodeData->getPort() << " -> ";
 	}
 
 	cout << "Destination]" << endl;

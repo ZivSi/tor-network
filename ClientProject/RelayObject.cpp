@@ -1,6 +1,7 @@
 #include "RelayObject.h"
 
-RelayObject::RelayObject(unsigned short port, AesKey aesKeys, ECCHandler* eccHandler, string conversationId) {
+RelayObject::RelayObject(string ip, unsigned short port, AesKey aesKeys, ECCHandler* eccHandler, string conversationId) {
+	this->ip = ip;
 	this->port = port;
 	this->aesKey = aesKeys;
 	this->eccHandler = eccHandler;
@@ -9,13 +10,19 @@ RelayObject::RelayObject(unsigned short port, AesKey aesKeys, ECCHandler* eccHan
 	this->conversationIdEncrypted = this->eccHandler->encrypt(conversationId);
 }
 
-RelayObject::RelayObject(unsigned short port)
+RelayObject::RelayObject(string ip, unsigned short port)
 {
+	this->ip = ip;
 	this->port = port;
 }
 
 RelayObject::~RelayObject() {
 
+}
+
+string RelayObject::getIp()
+{
+	return this->ip;
 }
 
 unsigned short RelayObject::getPort()
@@ -58,4 +65,38 @@ void RelayObject::setConversationId(string conversationId)
 {
 	this->conversationId = conversationId;
 	this->conversationIdEncrypted = eccHandler->encrypt(conversationId);
+}
+
+RelayProperties::RelayProperties(string ip, unsigned short port)
+{
+	this->ip = ip;
+	this->port = port;
+}
+
+RelayProperties::RelayProperties()
+{
+}
+
+RelayProperties::~RelayProperties()
+{
+}
+
+string RelayProperties::getIp()
+{
+	return this->ip;
+}
+
+unsigned short RelayProperties::getPort()
+{
+	return this->port;
+}
+
+void RelayProperties::setIp(string ip)
+{
+	this->ip = ip;
+}
+
+void RelayProperties::setPort(unsigned short port)
+{
+	this->port = port;
 }

@@ -39,9 +39,19 @@ ClientConnection* ConversationObject::getNxtNode() {
 	return this->nxtNode;
 }
 
+string ConversationObject::getPrvIP() const
+{
+	return this->prvIP;
+}
+
 unsigned short ConversationObject::getPrvPort()
 {
 	return this->prvPort;
+}
+
+string ConversationObject::getNxtIP() const
+{
+	return this->nxtIP;
 }
 
 unsigned short ConversationObject::getNxtPort() const
@@ -66,9 +76,19 @@ void ConversationObject::setNxtNode(ClientConnection* nxtNode) {
 	this->nxtNode = nxtNode;
 }
 
+void ConversationObject::setPrvIP(string prvIP)
+{
+	this->prvIP = prvIP;
+}
+
 void ConversationObject::setPrvPort(unsigned short prvPort)
 {
 	this->prvPort = prvPort;
+}
+
+void ConversationObject::setNxtIP(string nxtIP)
+{
+	this->nxtIP = nxtIP;
 }
 
 void ConversationObject::setNxtPort(unsigned short nxtPort)

@@ -5,6 +5,7 @@
 
 
 namespace Constants {
+	const string LOCALHOST = "127.0.0.1";
 	const int IP_SIZE = static_cast<const int>(string("XXX.XXX.XXX.XXX").size());
 	const int PORT_SIZE = 5; // 65535
 	const int UUID_SIZE = 4; // bytes
@@ -13,7 +14,7 @@ namespace Constants {
 	const string SPLITER = "::::";
 
 	// Server port::::publicKey::::Current time in ms::::Random non prime number::::Random number::::Condition number::::Hash of the first parts::::Extended hash of the rest
-	const string NODE_INIT_FORMAT = "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}";
+	const string NODE_INIT_FORMAT = "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}" + SPLITER + "{}";
 
 
 	const int NODE_SPLIT_SIZE = static_cast<const int>(Utility::splitString(NODE_INIT_FORMAT, SPLITER).size());
