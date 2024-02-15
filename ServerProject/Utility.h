@@ -4,13 +4,13 @@
 #include "Logger.h"
 #include "NodeData.h"
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <random>
 #include <secblock.h>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <iomanip>
 
 typedef unsigned char byte;
 
@@ -43,8 +43,7 @@ public:
 	static unsigned short extractPort(const string& received);
 	static string extractData(const string& received);
 
-	static string formatIp(const string& ip);
-	static string addLeadingZeros(const string& part);
-
-	static string formatPort(unsigned short port);
+	static bool isValidIpv4(const std::string& ip);
+	static bool isValidPort(unsigned short port);
+	static bool isValidInteger(const std::string& str);
 };

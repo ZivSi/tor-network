@@ -8,6 +8,7 @@
 using std::string;
 
 namespace Constants {
+	extern const string EXIT_NODE_STRING;
 	extern const string LOCALHOST;
 	extern const int IP_SIZE;
 	extern const int PORT_SIZE;

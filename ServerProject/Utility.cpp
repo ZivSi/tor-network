@@ -147,35 +147,63 @@ string Utility::extractData(const string& received)
 	return received.substr(Constants::UUID_ENCRYPTED_SIZE + Constants::IP_SIZE + Constants::PORT_SIZE);
 }
 
-string Utility::formatIp(const string& ip) {
-	std::stringstream ss(ip);
-	string token;
-	string formattedIp;
+bool Utility::isValidIpv4(const std::string& ip)
+{
+	std::vector<std::string> parts;
+	std::istringstream iss(ip);
+	std::string part;
 
-	while (std::getline(ss, token, '.')) {
-		// Ensure each part of the IP address has leading zeros
-		formattedIp += addLeadingZeros(token);
-		formattedIp += ".";
+	// Split the string by periods
+	while (getline(iss, part, '.')) {
+		parts.push_back(part);
 	}
 
-	// Remove the last extra dot
-	formattedIp.pop_back();
+	// Check for exactly 4 parts
+	if (parts.size() != 4) {
+		return false;
+	}
 
-	return formattedIp;
+	// Check each part
+	for (const std::string& p : parts) {
+		// Check if the part is a valid integer
+		if (!isValidInteger(p)) {
+			return false;
+		}
+
+		// Convert the part to an integer
+		int num = stoi(p);
+
+		// Check if the integer is in range [0, 255]
+		if (num < 0 || num > 255) {
+			return false;
+		}
+
+		// Check for leading zeros
+		if (p.size() > 1 && p[0] == '0') {
+			return false;
+		}
+	}
+
+	return true;
 }
 
-string Utility::addLeadingZeros(const string& part) {
-	int num = std::stoi(part);
-
-	return (num < 10 ? "00" : (num < 100 ? "0" : "")) + part;
-}
-
-string Utility::formatPort(unsigned short port)
+bool Utility::isValidPort(unsigned short port)
 {
-	// Ensure the port has leading zeros
+	return (port >= 0 && port <= 65535);
+}
 
-	std::stringstream ss;
-	ss << std::setw(5) << std::setfill('0') << port;
+bool Utility::isValidInteger(const std::string& str)
+{
+	if (str.empty()) {
+		return false;
+	}
 
-	return ss.str();
+	// Check if each character is a digit
+	for (char c : str) {
+		if (!std::isdigit(c)) {
+			return false;
+		}
+	}
+
+	return true;
 }

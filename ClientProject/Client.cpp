@@ -118,7 +118,7 @@ void Client::handshakeWithNode(string ip, unsigned short nodePort, unsigned int 
 		nodeConnection.sendEncrypted(nextNodeIp + SPLITER + nextNodePort);
 	}
 	else {
-		nodeConnection.sendEncrypted("Destination");
+		nodeConnection.sendEncrypted(Constants::EXIT_NODE_STRING);
 	}
 
 	nodeConnection.closeConnection();

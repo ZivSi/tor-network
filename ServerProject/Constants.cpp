@@ -5,6 +5,8 @@
 
 
 namespace Constants {
+	// extern const string EXIT_NODE_STRING;
+	const string EXIT_NODE_STRING = "EXIT_NODE";
 	const string LOCALHOST = "127.0.0.1";
 	const int IP_SIZE = static_cast<const int>(string("XXX.XXX.XXX.XXX").size());
 	const int PORT_SIZE = 5; // 65535

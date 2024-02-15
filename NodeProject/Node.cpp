@@ -329,7 +329,7 @@ void Node::clientHandshake(SOCKET clientSocket)
 		cout << "Received next node properties: " << decryptedNextNodeProperties << endl;
 
 		try {
-			if (decryptedNextNodeProperties == "Destination") {
+			if (decryptedNextNodeProperties == Constants::EXIT_NODE_STRING) {
 				throw std::runtime_error("Received destination. I am the exit node");
 			}
 
@@ -338,12 +338,19 @@ void Node::clientHandshake(SOCKET clientSocket)
 			string nextNodeIP = parts[0];
 			unsigned short nextNodePortInt = static_cast<unsigned short>(stoi(parts[1]));
 
+			if (!(Utility::isValidIpv4(nextNodeIP) && Utility::isValidPort(nextNodePortInt))) {
+				throw std::runtime_error("Invalid IP or port");
+			}
+
 			logger.clientEvent("Received next node properties: " + nextNodeIP + ":" + to_string(nextNodePortInt));
 
 			currentConversation->setNxtIP(nextNodeIP);
 			currentConversation->setNxtPort(nextNodePortInt);
 		}
-		catch (...) {
+		catch (std::runtime_error e) {
+			logger.error("Error in receiving next node properties");
+			cout << e.what() << endl;
+
 			// We received destination. We are the exit node
 			currentConversation->setAsExitNode();
 
