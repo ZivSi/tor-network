@@ -268,8 +268,8 @@ void Node::clientHandshake(SOCKET clientSocket)
 	string conversationId;
 	AesKey aesPair;
 	string encryptedId;
-	string nextNodePort;
-	string decryptedNextNodePort;
+	string nextNodeProperties;
+	string decryptedNextNodeProperties;
 
 	try {
 		aesPair = AesKey::decryptedAESKeysToPair(decryptedAESKeys);
@@ -288,13 +288,16 @@ void Node::clientHandshake(SOCKET clientSocket)
 		sendData(clientSocket, encryptedId);
 
 		// Receive next node port
-		// TODO: add ip.
-		nextNodePort = receiveData(clientSocket);
-		decryptedNextNodePort = AesHandler::decryptAES(nextNodePort, &aesPair);
+		// TODO: add ip
+		string nextNodeProperties = receiveData(clientSocket);
+		decryptedNextNodeProperties = AesHandler::decryptAES(nextNodeProperties, &aesPair);
 
 		try {
 			// TODO: split and only then try to convert to int and ip
-			unsigned short nextNodePortInt = stoi(decryptedNextNodePort);
+			string nextNodeIP = decryptedNextNodeProperties.substr(0, Constants::IP_SIZE);
+			unsigned short nextNodePortInt = stoi(decryptedNextNodeProperties.substr(Constants::IP_SIZE, Constants::PORT_SIZE));
+
+			currentConversation->setNxtIP(nextNodeIP);
 			currentConversation->setNxtPort(nextNodePortInt);
 		}
 		catch (...) {
@@ -357,7 +360,7 @@ string Node::buildAliveFormat() {
 	unsigned long int randomNumber = Utility::generateRandomNumber(0, 71067106);
 	unsigned long long currentTime = Utility::capture_time();
 
-	string formattedData = to_string(this->myPort) + SPLITER + "Public Key!" + SPLITER + to_string(currentTime) + SPLITER + to_string(nonPrime) + SPLITER + to_string(randomNumber) + SPLITER + to_string(modulusBase);
+	string formattedData = myIP + SPLITER + to_string(this->myPort) + SPLITER + "Public Key!" + SPLITER + to_string(currentTime) + SPLITER + to_string(nonPrime) + SPLITER + to_string(randomNumber) + SPLITER + to_string(modulusBase);
 
 	formattedData = formattedData + SPLITER + Utility::hashStr(formattedData + PEPPER);
 	formattedData = formattedData + SPLITER + Utility::hashStr(formattedData + PEPPER2);

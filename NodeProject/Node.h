@@ -1,30 +1,30 @@
 #pragma once
 
 #include "AesHandler.h"
+#include "ClientConnection.h"
+#include "Constants.h"
 #include "ConversationObject.h"
 #include "ECCHandler.h"
-#include "Constants.h"
-#include "Utility.h"
-#include "Logger.h"
-#include "ClientConnection.h"
 #include "IConnection.h"
+#include "Logger.h"
+#include "Utility.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
 #include "unordered_map"
-#include <thread>
-#include <mutex>
-#include <xstring>
 #include <chrono>
+#include <iostream>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <vector>
+#include <xstring>
 
 #include <cstring> // For memset
 
 // Encryptor
 #include <cryptlib.h>
 
-#include <WS2tcpip.h>
 #include <WinSock2.h>
+#include <WS2tcpip.h>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -71,6 +71,7 @@ private:
 	* The node's server socket
 	*/
 	bool stop;
+	string myIP;
 	unsigned short myPort;
 
 	/*

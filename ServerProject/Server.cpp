@@ -163,17 +163,17 @@ void Server::handleClient(SOCKET clientSocket)
 
 		vector<string> parts = Utility::splitString(decrypted, SPLITER);
 
-		// Add ip extraction
-		unsigned short port = static_cast<unsigned short>(stoi(parts[0]));
+		string ip = parts[IP];
+		unsigned short port = static_cast<unsigned short>(stoi(parts[PORT]));
 
-		// Add search by ip
-		NodeData* node = getNodeInVector(port);
+
+		NodeData* node = getNodeInVector(ip, port);
 
 		if (node->isEmpty()) {
 			delete node;
 
 			aliveNodesMutex.lock();
-			this->aliveNodes.push_back(new NodeData(port, receivedECCKeys, Utility::capture_time(), 1, 0));
+			this->aliveNodes.push_back(new NodeData(ip, port, receivedECCKeys, Utility::capture_time(), 1, 0));
 			aliveNodesMutex.unlock();
 
 			closesocket(clientSocket);
@@ -265,7 +265,7 @@ bool Server::isValidFormat(string data) {
 	}
 
 	// Hash part
-	string textToHash = parts[PORT] + SPLITER + parts[ECC_PUBLIC_KEY] + SPLITER + parts[CURRENT_TIME] + SPLITER + parts[RANDOM_NON_PRIME_NUMBER] + SPLITER + parts[RANDOM_NUMBER] + SPLITER + parts[CONDITION_NUMBER];
+	string textToHash = parts[IP] + SPLITER + parts[PORT] + SPLITER + parts[ECC_PUBLIC_KEY] + SPLITER + parts[CURRENT_TIME] + SPLITER + parts[RANDOM_NON_PRIME_NUMBER] + SPLITER + parts[RANDOM_NUMBER] + SPLITER + parts[CONDITION_NUMBER];
 	string smallHash = Utility::hashStr(textToHash + Constants::PEPPER);
 
 	if (smallHash != parts[HASH]) {
@@ -290,11 +290,12 @@ void Server::sendNodesToClient(SOCKET clientSocket)
 	aliveNodesMutex.lock();
 	logger.log("Passing alive nodes to the client (" + to_string(aliveNodes.size()) + ")");
 
-	vector<unsigned short> portsStream;
+	vector<RelayProperties> portsStream;
 
 	for (NodeData* node : this->aliveNodes) {
+		string ip = node->getIp();
 		unsigned short port = node->getPort();
-		portsStream.push_back(port);
+		portsStream.push_back(RelayProperties(ip, port));
 	}
 
 	aliveNodesMutex.unlock();
@@ -308,15 +309,15 @@ void Server::sendNodesToClient(SOCKET clientSocket)
 	}
 
 	// Devide the portsStream into a string (bytes of data / sizeof(unsigned short))
-	string serializedData(reinterpret_cast<const char*>(portsStream.data()), portsStream.size() * sizeof(unsigned short));
+	string serializedData(reinterpret_cast<const char*>(portsStream.data()), portsStream.size() * sizeof(RelayProperties));
 
 	sendData(clientSocket, serializedData);
 }
 
-NodeData* Server::getNodeInVector(unsigned short port) {
+NodeData* Server::getNodeInVector(string ip, unsigned short port) {
 	aliveNodesMutex.lock();
 	for (NodeData* node : this->aliveNodes) {
-		if (node->getPort() == port) {
+		if (node->getIp() == ip && node->getPort() == port) {
 			aliveNodesMutex.unlock();
 
 			return node;
@@ -341,7 +342,7 @@ void Server::checkAliveNodes()
 
 				if (nodeIsDead(node)) {
 
-					logger.error("Node " + to_string(node->getPort()) + " is dead");
+					logger.error("Node " + node->getIp() + ":" + to_string(node->getPort()) + " is dead");
 					delete node;
 
 					this->aliveNodes.erase(this->aliveNodes.begin() + i);
