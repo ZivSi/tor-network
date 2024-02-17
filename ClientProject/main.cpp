@@ -10,10 +10,15 @@ int main()
 	cout << "Client started" << endl;
 	Client client;
 
+	cout << "Waiting for nodes..." << endl;
 	client.waitForNodes();
 
 	client.receiveResponseFromServer();
+
+	cout << "Received relays" << endl;
 	client.startPathDesign();
+	cout << "Path designed" << endl;
+
 	client.handshakeWithCurrentPath();
 
 	client.printNodes();
@@ -21,8 +26,7 @@ int main()
 	ClientConnection* entry = client.connectToEntryNode();
 	string keys = entry->receiveKeys(true);
 
-	cout << "Keys: " << keys << endl;
-	client.sendData("127.0.0.1", 6969, "Hello from client", entry);
+	client.sendData(SERVER_IP, 6969, "Hello from client", entry);
 
 	delete entry;
 

@@ -1,12 +1,12 @@
 #include "Server.h"
 
-Server::Server() : logger("Server"), IConnection("127.0.0.1", SERVER_PORT, &logger), stop(true) {
+Server::Server() : logger("Server"), IConnection(LOCALHOST, SERVER_PORT, &logger), stop(true) {
 }
 
 void Server::startServer() {
 	stop = false;
 
-	logger.log("Server is listening on port " + to_string(Constants::SERVER_PORT));
+	logger.log("The parent server is running on " + SERVER_IP + ":" + to_string(Constants::SERVER_PORT));
 
 	thread acceptInThread(&Server::acceptSocket, this, getSocket());
 	acceptInThread.detach();
@@ -169,8 +169,7 @@ void Server::handleClient(SOCKET clientSocket)
 
 		NodeData* node = getNodeInVector(ip, port);
 
-		if (node->isEmpty()) {
-			delete node;
+		if (node == NULL) {
 
 			aliveNodesMutex.lock();
 			this->aliveNodes.push_back(new NodeData(ip, port, receivedECCKeys, Utility::capture_time(), 1, 0));
@@ -196,13 +195,6 @@ void Server::handleClient(SOCKET clientSocket)
 		logger.error(e.what());
 
 		closesocket(clientSocket);
-
-
-		// TODO: remove this
-		if (this->aliveNodes.empty()) {
-			this->stop = true;
-			stopServer();
-		}
 	}
 }
 
@@ -308,7 +300,6 @@ void Server::sendNodesToClient(SOCKET clientSocket)
 		return;
 	}
 
-	// Devide the portsStream into a string (bytes of data / sizeof(unsigned short))
 	string serializedData(reinterpret_cast<const char*>(portsStream.data()), portsStream.size() * sizeof(RelayProperties));
 
 	sendData(clientSocket, serializedData);
@@ -326,7 +317,7 @@ NodeData* Server::getNodeInVector(string ip, unsigned short port) {
 
 	aliveNodesMutex.unlock();
 
-	return new NodeData();
+	return NULL;
 }
 
 void Server::checkAliveNodes()
@@ -358,7 +349,6 @@ void Server::checkAliveNodes()
 			aliveNodesMutex.unlock();
 
 			logger.error("Error in checkAliveNodes()");
-			// Log the error, but avoid recursion
 		}
 	}
 }
@@ -381,10 +371,6 @@ void Server::printNodes()
 
 	if (this->aliveNodes.empty()) {
 		cout << "No nodes" << endl;
-
-		this->stop = true;
-
-		stopServer(); // <--- This is a temporary solution, we need to remove it
 	}
 }
 

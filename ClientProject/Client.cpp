@@ -138,8 +138,6 @@ void Client::sendData(string ip, unsigned short port, string message, ClientConn
 {
 	string encryptedData = encrypt(ip, port, message);
 
-	cout << "Encrypted message:\n" << encryptedData << endl;
-
 	entryNodeConnection->sendData(encryptedData);
 }
 

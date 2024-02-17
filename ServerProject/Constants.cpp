@@ -12,6 +12,7 @@ namespace Constants {
 	const int PORT_SIZE = 5; // 65535
 	const int UUID_SIZE = 4; // bytes
 	const int UUID_ENCRYPTED_SIZE = 89;
+	const string SERVER_IP = "10.0.0.40";
 	const unsigned short SERVER_PORT = 5060;
 	const string SPLITER = "::::";
 

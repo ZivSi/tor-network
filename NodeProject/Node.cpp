@@ -9,7 +9,7 @@ Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLoc
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
-	this->parentConnection = new ClientConnection("127.0.0.1", SERVER_PORT, logger);
+	this->parentConnection = new ClientConnection(SERVER_IP, SERVER_PORT, logger);
 
 	thread acceptInThread(&Node::acceptSocket, this, getSocket());
 	acceptInThread.detach();
@@ -110,7 +110,7 @@ void Node::handleClient(SOCKET clientSocket)
 
 bool Node::conversationExists(ConversationObject* currentConversation)
 {
-	return !currentConversation->isEmpty();
+	return currentConversation != NULL;
 }
 
 void Node::handleNode(SOCKET nodeSocket, string initialMessage)
@@ -143,7 +143,6 @@ void Node::handleNode(SOCKET nodeSocket, string initialMessage)
 		currentConversation = findConversationBy(decryptedConversationId);
 
 		if (!conversationExists(currentConversation)) {
-			delete currentConversation;
 
 			closesocket(nodeSocket);
 
@@ -205,7 +204,7 @@ ConversationObject* Node::findConversationBy(string conversationId) {
 		return it->second;
 	}
 
-	return new ConversationObject();
+	return NULL;
 }
 
 bool Node::isConnectedTo(ClientConnection* nextNode)
@@ -294,7 +293,7 @@ void Node::clientHandshake(SOCKET clientSocket)
 
 	}
 	catch (...) {
-		logger.error("Error in decryptECC(receivedAESKeys)");
+		logger.error("Error in decryptECC (receivedAESKeys)");
 
 		return;
 	}
@@ -430,7 +429,7 @@ void Node::sendAlive()
 			parentConnection->closeConnection();
 		}
 		catch (Exception e) {
-			logger.error("Error in sendAlive (probably handshake)");
+			logger.error("Error in sendAlive");
 			cout << e.what() << endl;
 		}
 
