@@ -136,10 +136,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\ServerProject\AesHandler.cpp" />
+    <ClCompile Include="..\ServerProject\ClientConnection.cpp" />
     <ClCompile Include="..\ServerProject\Constants.cpp" />
     <ClCompile Include="..\ServerProject\ConversationObject.cpp" />
     <ClCompile Include="..\ServerProject\DatabaseHelper.cpp" />
     <ClCompile Include="..\ServerProject\ECCHandler.cpp" />
+    <ClCompile Include="..\ServerProject\IConnection.cpp" />
     <ClCompile Include="..\ServerProject\Logger.cpp" />
     <ClCompile Include="..\ServerProject\NodeData.cpp" />
     <ClCompile Include="..\ServerProject\RSAHandler.cpp" />
@@ -151,10 +153,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ServerProject\AesHandler.h" />
+    <ClInclude Include="..\ServerProject\ClientConnection.h" />
     <ClInclude Include="..\ServerProject\Constants.h" />
     <ClInclude Include="..\ServerProject\ConversationObject.h" />
     <ClInclude Include="..\ServerProject\DatabaseHelper.h" />
     <ClInclude Include="..\ServerProject\ECCHandler.h" />
+    <ClInclude Include="..\ServerProject\IConnection.h" />
     <ClInclude Include="..\ServerProject\Logger.h" />
     <ClInclude Include="..\ServerProject\NodeData.h" />
     <ClInclude Include="..\ServerProject\RSAHandler.h" />

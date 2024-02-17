@@ -4,6 +4,14 @@
 # Ignore Visual Studio Code files
 .vscode/
 
+# Ignore Visual Studio files
+*.suo
+*.user
+*.sln.docstates
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
 # Ignore compiled files
 *.out
 *.app
@@ -30,18 +38,21 @@ __pycache__/
 *.pyd
 *.log
 
-# Ignore macOS-specific files
-.DS_Store
-
-# Ignore Visual Studio files
-*.suo
-*.user
-*.sln.docstates
-
-# Ignore CLion files
-.idea/
-
 # Ignore database files (adjust based on your database type)
 *.db
 *.sqlite
 *.sql
+
+# Ignore macOS-specific files
+.DS_Store
+
+# Ignore additional directories
+.idea/
+.vscode/
+x64/
+
+# Ignore additional files
+*.tlog
+*.obj
+*.ipbj
+*.ipdb

@@ -9,10 +9,6 @@ long long Utility::calculate_time(long long start_time) {
 	return capture_time() - start_time;
 }
 
-void Utility::print_path() {
-	// implementation
-}
-
 vector<string> Utility::splitString(const string& input, const string& delimiter) {
 	vector<string> tokens;
 	size_t start = 0, end = 0;
@@ -79,6 +75,18 @@ unsigned long int Utility::findModuloBase(unsigned long int nonPrime, unsigned s
 	return 0;
 }
 
+string Utility::asHex(string input) // Represent every string by a printable string
+{
+	std::stringstream hexStringStream;
+
+	for (int i = 0; i < 16; i++) {
+		unsigned char ch = input.at(i);
+		hexStringStream << std::hex << std::setw(2) << std::setfill('0') << (int)ch;
+	}
+
+	return hexStringStream.str();
+}
+
 string Utility::hashStr(const string& input) {
 	SHA256 sha256;
 	string hashed;
@@ -104,7 +112,98 @@ unsigned long int Utility::generateNonPrime() {
 unsigned long int Utility::generateRandomNumber(unsigned long int lowerLimit, unsigned long int upperLimit) {
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_int_distribution<unsigned long int> dis(2, upperLimit);
+	std::uniform_int_distribution<unsigned long int> dis(lowerLimit, upperLimit);
 
 	return dis(gen);
+}
+
+string Utility::extractConversationId(const string& received)
+{
+	// received = UUID + IP + PORT
+	// return received.substr(0, Constants::UUID_SIZE); // TODO: Replace with constant
+
+	string idEncrypted = "";
+
+	for (int i = 0; i < Constants::UUID_ENCRYPTED_SIZE; i++) {
+		idEncrypted += received[i];
+	}
+
+	return idEncrypted;
+}
+
+string Utility::extractIpAddress(const string& received)
+{
+	return received.substr(Constants::UUID_ENCRYPTED_SIZE, Constants::IP_SIZE);
+}
+
+unsigned short Utility::extractPort(const string& received)
+{
+	return static_cast<unsigned short>(std::stoi(received.substr(Constants::UUID_ENCRYPTED_SIZE + Constants::IP_SIZE, Constants::PORT_SIZE)));
+}
+
+// The string might be big, so it will be more optimal to pass by reference
+string Utility::extractData(const string& received)
+{
+	return received.substr(Constants::UUID_ENCRYPTED_SIZE + Constants::IP_SIZE + Constants::PORT_SIZE);
+}
+
+bool Utility::isValidIpv4(const std::string& ip)
+{
+	std::vector<std::string> parts;
+	std::istringstream iss(ip);
+	std::string part;
+
+	// Split the string by periods
+	while (getline(iss, part, '.')) {
+		parts.push_back(part);
+	}
+
+	// Check for exactly 4 parts
+	if (parts.size() != 4) {
+		return false;
+	}
+
+	// Check each part
+	for (const std::string& p : parts) {
+		// Check if the part is a valid integer
+		if (!isValidInteger(p)) {
+			return false;
+		}
+
+		// Convert the part to an integer
+		int num = stoi(p);
+
+		// Check if the integer is in range [0, 255]
+		if (num < 0 || num > 255) {
+			return false;
+		}
+
+		// Check for leading zeros
+		if (p.size() > 1 && p[0] == '0') {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool Utility::isValidPort(unsigned short port)
+{
+	return (port >= 0 && port <= 65535);
+}
+
+bool Utility::isValidInteger(const std::string& str)
+{
+	if (str.empty()) {
+		return false;
+	}
+
+	// Check if each character is a digit
+	for (char c : str) {
+		if (!std::isdigit(c)) {
+			return false;
+		}
+	}
+
+	return true;
 }

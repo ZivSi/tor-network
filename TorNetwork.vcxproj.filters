@@ -12,14 +12,14 @@
     <Filter Include="Encryptions">
       <UniqueIdentifier>{ad94ee0f-6a97-4c25-a147-a27ed37f8de3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Resource Files">
+    <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="tor.db">
-      <Filter>Source Files\Resource Files</Filter>
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +62,15 @@
     <ClCompile Include="ServerProject\Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ServerProject\IConnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerProject\ClientConnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientProject\RelayObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServerProject\AesHandler.h">
@@ -72,9 +81,6 @@
     </ClInclude>
     <ClInclude Include="ServerProject\RSAHandler.h">
       <Filter>Encryptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ServerProject\ConversationObject.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ServerProject\ServerObject.hpp">
       <Filter>Source Files</Filter>
@@ -101,6 +107,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ServerProject\Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerProject\ConversationObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerProject\IConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerProject\ClientConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientProject\RelayObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

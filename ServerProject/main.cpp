@@ -1,9 +1,9 @@
-#include <iostream>
-#include "Server.h"
-#include <thread>
-#include <string>
-#include <vector>
 #include "ConversationObject.h"
+#include "Server.h"
+#include <iostream>
+#include <string>
+#include <thread>
+#include <vector>
 
 using std::vector;
 using std::cout;
@@ -30,12 +30,12 @@ int main()
 			}
 		}
 	}
-	catch (Exception) {
+	catch (Exception e) {
+		cout << e.what() << endl;
 		server.stopServer();
-		main();
 	}
 
+	cout << "Server closed" << endl;
 
 	return 0;
 }
-

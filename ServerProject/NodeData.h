@@ -18,9 +18,13 @@ using CryptoPP::ECP;
 using CryptoPP::SHA256;
 using CryptoPP::ECIES;
 
+/*
+Class that will be stored on the server.
+*/
 
 class NodeData {
 private:
+	string ip;
 	unsigned short port;
 	ECCHandler ecchandler;
 
@@ -29,18 +33,20 @@ private:
 	unsigned long averageResponseTime;
 
 public:
-	NodeData(unsigned short port);
-	NodeData(unsigned short port, string serializedPublicKey);
-	NodeData(unsigned short port, string serializedPublicKey, unsigned long long lastAliveMessageTime, unsigned long aliveMessagesCount, unsigned long averageResponseTime);
+	NodeData(string ip, unsigned short port);
+	NodeData(string ip, unsigned short port, string serializedPublicKey);
+	NodeData(string ip, unsigned short port, string serializedPublicKey, unsigned long long lastAliveMessageTime, unsigned long aliveMessagesCount, unsigned long averageResponseTime);
 	NodeData();
 	~NodeData();
 
+	string getIp();
 	unsigned short getPort();
 	ECCHandler* getECCHandler();
 	unsigned long long getLastAliveMessageTime();
 	unsigned long getAliveMessagesCount();
 	unsigned long getAverageResponseTime();
 
+	void setIp(string ip);
 	void setPort(unsigned short port);
 	void setECCKey(string serializedPublicKey);
 	void setLastAliveMessageTime(unsigned long long lastAliveMessageTime);
@@ -52,6 +58,8 @@ public:
 
 	string toString();
 	vector<unsigned char> toSend();
+
+	bool isEmpty();
 
 	operator int() const;
 	bool operator==(const NodeData& other) const;

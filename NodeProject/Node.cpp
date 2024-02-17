@@ -3,111 +3,86 @@
 // Port variable
 unsigned short Node::PORT = SERVER_PORT + 1;
 
-Node::Node() : logger("Node [" + to_string(Node::PORT) + "]"), stop(false)
+Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
 {
+	//  Set by the local ip of the current machine (such as 10.0.0.10);
+	myPort = Node::PORT;
+	Node::PORT += 1;
+
+	this->parentConnection = new ClientConnection(SERVER_IP, SERVER_PORT, logger);
+
+	thread acceptInThread(&Node::acceptSocket, this, getSocket());
+	acceptInThread.detach();
 }
 
 Node::~Node()
 {
+	closeConnection();
+
+	for (auto it = conversationsMap.begin(); it != conversationsMap.end(); ++it) {
+		delete it->second;
+	}
+
+	conversationsMap.clear();
+
+	delete parentConnection;
+
+	logger.log("Node destroyed");
+
+	stop = true;
 }
 
 
-SOCKET Node::initWSASocket() {
-	WSADATA wsaData;
-	WORD version = MAKEWORD(2, 2);
-	int wsaResult = WSAStartup(version, &wsaData);
-
-	if (wsaResult != 0) {
-		cerr << "Can't start Winsock, Err #" << wsaResult << endl;
-		exit(1);
-	}
-
-	SOCKET listening = socket(AF_INET, SOCK_STREAM, 0);
-	if (listening == INVALID_SOCKET) {
-		cerr << "Can't create a socket, Err #" << WSAGetLastError() << endl;
-		exit(1);
-	}
-
-	return listening;
-}
-
-void Node::bindSocket(SOCKET socket)
-{
-	// Bind the socket
-	sockaddr_in server;
-	server.sin_family = AF_INET;
-	server.sin_port = htons(this->myPort);
-	server.sin_addr.s_addr = INADDR_ANY;
-
-	int iResult = bind(socket, (sockaddr*)&server, sizeof(server));
-	if (iResult == SOCKET_ERROR) {
-		cerr << "Bind failed with error: " << WSAGetLastError() << endl;
-		exit(1);
-	}
-}
-
-void Node::listenSocket(SOCKET socket)
-{
-	// Listen on the socket
-	int iResult = listen(socket, SOMAXCONN);
-	if (iResult == SOCKET_ERROR) {
-		cerr << "Listen failed with error: " << WSAGetLastError() << endl;
-		exit(1);
-	}
-}
-
-void Node::acceptSocket(SOCKET socket)
-{
-	// Accept a client socket
-	sockaddr_in client;
+void Node::acceptSocket(SOCKET socket) {
+	sockaddr_in client{};
 	int clientSize = sizeof(client);
+	SOCKET clientSocket;
 
 	logger.log("Waiting for connections...");
 
-	SOCKET clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
-	if (clientSocket == INVALID_SOCKET) {
-		cerr << "Accept failed with error: " << WSAGetLastError() << endl;
-		exit(1);
+	try {
+		while (!stop) {
+			clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
+
+			if (clientSocket == INVALID_SOCKET) {
+				int error = WSAGetLastError();
+				if (error != WSAEWOULDBLOCK) {
+					logger.error("Can't accept client socket, Error: " + std::to_string(error));
+				}
+
+				continue;
+			}
+
+			logger.clientEvent("Accepted connection from client");
+
+			std::thread clientThread(&Node::handleClient, this, clientSocket);
+			clientThread.detach();
+		}
 	}
-
-	// Handle the client
-	this->handleClient(clientSocket);
+	catch (const std::exception& e) {
+		cerr << "Error in acceptSocket(): " << e.what() << endl;
+	}
+	catch (...) {
+		cerr << "Unknown error in acceptSocket()" << endl;
+	}
 }
 
-void Node::sendData(string data, SOCKET connection) {
-	size_t dataSize = data.size();
-
-	send(connection, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
-
-	send(connection, data.data(), dataSize, 0);
-}
-
-string Node::receiveData(SOCKET clientSocket)
-{
-	size_t dataSize = 0;
-
-	// First, receive the size of the data
-	recv(clientSocket, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
-
-	// Allocate a buffer to store the received data
-	char* buffer = new char[dataSize];
-
-	// Receive the key
-	recv(clientSocket, buffer, dataSize, 0);
-
-	// Create a string from the received data
-	string data(buffer, dataSize);
-
-	delete[] buffer;
-
-
-	return data;
-
-}
 
 void Node::handleClient(SOCKET clientSocket)
 {
-	string received = receiveData(clientSocket); // ConversationId/0Data
+	sendECCKey(clientSocket);
+
+	string received = "";
+	try {
+		received = this->receiveData(clientSocket); // ECC keys or data from previous node
+	}
+	catch (std::runtime_error e) {
+
+		logger.error("Error in receiving ECC keys (or data from previous node)");
+
+		return;
+	}
+
 
 	if (isHandshake(received)) {
 		logger.clientEvent("Client wants to perform handshake");
@@ -116,49 +91,178 @@ void Node::handleClient(SOCKET clientSocket)
 		return;
 	}
 
-	/*
-	// Node sending data
-	string conversationId = received.until("\0");
-	string conversationIdDecrypted = eccHandler.decrypt(conversationId);
+	logger.log("Node connected");
 
+	try {
+		handleNode(clientSocket, received);
+	}
+	catch (std::runtime_error e) {
+		logger.error("Error in handleNode");
 
-	ConversationObject* currentConversation;
-	// Extract appropriate aes key by the conversation id
-	for (ConversationObject& tempConversation : conversations) {
-		if (tempConversation.getConversationId() == conversationIdDecrypted) {
-			currentConversation = &tempConversation;
+		cout << e.what() << endl;
+	}
+	catch (std::exception e) {
+		logger.error("Error in handleNode");
+
+		cout << e.what() << endl;
+	}
+}
+
+bool Node::conversationExists(ConversationObject* currentConversation)
+{
+	return currentConversation != NULL;
+}
+
+void Node::handleNode(SOCKET nodeSocket, string initialMessage)
+{
+	ConversationObject* currentConversation = nullptr;
+	string received = initialMessage;
+	string decryptedConversationId;
+
+	do {
+
+		if (currentConversation != nullptr && currentConversation->isTooOld()) {
+			logger.log("Conversation is too old. Removing from map");
+
+			removeConversationFromMap(decryptedConversationId);
+			delete currentConversation;
+
+			closesocket(nodeSocket);
+
 			return;
+		}
+
+		if (received.empty()) {
+			continue;
+		}
+
+
+		string conversationId = Utility::extractConversationId(received);
+		decryptedConversationId = getECCHandler()->decrypt(conversationId);
+
+		currentConversation = findConversationBy(decryptedConversationId);
+
+		if (!conversationExists(currentConversation)) {
+
+			closesocket(nodeSocket);
+
+			return;
+		}
+
+
+		currentConversation->setPrvNode(nodeSocket);
+
+		string dataPart = received.substr(UUID_ENCRYPTED_SIZE, received.size());
+
+		string decryptedData = AesHandler::decryptAES(dataPart, currentConversation->getKey());
+
+		if (currentConversation->isExitNode()) {
+			// extract data, ip, port
+			// check if conversation is open in the map
+			// if exists, send the packet. if not, create new clientconnection, connect, send data and add to the map
+			logger.success("Received data from exit node: " + decryptedData);
+
+			// Extract data
+			vector<string> parts = Utility::splitString(decryptedData, SPLITER);
+
+			string ip = parts[0];
+			unsigned short port = static_cast<unsigned short>(stoi(parts[1]));
+
+			// TODO: Check if conversation is open in the map
+			// For now just create new client connection and send data
+			ClientConnection* destination = new ClientConnection(ip, port, logger);
+
+			destination->sendData(parts[2]);
+			destination->closeConnection();
+
+			delete destination;
+
+			return;
+		}
+
+		if (currentConversation->getNxtNode() == nullptr) {
+			ClientConnection* nextNodeConnection = new ClientConnection(currentConversation->getNxtIP(), currentConversation->getNxtPort(), this->logger);
+			currentConversation->setNxtNode(nextNodeConnection);
+		}
+
+		if (!currentConversation->getNxtNode()->isConversationActive()) {
+			currentConversation->getNxtNode()->connectInLoop();
+		}
+
+		currentConversation->getNxtNode()->sendData(decryptedData);
+
+		received = this->receiveData(nodeSocket);
+
+	} while (!stop);
+}
+
+
+ConversationObject* Node::findConversationBy(string conversationId) {
+	auto it = conversationsMap.find(conversationId);
+
+	if (it != conversationsMap.end()) {
+		return it->second;
+	}
+
+	return NULL;
+}
+
+bool Node::isConnectedTo(ClientConnection* nextNode)
+{
+	return nextNode != nullptr;
+}
+
+void Node::removeConversationFromMap(string conversationId)
+{
+	auto it = conversationsMap.find(conversationId);
+
+	if (it != conversationsMap.end()) {
+		delete it->second;
+		conversationsMap.erase(it);
+	}
+
+	logger.log("Removed conversation from map: " + conversationId);
+}
+
+string Node::getLocalIpv4() {
+	char hostbuffer[256];
+	struct addrinfo hints, * res, * p;
+	int status;
+	char ipstr[INET6_ADDRSTRLEN];
+
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC; // Use AF_INET to force IPv4
+	hints.ai_socktype = SOCK_STREAM;
+
+	// Retrieve hostname
+	if (gethostname(hostbuffer, sizeof(hostbuffer)) == -1) {
+		throw std::runtime_error("Error getting hostname.");
+	}
+
+	// Retrieve host information
+	if ((status = getaddrinfo(hostbuffer, NULL, &hints, &res)) != 0) {
+		throw std::runtime_error("Error on status getaddrinfo");
+	}
+
+	// Loop through all the results and get the first IPv4 address
+	for (p = res; p != NULL; p = p->ai_next) {
+		if (p->ai_family == AF_INET) { // IPv4
+			struct sockaddr_in* ipv4 = (struct sockaddr_in*)p->ai_addr;
+			// Convert the IP to a string and return it
+			inet_ntop(AF_INET, &(ipv4->sin_addr), ipstr, sizeof ipstr);
+			freeaddrinfo(res); // Free memory allocated by getaddrinfo
+			return std::string(ipstr);
 		}
 	}
 
-	AesKey currentKey = currentConversation->getKey();
-	SOCKET nextNode = currentConversation->getNxtNode();
-
-	received = received.from('\0');
-	string receivedDecrypted = AesHandler::decryptAES(received, currentKey.getKey(), currentKey.getIv());
-
-	if (nextNode not in aliveSockets) // We are already connected to the node
-	{
-		try {
-			connectToNode();
-		}
-		catch () {
-			sendErrorToClient(currentConversation);
-
-			deleteConversation(currentConversation);
-
-			return;
-		}
-	}
-
-	sendToNode(nextNode, receivedDecrypted);
-	*/
+	freeaddrinfo(res); // Free memory allocated by getaddrinfo
+	throw std::runtime_error("Error getting local IPv4.");
 }
 
 bool Node::isHandshake(string received)
 {
-	// If client handshake, the beggining will be ECC key
-	string typicalBeggining = "0Y0*åH╬";
+	// If client handshake, the beggining will be ECC key. Another node won't send ECC key
+	string typicalBeggining = "0"; // TODO: Change to ECC key
 
 	string keyPart = received.substr(0, typicalBeggining.size());
 
@@ -166,247 +270,174 @@ bool Node::isHandshake(string received)
 }
 
 void Node::clientHandshake(SOCKET clientSocket)
+
 {
-	/*
--	receiveECCKeys() // Done
--	sendECCKeys() // Done
--	receive AES key
--	decrypt the rest using the client’s key
--	generate conversation id and AES key
--	send the AES key and conversation id
--	create conversation object
--	close connection
+	string receivedAESKeys;
 
-	*/
-
-	sendECCKeys(clientSocket);
-
-	string receivedAES;
 	try {
-		receivedAES = this->receiveAESKey(clientSocket);
+		receivedAESKeys = receiveKeys(clientSocket);
 		logger.keysInfo("Received AES keys from client");
+
 	}
 	catch (Exception) {
 		logger.error("Error in receiving AES keys");
 		return;
 	}
 
-	string aesKeys;
+
+	string decryptedAESKeys;
 	try {
-		aesKeys = eccHandler.decrypt(receivedAES);
+		decryptedAESKeys = decryptECC(receivedAESKeys);
+
+		logger.keysInfo("Decrypted AES keys from client: " + Utility::asHex(decryptedAESKeys));
+
 	}
-	catch (Exception e) {
-		logger.error("Error in eccHandler.decrypt");
-		cout << e.what() << endl;
+	catch (...) {
+		logger.error("Error in decryptECC (receivedAESKeys)");
+
 		return;
 	}
 
+	ConversationObject* currentConversation = nullptr;
+	string conversationId;
+	AesKey aesPair;
+	string encryptedId;
+	string nextNodeProperties;
+	string decryptedNextNodeProperties;
 
-	string extractedAes = "";
-	string extractedIv = "";
+	try {
+		aesPair = AesKey::decryptedAESKeysToPair(decryptedAESKeys);
 
-	Utility::extractAESKey(aesKeys, extractedAes);
-	Utility::extractAESIv(aesKeys, extractedIv);
+		// ----------- Build conversation object and send conversation id to client ------------
+		conversationId = ConversationObject::generateID();
 
-	SecByteBlock aesKey = AesHandler::StringToSecByteBlock(extractedAes);
-	SecByteBlock aesIv = AesHandler::StringToSecByteBlock(extractedIv);
+		currentConversation = new ConversationObject(conversationId, aesPair);
 
-	logger.keysInfo("Extracted AES key and IV from received data");
+		std::pair<string, ConversationObject*> newPair(conversationId, currentConversation);
 
-	// Build conversation object
-	string conversationId = ConversationObject::generateID();
-	AesKey aesPair(&extractedAes, &extractedIv);
-	ConversationObject currentConversation(conversationId, aesPair);
+		conversationsMap.insert(newPair);
 
-	conversations.push_back(currentConversation);
+		encryptedId = AesHandler::encryptAES(conversationId, &aesPair);
 
-	string encryptedId = AesHandler::encryptAES(conversationId, aesPair.getKey(), aesPair.getIv());
+		sendData(clientSocket, encryptedId);
 
-	sendData(encryptedId, clientSocket);
+		// Receive next node port
+		string nextNodeProperties = receiveData(clientSocket);
+		decryptedNextNodeProperties = AesHandler::decryptAES(nextNodeProperties, &aesPair);
 
+		cout << "Received next node properties: " << decryptedNextNodeProperties << endl;
+
+		try {
+			if (decryptedNextNodeProperties == Constants::EXIT_NODE_STRING) {
+				throw std::runtime_error("Received destination. I am the exit node");
+			}
+
+			vector<string> parts = Utility::splitString(decryptedNextNodeProperties, SPLITER);
+
+			string nextNodeIP = parts[0];
+			unsigned short nextNodePortInt = static_cast<unsigned short>(stoi(parts[1]));
+
+			if (!(Utility::isValidIpv4(nextNodeIP) && Utility::isValidPort(nextNodePortInt))) {
+				throw std::runtime_error("Invalid IP or port");
+			}
+
+			logger.clientEvent("Received next node properties: " + nextNodeIP + ":" + to_string(nextNodePortInt));
+
+			currentConversation->setNxtIP(nextNodeIP);
+			currentConversation->setNxtPort(nextNodePortInt);
+		}
+		catch (std::runtime_error e) {
+			logger.error("Error in receiving next node properties");
+			cout << e.what() << endl;
+
+			// We received destination. We are the exit node
+			currentConversation->setAsExitNode();
+
+			logger.log("Received destination. I am the exit node");
+		}
+	}
+
+	catch (Exception) {
+		logger.error("Error in clientHandshake");
+
+		removeConversationFromMap(conversationId);
+
+		if (currentConversation != nullptr) {
+			delete currentConversation;
+		}
+	}
+
+	logger.success("Handhsake with client successful. Closing socket...");
 	closesocket(clientSocket);
 }
 
 void Node::start() {
-	Node::PORT++;
-	this->myPort = Node::PORT;
-
-	// Ecc keys already generated in the constructor
-
-	logger.log("Starting Node: " + to_string(this->myPort));
-
-	this->runMyServer(this->myPort);
-
 	thread t(&Node::sendAlive, this);
 	t.join();
 }
 
-void Node::runMyServer(unsigned short port)
-{
-	this->myServerSocket = this->initWSASocket();
-	logger.log("Initialized WSA");
 
-	// Bind the socket
-	this->bindSocket(this->myServerSocket);
-
-	// Listen on the socket
-	this->listenSocket(this->myServerSocket);
-
-	thread t(&Node::acceptSocket, this, this->myServerSocket);
-	t.detach();
-}
-
-SOCKET Node::connectToParent(string parentIp, unsigned short parentPort, bool repeat = true)
-{
-	while (repeat) {
-		SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-		if (clientSocket == -1) {
-			logger.error("Error creating socket");
-
-			closesocket(clientSocket);
-
-			Sleep(1000);
-
-			logger.log("Trying again...");
-
-			continue;
-		}
-
-		// Set up server information
-		struct sockaddr_in serverAddress;
-		serverAddress.sin_family = AF_INET;
-		serverAddress.sin_port = htons(SERVER_PORT);
-		inet_pton(AF_INET, parentIp.c_str(), &serverAddress.sin_addr);
-
-		// Connect to the server
-		if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
-			logger.error("Error creating socket");
-
-			closesocket(clientSocket);
-
-			Sleep(3000);
-
-			logger.log("Trying again...");
-
-			continue;
-		}
-
-		logger.log("Connected to parent");
-
-		return clientSocket;
-	}
-}
-
-
-void Node::handshake(SOCKET parentSocket)
+void Node::handshake(ClientConnection* parentConnection)
 {
 	// the data should be in the format of:
 	// Port:publickey:CurrentTime:serializedKey:randomNonPrimeNumber:number that make(random % (number – port) == 1:hashOfText + PEPPER : hashOfText + PEPPER2
 
-	string receivedECCKeys = this->receiveECCKeys(this->parentSocket);
-	logger.keysInfo("Received server's ECC key");
+	parentConnection->handshake();
 
-	sendECCKeys(parentSocket);
+	string formattedData = buildAliveFormat();
 
-	sendAESKeys(parentSocket, receivedECCKeys);
+	parentConnection->sendEncrypted(formattedData);
+}
 
+void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys)
+{
+	cout << "Server's public key is: " << receivedECCKeys << endl;
+	ECCHandler serverECCHandler(receivedECCKeys);
+
+	string keysStr = parentConnection->getAesKey().serializeKey();
+
+	string encryptedKeys = serverECCHandler.encrypt(keysStr);
+
+	parentConnection->sendData(encryptedKeys);
+
+	logger.keysInfo("Sent symmetric key (AES)");
+}
+
+string Node::buildAliveFormat() {
 	unsigned long int nonPrime = Utility::generateNonPrime();
 	unsigned long int modulusBase = Utility::findModuloBase(nonPrime, myPort);
 	unsigned long int randomNumber = Utility::generateRandomNumber(0, 71067106);
 	unsigned long long currentTime = Utility::capture_time();
 
-	string formattedData = to_string(this->myPort) + SPLITER + "Public Key!" + SPLITER + to_string(currentTime) + SPLITER + to_string(nonPrime) + SPLITER + to_string(randomNumber) + SPLITER + to_string(modulusBase);
+	string formattedData = myIP + SPLITER + to_string(this->myPort) + SPLITER + "Public Key!" + SPLITER + to_string(currentTime) + SPLITER + to_string(nonPrime) + SPLITER + to_string(randomNumber) + SPLITER + to_string(modulusBase);
 
 	formattedData = formattedData + SPLITER + Utility::hashStr(formattedData + PEPPER);
 	formattedData = formattedData + SPLITER + Utility::hashStr(formattedData + PEPPER2);
 
-	string encryptedData = aesHandler.encrypt(formattedData);
-
-	sendData(encryptedData, parentSocket);
+	return formattedData;
 }
+
 
 void Node::sendAlive()
 {
 	while (true) {
-		Sleep(MAX_TIME_ALIVE / 3);
-
 		try {
-			this->parentSocket = this->connectToParent("127.0.0.1", SERVER_PORT);
+			parentConnection->connectInLoop();
 
-			this->handshake(this->parentSocket);
+			this->handshake(parentConnection);
 
-			closesocket(this->parentSocket);
+			parentConnection->closeConnection();
 		}
-		catch (Exception) {
-			logger.error("Error in sendAlive (probably handshake)");
+		catch (Exception e) {
+			logger.error("Error in sendAlive");
+			cout << e.what() << endl;
 		}
+
+		Sleep(MAX_TIME_ALIVE / 3);
 	}
-}
-
-void Node::sendAESKeys(SOCKET clientSocket, string receivedECCKeys)
-{
-	cout << "Server's public key is: " << receivedECCKeys << endl;
-	ECCHandler serverECCHandler(receivedECCKeys);
-
-	string keysStr = aesHandler.formatKeyForSending(aesHandler.getKey());
-	keysStr += aesHandler.formatKeyForSending(aesHandler.getIv());
-
-	string keyToString = AesHandler::SecByteBlockToString(aesHandler.getKey());
-	string ivToString = AesHandler::SecByteBlockToString(aesHandler.getIv());
-
-
-	string encryptedKeys = serverECCHandler.encrypt(keysStr);
-
-	size_t dataSize = encryptedKeys.size();
-
-	send(clientSocket, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
-
-	send(clientSocket, encryptedKeys.data(), dataSize, 0);
-
-	logger.keysInfo("Sent symmetric key (AES)");
-}
-
-
-void Node::sendECCKeys(SOCKET clientSocket)
-{
-	string keysStr = eccHandler.serializeKey();
-	size_t dataSize = keysStr.size();
-
-	send(clientSocket, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
-
-	send(clientSocket, keysStr.data(), dataSize, 0);
-
-	logger.keysInfo("Sent public key (ECC)");
-}
-
-
-string Node::receiveKeys(SOCKET clientSocket)
-{
-	int dataSize = 0;
-
-	// First, receive the size of the data
-	recv(clientSocket, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
-
-	// Allocate a buffer to store the received data
-	char* buffer = new char[dataSize];
-
-	// Receive the key
-	recv(clientSocket, buffer, dataSize, 0);
-
-	// Create a string from the received data
-	string keysStr(buffer, dataSize);
-
-	delete[] buffer;
-
-
-	return keysStr;
 }
 
 string Node::receiveECCKeys(SOCKET clientSocket)
 {
-	return receiveKeys(clientSocket);
-}
-
-string Node::receiveAESKey(SOCKET clientSocket) {
 	return receiveKeys(clientSocket);
 }

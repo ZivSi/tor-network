@@ -9,47 +9,48 @@ Logger::~Logger() {}
 
 void Logger::log(string message)
 {
-	logMessages.push_back("\033[94m[LOG]\033[0m " + message); // Blue color
+	logMessages.push_back("\033[94m[" + this->identifier + " LOG]\033[0m " + message); // Blue color
 
 	printLastLogMessage();
 }
 
 void Logger::keysInfo(string message)
 {
-	logMessages.push_back("\033[95m[KEY]\033[0m " + message); // Purple color
+	logMessages.push_back("\033[95m[" + this->identifier + " KEY]\033[0m " + message); // Purple color
 
 	printLastLogMessage();
 }
 
 void Logger::success(string message)
 {
-	logMessages.push_back("\033[92m[KEY]\033[0m " + message); // Green color
+	logMessages.push_back("\033[92m[" + this->identifier + " SUCCESS]\033[0m " + message); // Green color
 
 	printLastLogMessage();
 }
 
 void Logger::clientEvent(std::string message) {
-	logMessages.push_back("\033[94m[CLIENT EVENT]\033[0m " + message); // Sky blue color
+	logMessages.push_back("\033[94m[" + this->identifier + " CLIENT EVENT]\033[0m " + message); // Sky blue color
+
 	printLastLogMessage();
 }
 
 void Logger::error(string message)
 {
-	logMessages.push_back("\033[91m[ERROR]\033[0m " + message); // Red color
+	logMessages.push_back("\033[91m[" + this->identifier + " ERROR]\033[0m " + message); // Red color
 
 	printLastLogMessage();
 }
 
 void Logger::formatError(string message)
 {
-	logMessages.push_back("\033[91m[FORMAT ERROR]\033[0m " + message); // Red color
+	logMessages.push_back("\033[91m[" + this->identifier + " FORMAT ERROR]\033[0m " + message); // Red color
 
 	printLastLogMessage();
 }
 
 void Logger::warning(string message)
 {
-	logMessages.push_back("\033[93m[WARNING]\033[0m " + message); // Yellow color
+	logMessages.push_back("\033[93m[" + this->identifier + " WARNING]\033[0m " + message); // Yellow color
 
 	printLastLogMessage();
 }
