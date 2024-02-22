@@ -39,6 +39,7 @@ public:
 	ClientConnection* connectToEntryNode();
 	void sendData(string ip, unsigned short port, string message, ClientConnection* entryNodeConnection); // Call connectToEntryNode() before this
 	string encrypt(string ip, unsigned short port, string data);
+	string decrypt(string encrypted);
 
 	void printNodes();
 

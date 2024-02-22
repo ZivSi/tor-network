@@ -30,6 +30,7 @@ namespace Constants {
 	extern const string PEPPER2;
 
 	extern const string NO_NOEDS_REPONSE;
+	extern const string NODE_HELLO;
 
 	enum NodeIndexes {
 		IP = 0,

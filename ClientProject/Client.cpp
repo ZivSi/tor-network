@@ -137,6 +137,8 @@ ClientConnection* Client::connectToEntryNode()
 void Client::sendData(string ip, unsigned short port, string message, ClientConnection* entryNodeConnection)
 {
 	string encryptedData = encrypt(ip, port, message);
+	cout << "Encrypted size: " << encryptedData.size() << endl;
+	cout << "Encrypted data: " << encryptedData << endl;
 
 	entryNodeConnection->sendData(encryptedData);
 }
@@ -156,6 +158,21 @@ string Client::encrypt(string ip, unsigned short port, string data)
 	}
 
 	return encrypted;
+}
+
+string Client::decrypt(string encrypted)
+{
+	string decrypted = encrypted;
+	RelayObject* relayObject;
+
+	for (int i = 0; i < currentPath.size(); i++) {
+		relayObject = currentPath.at(i);
+		AesKey* currentKeys = relayObject->getAesKeys();
+
+		decrypted = AesHandler::decryptAES(decrypted, currentKeys);
+	}
+
+	return decrypted;
 }
 
 void Client::printNodes()

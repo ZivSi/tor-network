@@ -62,10 +62,10 @@
     <ClCompile Include="ServerProject\Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ServerProject\IConnection.cpp">
+    <ClCompile Include="ServerProject\ClientConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ServerProject\ClientConnection.cpp">
+    <ClCompile Include="ServerProject\IConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ClientProject\RelayObject.cpp">
@@ -81,9 +81,6 @@
     </ClInclude>
     <ClInclude Include="ServerProject\RSAHandler.h">
       <Filter>Encryptions</Filter>
-    </ClInclude>
-    <ClInclude Include="ServerProject\ServerObject.hpp">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ServerProject\Utility.h">
       <Filter>Header Files</Filter>
@@ -112,10 +109,13 @@
     <ClInclude Include="ServerProject\ConversationObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ServerProject\ClientConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ServerProject\IConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ServerProject\ClientConnection.h">
+    <ClInclude Include="ServerProject\ServerObject.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ClientProject\RelayObject.h">

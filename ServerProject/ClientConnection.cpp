@@ -1,5 +1,14 @@
 #include "ClientConnection.h"
 
+ClientConnection::ClientConnection(string ip, unsigned short port) : logger("ClientConnection [" + ip + ":" + to_string(port) + "]")
+{
+	this->ip = ip;
+	this->port = port;
+
+	initWSASocket();
+	connectInLoop();
+}
+
 ClientConnection::ClientConnection(string ip, unsigned short port, Logger logger) : logger(logger)
 {
 	this->ip = ip;
@@ -150,13 +159,29 @@ void ClientConnection::sendEncrypted(string data)
 	sendData(aesHandler.encrypt(data));
 }
 
+string ClientConnection::receiveDataFromTcp() 
+{
+	string data;
+
+	constexpr size_t chunkSize = 4096;
+	vector<char> buffer(chunkSize);
+
+	size_t bytesReceived = recv(connection, buffer.data(), chunkSize, 0);
+
+	data.append(buffer.data(), bytesReceived);
+
+	return data;
+}
+
 string ClientConnection::receiveData() {
 	size_t dataSize = 0;
 
 	try {
 		// First, receive the size of the data
 		if (recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0) < 0) {
-			throw std::runtime_error("Failed to receive data size");
+			// throw std::runtime_error("Failed to receive data size");
+
+			return "";
 		}
 
 		string data;
@@ -173,11 +198,15 @@ string ClientConnection::receiveData() {
 
 			if (bytesReceived < 0) {
 				// Handle receive error
-				throw std::runtime_error("Failed to receive data");
+				// throw std::runtime_error("Failed to receive data");
+
+				return "";
 			}
 			else if (bytesReceived == 0) {
 				// Connection closed prematurely
-				throw std::runtime_error("Connection closed prematurely");
+				// throw std::runtime_error("Connection closed prematurely");
+
+				return "";
 			}
 
 			// Append received data to the string
@@ -188,11 +217,10 @@ string ClientConnection::receiveData() {
 		return data;
 	}
 	catch (std::runtime_error& e) {
-		logger.error(e.what());
-		closeConnection();
+		// logger.error(e.what());
+		// closeConnection();
 
-
-		throw e;
+		// throw e;
 	}
 }
 

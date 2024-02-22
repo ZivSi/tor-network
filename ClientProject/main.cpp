@@ -24,9 +24,27 @@ int main()
 	client.printNodes();
 
 	ClientConnection* entry = client.connectToEntryNode();
+	cout << "Connected to entry node" << endl;
+
 	string keys = entry->receiveKeys(true);
 
-	client.sendData(SERVER_IP, 6969, "Hello from client", entry);
+	client.sendData("127.0.0.1", 10210, "Hello from client", entry);
+
+	while (true)
+	{
+		string data = entry->receiveData();
+
+		if (data == "")
+		{
+			continue;
+		}
+
+		string decrypted = client.decrypt(data);
+
+		cout << "Received: " << decrypted << endl;
+
+		Sleep(3000);
+	}
 
 	delete entry;
 

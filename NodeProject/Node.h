@@ -107,7 +107,10 @@ private:
 	void handshake(ClientConnection* parentConnection);
 	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
 
-	void handleNode(SOCKET nodeSocket, string initialMessage);
+	void handleNode(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage);
+	void handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage);
+
+	void collectAndSendReversedMessages(ConversationObject* currentConversation, const SOCKET& nodeSocket);
 
 	void sendAlive();
 
@@ -119,5 +122,6 @@ private:
 	void removeConversationFromMap(string conversationId);
 
 	string getLocalIpv4();
-};
 
+	bool dataLegit(string& data);
+};
