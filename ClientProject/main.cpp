@@ -33,8 +33,8 @@ void commandLine(Client* client, ClientConnection* entry) {
 
 int main()
 {
-	cout << "Client started" << endl;
 	Client client;
+	cout << "Client started" << endl;
 
 	client.printNodes();
 

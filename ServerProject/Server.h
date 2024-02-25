@@ -60,13 +60,12 @@ private:
 	mutex aliveNodesMutex;
 	vector<NodeData*> aliveNodes;
 
-	mutex nodesMutex;
-
 	string receiveECCKeys(SOCKET clientSocket);
 	string receiveAESKey(SOCKET clientSocket);
 
-	bool isNode(string decrypted);
 	bool nodeIsDead(NodeData* node);
+
+	bool isNode(string decrypted);
 
 	// If true
 	bool isValidFormat(string decrypted);
