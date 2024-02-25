@@ -5,11 +5,21 @@ unsigned short Node::PORT = SERVER_PORT + 1;
 
 Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
 {
-	// Set by the local ip of the current machine (such as 10.0.0.10);
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
 	this->parentConnection = new ClientConnection(SERVER_IP, SERVER_PORT, logger);
+
+	thread acceptInThread(&Node::acceptSocket, this, getSocket());
+	acceptInThread.detach();
+}
+
+Node::Node(string parentIP, unsigned short parentPort) : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
+{
+	myPort = Node::PORT;
+Node::PORT += 1;
+
+	this->parentConnection = new ClientConnection(parentIP, parentPort, logger);
 
 	thread acceptInThread(&Node::acceptSocket, this, getSocket());
 	acceptInThread.detach();

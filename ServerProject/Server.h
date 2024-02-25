@@ -53,13 +53,14 @@ public:
 	void handleClient(SOCKET clientSocket) override;
 
 private:
+	Logger logger;
+
 	bool stop;
 
 	mutex aliveNodesMutex;
 	vector<NodeData*> aliveNodes;
 
 	mutex nodesMutex;
-	Logger logger;
 
 	string receiveECCKeys(SOCKET clientSocket);
 	string receiveAESKey(SOCKET clientSocket);

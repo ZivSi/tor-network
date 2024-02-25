@@ -1,12 +1,7 @@
-﻿  ConversationObject.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267:         with
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267:         [
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267:             _Ty=int
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267:         ]
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\Microsoft.Common.CurrentVersion.targets(2146,5): warning : The referenced project '..\TorNetwork.vcxproj' does not exist.
   Generating code
-  1 of 4989 functions (<0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    64 functions had inline decision re-evaluated but remain unchanged
+  5 of 4991 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+    2 functions were new in current compilation
+    82 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   NodeProject.vcxproj -> C:\Users\zivsi\source\repos\TorNetwork\x64\Release\NodeProject.exe

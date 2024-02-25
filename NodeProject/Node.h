@@ -46,6 +46,7 @@ class Node : public IConnection
 {
 public:
 	Node();
+	Node(string parentIP, unsigned short parentPort);
 	~Node();
 
 	/*
@@ -54,12 +55,12 @@ public:
 	void start();
 
 private:
+	Logger logger;
+
 	/*
 	* List of active conversations the server involved in
 	*/
 	unordered_map<string, ConversationObject*> conversationsMap; // Conversations involved in
-
-	Logger logger;
 
 	/*
 	* Static variable to set the ports to each node

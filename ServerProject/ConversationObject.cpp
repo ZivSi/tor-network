@@ -164,7 +164,7 @@ bool ConversationObject::isExitNode() const
 
 bool ConversationObject::isTooOld() const
 {
-	return Utility::capture_time() - creationTime > Constants::CONVERSATION_TIMEOUT;
+	return Utility::capture_time() - creationTime > Constants::PATH_TIMEOUT;
 }
 
 ClientConnection* ConversationObject::addActiveConnection(DestinationData destinationData)

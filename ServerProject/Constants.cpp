@@ -12,7 +12,7 @@ namespace Constants {
 	const int PORT_SIZE = 5; // 65535
 	const int UUID_SIZE = 4; // bytes
 	const int UUID_ENCRYPTED_SIZE = 89;
-	const string SERVER_IP = "127.0.0.1";
+	const string SERVER_IP = "10.0.0.40";
 	const unsigned short SERVER_PORT = 5060;
 	const string SPLITER = "::::";
 
@@ -24,7 +24,7 @@ namespace Constants {
 	const int DEFAULT_PATH_LENGTH = 3;
 	const int MAX_TIME_ALIVE = 10000;
 	const int MAX_PING_ALIVE_MS = 2000;
-	const int CONVERSATION_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+	const int PATH_TIMEOUT = 10 * 60 * 1000; // 10 minutes
 
 	const int AES_KEY_SIZE_BYTES = 32;
 

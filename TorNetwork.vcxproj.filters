@@ -68,7 +68,22 @@
     <ClCompile Include="ServerProject\IConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ClientProject\Client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientProject\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ClientProject\RelayObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeProject\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeProject\Node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Python_POC\ECCHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -118,7 +133,16 @@
     <ClInclude Include="ServerProject\ServerObject.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ClientProject\Client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ClientProject\RelayObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeProject\Node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Python_POC\ECCHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{3c33a940-c334-419b-8392-c93ecba96032}</ProjectGuid>
-    <RootNamespace>TorNetwork</RootNamespace>
+    <ProjectGuid>{066b97fe-dca2-4c82-900b-460c3cf3a9c0}</ProjectGuid>
+    <RootNamespace>ServerProject</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -70,6 +70,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LibraryPath>C:\Users\zivsi\source\repos\TorNetwork\x64\Release;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -104,14 +107,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\zivsi\Downloads\cryptopp890;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\zivsi\Downloads\cryptopp890\x64\Output\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cryptlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -122,8 +121,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\zivsi\Downloads\cryptopp890;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject;C:\Users\zivsi\Downloads\cryptopp890;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,43 +134,40 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="tor.db" />
+    <ClCompile Include="..\..\ClientProject\RelayObject.cpp" />
+    <ClCompile Include="..\AesHandler.cpp" />
+    <ClCompile Include="..\ClientConnection.cpp" />
+    <ClCompile Include="..\Constants.cpp" />
+    <ClCompile Include="..\ConversationObject.cpp" />
+    <ClCompile Include="..\DatabaseHelper.cpp" />
+    <ClCompile Include="..\ECCHandler.cpp" />
+    <ClCompile Include="..\IConnection.cpp" />
+    <ClCompile Include="..\Logger.cpp" />
+    <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\NodeData.cpp" />
+    <ClCompile Include="..\RSAHandler.cpp" />
+    <ClCompile Include="..\Server.cpp" />
+    <ClCompile Include="..\sqlite3.c" />
+    <ClCompile Include="..\StatsData.cpp" />
+    <ClCompile Include="..\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ClientProject\RelayObject.cpp" />
-    <ClCompile Include="ServerProject\AesHandler.cpp" />
-    <ClCompile Include="ServerProject\ClientConnection.cpp" />
-    <ClCompile Include="ServerProject\Constants.cpp" />
-    <ClCompile Include="ServerProject\ConversationObject.cpp" />
-    <ClCompile Include="ServerProject\DatabaseHelper.cpp" />
-    <ClCompile Include="ServerProject\ECCHandler.cpp" />
-    <ClCompile Include="ServerProject\IConnection.cpp" />
-    <ClCompile Include="ServerProject\Logger.cpp" />
-    <ClCompile Include="ServerProject\main.cpp" />
-    <ClCompile Include="ServerProject\NodeData.cpp" />
-    <ClCompile Include="ServerProject\RSAHandler.cpp" />
-    <ClCompile Include="ServerProject\Server.cpp" />
-    <ClCompile Include="ServerProject\sqlite3.c" />
-    <ClCompile Include="ServerProject\StatsData.cpp" />
-    <ClCompile Include="ServerProject\Utility.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ClientProject\RelayObject.h" />
-    <ClInclude Include="ServerProject\AesHandler.h" />
-    <ClInclude Include="ServerProject\ClientConnection.h" />
-    <ClInclude Include="ServerProject\Constants.h" />
-    <ClInclude Include="ServerProject\ConversationObject.h" />
-    <ClInclude Include="ServerProject\DatabaseHelper.h" />
-    <ClInclude Include="ServerProject\ECCHandler.h" />
-    <ClInclude Include="ServerProject\IConnection.h" />
-    <ClInclude Include="ServerProject\Logger.h" />
-    <ClInclude Include="ServerProject\NodeData.h" />
-    <ClInclude Include="ServerProject\RSAHandler.h" />
-    <ClInclude Include="ServerProject\Server.h" />
-    <ClInclude Include="ServerProject\ServerObject.hpp" />
-    <ClInclude Include="ServerProject\sqlite3.h" />
-    <ClInclude Include="ServerProject\StatsData.h" />
-    <ClInclude Include="ServerProject\Utility.h" />
+    <ClInclude Include="..\..\ClientProject\RelayObject.h" />
+    <ClInclude Include="..\AesHandler.h" />
+    <ClInclude Include="..\ClientConnection.h" />
+    <ClInclude Include="..\Constants.h" />
+    <ClInclude Include="..\ConversationObject.h" />
+    <ClInclude Include="..\DatabaseHelper.h" />
+    <ClInclude Include="..\ECCHandler.h" />
+    <ClInclude Include="..\IConnection.h" />
+    <ClInclude Include="..\Logger.h" />
+    <ClInclude Include="..\NodeData.h" />
+    <ClInclude Include="..\RSAHandler.h" />
+    <ClInclude Include="..\Server.h" />
+    <ClInclude Include="..\ServerObject.hpp" />
+    <ClInclude Include="..\sqlite3.h" />
+    <ClInclude Include="..\StatsData.h" />
+    <ClInclude Include="..\Utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
