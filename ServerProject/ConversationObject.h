@@ -103,7 +103,7 @@ public:
 	bool isQueueEmpty() const;
 	string getFirstMessage();
 
-	void setPrvNode(SOCKET prvNodeSocket);
+	void setPrvNodeSOCKET(SOCKET prvNodeSocket);
 	void setNxtNode(ClientConnection* nxtNode);
 
 	void setPrvIP(string prvIP);

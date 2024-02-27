@@ -75,7 +75,7 @@ AesKey* ConversationObject::getKey() {
 	return &(this->key);
 }
 
-void ConversationObject::setPrvNode(SOCKET prvNode) {
+void ConversationObject::setPrvNodeSOCKET(SOCKET prvNode) {
 	this->prvNodeSocket = prvNode;
 }
 

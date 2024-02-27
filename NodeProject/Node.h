@@ -108,6 +108,8 @@ private:
 	void handshake(ClientConnection* parentConnection);
 	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
 
+	void listenToNextNode(SOCKET nodeSocket, ConversationObject* currentConversation); // For reverse conversation
+	void listenToHosts(ConversationObject* currentConversation);
 	void handleNode(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage);
 	void handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage);
 

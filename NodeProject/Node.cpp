@@ -17,7 +17,7 @@ Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLoc
 Node::Node(string parentIP, unsigned short parentPort) : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
 {
 	myPort = Node::PORT;
-Node::PORT += 1;
+	Node::PORT += 1;
 
 	this->parentConnection = new ClientConnection(parentIP, parentPort, logger);
 
@@ -100,6 +100,7 @@ void Node::handleClient(SOCKET clientSocket)
 		string decryptedConversationId = getECCHandler()->decrypt(conversationId);
 
 		ConversationObject* currentConversation = findConversationBy(decryptedConversationId);
+		currentConversation->setPrvNodeSOCKET(clientSocket);
 
 		if (!conversationExists(currentConversation)) {
 			logger.error("Did not find conversation with ID of " + conversationId);
@@ -128,6 +129,45 @@ bool Node::conversationExists(ConversationObject* currentConversation)
 	return currentConversation != NULL;
 }
 
+void Node::listenToNextNode(SOCKET previousNodeSocket, ConversationObject* currentConversation)
+{
+	ClientConnection* nextNode = currentConversation->getNxtNode();
+
+
+	while (!stop) {
+		if (currentConversation->isTooOld()) {
+			removeConversationFromMap(currentConversation->getConversationId());
+			if (currentConversation != nullptr) { delete currentConversation; }
+
+			closesocket(previousNodeSocket);
+			return;
+		}
+
+		string received = nextNode->receiveData();
+
+		if (dataLegit(received)) {
+			cout << "Data legit in listenNextNode: " << received << endl;
+			string encrypted = AesHandler::encryptAES(received, currentConversation->getKey());
+
+			sendData(previousNodeSocket, encrypted);
+		}
+	}
+}
+
+void Node::listenToHosts(ConversationObject* currentConversation) {
+	SOCKET previousNodeSocket = currentConversation->getPrvNodeSOCKET();
+
+	while (!stop) {
+		currentConversation->collectMessages();
+
+		while (!currentConversation->isQueueEmpty()) {
+			string encryptedReversedMessage = currentConversation->getFirstMessage();
+
+			sendData(previousNodeSocket, encryptedReversedMessage);
+		}
+	}
+}
+
 void Node::handleNode(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage)
 {
 	logger.success("Handling node\n");
@@ -135,37 +175,30 @@ void Node::handleNode(SOCKET nodeSocket, ConversationObject* currentConversation
 	string received = initialMessage;
 	ClientConnection* nextNode = currentConversation->getNxtNode();
 
+	if (nextNode == nullptr) {
+		nextNode = new ClientConnection(currentConversation->getNxtIP(), currentConversation->getNxtPort(), this->logger);
+		nextNode->receiveKeys(true);
+
+		currentConversation->setNxtNode(nextNode);
+	}
+
+
+	thread listenNextNodeThread(&Node::listenToNextNode, this, nodeSocket, currentConversation);
+	listenNextNodeThread.detach();
+
 	while (!stop) {
 		if (currentConversation->isTooOld()) {
 			removeConversationFromMap(currentConversation->getConversationId());
-			delete currentConversation;
+			if (currentConversation != nullptr) { delete currentConversation; }
 			closesocket(nodeSocket);
 			return;
 		}
 
 		if (dataLegit(received)) {
-
-
 			string decrypted = AesHandler::decryptAES(received.substr(UUID_ENCRYPTED_SIZE, received.size()), currentConversation->getKey());
-
-			if (nextNode == nullptr) {
-				nextNode = new ClientConnection(currentConversation->getNxtIP(), currentConversation->getNxtPort());
-				nextNode->receiveKeys(true);
-			}
 
 			nextNode->sendData(decrypted);
 		}
-
-		// ------------------------- Reverse messages -------------------------
-		string receivedFromNext = nextNode->receiveData();
-
-		if (dataLegit(receivedFromNext)) {
-			string encrypted = AesHandler::encryptAES(receivedFromNext, currentConversation->getKey());
-
-			sendData(nodeSocket, encrypted);
-		}
-
-		// ---------------------------------------------------------------------
 
 		received = receiveData(nodeSocket);
 	}
@@ -174,6 +207,9 @@ void Node::handleNode(SOCKET nodeSocket, ConversationObject* currentConversation
 void Node::handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage)
 {
 	logger.success("Handling node as exit\n");
+
+	thread listenNextNodeThread(&Node::listenToHosts, this, currentConversation);
+	listenNextNodeThread.detach();
 
 	string received = initialMessage;
 
@@ -196,17 +232,6 @@ void Node::handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConver
 		}
 
 		currentConversation->getActiveConnection(dd)->sendData(dd.getData());
-
-		// ------------------------- Reverse messages -------------------------
-		currentConversation->collectMessages();
-
-		while (!currentConversation->isQueueEmpty())
-		{
-			string message = currentConversation->getFirstMessage();
-			sendData(nodeSocket, message);
-		}
-
-		// ---------------------------------------------------------------------
 
 		received = receiveData(nodeSocket);
 	}
