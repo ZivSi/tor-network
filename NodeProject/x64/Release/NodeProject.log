@@ -1,23 +1,23 @@
-﻿  AesHandler.cpp
-  ClientConnection.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(124,45): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ClientConnection.cpp(172,59): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-  Constants.cpp
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\include\format(42): warning STL4038: The contents of <format> are available only with C++20 or later.
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64\Microsoft.Common.CurrentVersion.targets(2146,5): warning : The referenced project '..\TorNetwork.vcxproj' does not exist.
   ConversationObject.cpp
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(119,56): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(119,56): warning C4267:         with
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(119,56): warning C4267:         [
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(119,56): warning C4267:             _Ty=int
-C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(119,56): warning C4267:         ]
-  DatabaseHelper.cpp
-  NodeData.cpp
-  Utility.cpp
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267:         with
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267:         [
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267:             _Ty=int
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\ConversationObject.cpp(137,56): warning C4267:         ]
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\Utility.h(25,38): warning C4506: no definition for inline function 'unsigned __int64 Utility::capture_time(void)'
+  (compiling source file '../ServerProject/ConversationObject.cpp')
+  
   Node.cpp
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\ServerProject\Utility.h(25,38): warning C4506: no definition for inline function 'unsigned __int64 Utility::capture_time(void)'
+  (compiling source file 'Node.cpp')
+  
   main.cpp
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\main.cpp(21,25): warning C4242: '=': conversion from 'int' to 'unsigned short', possible loss of data
+C:\Users\zivsi\source\repos\TorNetwork\TorNetwork\NodeProject\main.cpp(23,32): warning C4101: 'e': unreferenced local variable
   Generating code
-  272 of 4776 functions ( 5.7%) were compiled, the rest were copied from previous compilation.
+  4 of 5059 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     2 functions were new in current compilation
-    122 functions had inline decision re-evaluated but remain unchanged
+    63 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   NodeProject.vcxproj -> C:\Users\zivsi\source\repos\TorNetwork\x64\Release\NodeProject.exe

@@ -6,24 +6,32 @@
 using std::thread;
 
 
-int main() {
-	Node node1;
-	Node node2;
-	Node node3;
-	Node node4;
-	Node node5;
+// We get parent ip and port from the command line
+int main(int argc, char* argv[]) {
+	if (argc != 3) {
+		std::cerr << "Usage: " << argv[0] << " <parent ip> <parent port>" << std::endl;
+		return 1;
+	}
 
-	thread nodeServer(&Node::start, &node1);
-	thread nodeServer1(&Node::start, &node2);
-	thread nodeServer2(&Node::start, &node3);
-	thread nodeServer3(&Node::start, &node4);
-	thread nodeServer4(&Node::start, &node5);
+	// Get parent ip and port from the command line
+	std::string parentIp = argv[1];
+	unsigned short parentPort = 0;
 
-	nodeServer.join();
-	nodeServer1.join();
-	nodeServer2.join();
-	nodeServer3.join();
-	nodeServer4.join();
+	try {
+		parentPort = std::stoi(argv[2]);
+	}
+	catch (std::invalid_argument& e) {
+		std::cerr << "Invalid port number" << std::endl;
+		return 1;
+	}
+
+	cout << "Args are - ip: " << parentIp << " port: " << parentPort << endl;
+
+	// Create a node
+	Node node(parentIp, parentPort);
+
+	// Start the node in thread
+	thread(&Node::start, &node).join();
 
 	return 0;
 }

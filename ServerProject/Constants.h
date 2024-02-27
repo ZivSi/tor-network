@@ -22,7 +22,7 @@ namespace Constants {
 	extern const int DEFAULT_PATH_LENGTH;
 	extern const int MAX_TIME_ALIVE;
 	extern const int MAX_PING_ALIVE_MS;
-	extern const int CONVERSATION_TIMEOUT;
+	extern const int PATH_TIMEOUT;
 
 	extern const int AES_KEY_SIZE_BYTES;
 
@@ -30,6 +30,7 @@ namespace Constants {
 	extern const string PEPPER2;
 
 	extern const string NO_NOEDS_REPONSE;
+	extern const string NODE_HELLO;
 
 	enum NodeIndexes {
 		IP = 0,

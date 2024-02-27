@@ -5,11 +5,21 @@ unsigned short Node::PORT = SERVER_PORT + 1;
 
 Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
 {
-	//  Set by the local ip of the current machine (such as 10.0.0.10);
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
 	this->parentConnection = new ClientConnection(SERVER_IP, SERVER_PORT, logger);
+
+	thread acceptInThread(&Node::acceptSocket, this, getSocket());
+	acceptInThread.detach();
+}
+
+Node::Node(string parentIP, unsigned short parentPort) : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
+{
+	myPort = Node::PORT;
+	Node::PORT += 1;
+
+	this->parentConnection = new ClientConnection(parentIP, parentPort, logger);
 
 	thread acceptInThread(&Node::acceptSocket, this, getSocket());
 	acceptInThread.detach();
@@ -40,30 +50,22 @@ void Node::acceptSocket(SOCKET socket) {
 
 	logger.log("Waiting for connections...");
 
-	try {
-		while (!stop) {
-			clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
+	while (!stop) {
+		clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
 
-			if (clientSocket == INVALID_SOCKET) {
-				int error = WSAGetLastError();
-				if (error != WSAEWOULDBLOCK) {
-					logger.error("Can't accept client socket, Error: " + std::to_string(error));
-				}
-
-				continue;
+		if (clientSocket == INVALID_SOCKET) {
+			int error = WSAGetLastError();
+			if (error != WSAEWOULDBLOCK) {
+				logger.error("Can't accept client socket, Error: " + std::to_string(error));
 			}
 
-			logger.clientEvent("Accepted connection from client");
-
-			std::thread clientThread(&Node::handleClient, this, clientSocket);
-			clientThread.detach();
+			continue;
 		}
-	}
-	catch (const std::exception& e) {
-		cerr << "Error in acceptSocket(): " << e.what() << endl;
-	}
-	catch (...) {
-		cerr << "Unknown error in acceptSocket()" << endl;
+
+		logger.clientEvent("Accepted connection from client");
+
+		std::thread clientThread(&Node::handleClient, this, clientSocket);
+		clientThread.detach();
 	}
 }
 
@@ -85,24 +87,38 @@ void Node::handleClient(SOCKET clientSocket)
 
 
 	if (isHandshake(received)) {
-		logger.clientEvent("Client wants to perform handshake");
+		logger.clientEvent("Client is performing an handshake");
 
 		clientHandshake(clientSocket);
 		return;
 	}
 
-	logger.log("Node connected");
+	logger.success("Node (?) connected");
 
 	try {
-		handleNode(clientSocket, received);
+		string conversationId = Utility::extractConversationId(received);
+		string decryptedConversationId = getECCHandler()->decrypt(conversationId);
+
+		ConversationObject* currentConversation = findConversationBy(decryptedConversationId);
+		currentConversation->setPrvNodeSOCKET(clientSocket);
+
+		if (!conversationExists(currentConversation)) {
+			logger.error("Did not find conversation with ID of " + conversationId);
+
+			closesocket(clientSocket);
+			return;
+		}
+
+		if (!currentConversation->isExitNode()) { handleNode(clientSocket, currentConversation, received); }
+		else { handleNodeAsExit(clientSocket, currentConversation, received); }
 	}
 	catch (std::runtime_error e) {
-		logger.error("Error in handleNode");
+		logger.error("Runtime error in handleNode");
 
 		cout << e.what() << endl;
 	}
 	catch (std::exception e) {
-		logger.error("Error in handleNode");
+		logger.error("Exception in handleNode");
 
 		cout << e.what() << endl;
 	}
@@ -113,87 +129,123 @@ bool Node::conversationExists(ConversationObject* currentConversation)
 	return currentConversation != NULL;
 }
 
-void Node::handleNode(SOCKET nodeSocket, string initialMessage)
+void Node::listenToNextNode(SOCKET previousNodeSocket, ConversationObject* currentConversation)
 {
-	ConversationObject* currentConversation = nullptr;
+	ClientConnection* nextNode = currentConversation->getNxtNode();
+
+
+	while (!stop) {
+		if (currentConversation->isTooOld()) {
+			removeConversationFromMap(currentConversation->getConversationId());
+			if (currentConversation != nullptr) { delete currentConversation; }
+
+			closesocket(previousNodeSocket);
+			return;
+		}
+
+		string received = nextNode->receiveData();
+
+		if (dataLegit(received)) {
+			cout << "Data legit in listenNextNode: " << received << endl;
+			string encrypted = AesHandler::encryptAES(received, currentConversation->getKey());
+
+			sendData(previousNodeSocket, encrypted);
+		}
+	}
+}
+
+void Node::listenToHosts(ConversationObject* currentConversation) {
+	SOCKET previousNodeSocket = currentConversation->getPrvNodeSOCKET();
+
+	while (!stop) {
+		currentConversation->collectMessages();
+
+		while (!currentConversation->isQueueEmpty()) {
+			string encryptedReversedMessage = currentConversation->getFirstMessage();
+
+			sendData(previousNodeSocket, encryptedReversedMessage);
+		}
+	}
+}
+
+void Node::handleNode(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage)
+{
+	logger.success("Handling node\n");
+
 	string received = initialMessage;
-	string decryptedConversationId;
+	ClientConnection* nextNode = currentConversation->getNxtNode();
 
-	do {
+	if (nextNode == nullptr) {
+		nextNode = new ClientConnection(currentConversation->getNxtIP(), currentConversation->getNxtPort(), this->logger);
+		nextNode->receiveKeys(true);
 
-		if (currentConversation != nullptr && currentConversation->isTooOld()) {
-			logger.log("Conversation is too old. Removing from map");
+		currentConversation->setNxtNode(nextNode);
+	}
 
-			removeConversationFromMap(decryptedConversationId);
+
+	thread listenNextNodeThread(&Node::listenToNextNode, this, nodeSocket, currentConversation);
+	listenNextNodeThread.detach();
+
+	while (!stop) {
+		if (currentConversation->isTooOld()) {
+			removeConversationFromMap(currentConversation->getConversationId());
+			if (currentConversation != nullptr) { delete currentConversation; }
+			closesocket(nodeSocket);
+			return;
+		}
+
+		if (dataLegit(received)) {
+			string decrypted = AesHandler::decryptAES(received.substr(UUID_ENCRYPTED_SIZE, received.size()), currentConversation->getKey());
+
+			nextNode->sendData(decrypted);
+		}
+
+		received = receiveData(nodeSocket);
+	}
+}
+
+void Node::handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage)
+{
+	logger.success("Handling node as exit\n");
+
+	thread listenNextNodeThread(&Node::listenToHosts, this, currentConversation);
+	listenNextNodeThread.detach();
+
+	string received = initialMessage;
+
+	while (!stop) {
+		if (currentConversation->isTooOld()) {
+			removeConversationFromMap(currentConversation->getConversationId());
 			delete currentConversation;
-
 			closesocket(nodeSocket);
-
-			return;
-		}
-
-		if (received.empty()) {
-			continue;
-		}
-
-
-		string conversationId = Utility::extractConversationId(received);
-		decryptedConversationId = getECCHandler()->decrypt(conversationId);
-
-		currentConversation = findConversationBy(decryptedConversationId);
-
-		if (!conversationExists(currentConversation)) {
-
-			closesocket(nodeSocket);
-
 			return;
 		}
 
 
-		currentConversation->setPrvNode(nodeSocket);
+		string decrypted = AesHandler::decryptAES(received.substr(UUID_ENCRYPTED_SIZE, received.size()), currentConversation->getKey());
+		DestinationData dd(decrypted);
 
-		string dataPart = received.substr(UUID_ENCRYPTED_SIZE, received.size());
+		ConnectionPair host(dd.getDestinationIP(), dd.getDestinationPort());
 
-		string decryptedData = AesHandler::decryptAES(dataPart, currentConversation->getKey());
-
-		if (currentConversation->isExitNode()) {
-			// extract data, ip, port
-			// check if conversation is open in the map
-			// if exists, send the packet. if not, create new clientconnection, connect, send data and add to the map
-			logger.success("Received data from exit node: " + decryptedData);
-
-			// Extract data
-			vector<string> parts = Utility::splitString(decryptedData, SPLITER);
-
-			string ip = parts[0];
-			unsigned short port = static_cast<unsigned short>(stoi(parts[1]));
-
-			// TODO: Check if conversation is open in the map
-			// For now just create new client connection and send data
-			ClientConnection* destination = new ClientConnection(ip, port, logger);
-
-			destination->sendData(parts[2]);
-			destination->closeConnection();
-
-			delete destination;
-
-			return;
+		if (!currentConversation->isDestinationActive(dd)) {
+			currentConversation->addActiveConnection(dd);
 		}
 
-		if (currentConversation->getNxtNode() == nullptr) {
-			ClientConnection* nextNodeConnection = new ClientConnection(currentConversation->getNxtIP(), currentConversation->getNxtPort(), this->logger);
-			currentConversation->setNxtNode(nextNodeConnection);
-		}
+		currentConversation->getActiveConnection(dd)->sendData(dd.getData());
 
-		if (!currentConversation->getNxtNode()->isConversationActive()) {
-			currentConversation->getNxtNode()->connectInLoop();
-		}
+		received = receiveData(nodeSocket);
+	}
+}
 
-		currentConversation->getNxtNode()->sendData(decryptedData);
+void Node::collectAndSendReversedMessages(ConversationObject* currentConversation, const SOCKET& nodeSocket)
+{
+	currentConversation->collectMessages();
 
-		received = this->receiveData(nodeSocket);
+	while (!currentConversation->isQueueEmpty()) {
+		string encryptedReversedMessage = currentConversation->getFirstMessage();
 
-	} while (!stop);
+		sendData(nodeSocket, encryptedReversedMessage);
+	}
 }
 
 
@@ -257,6 +309,11 @@ string Node::getLocalIpv4() {
 
 	freeaddrinfo(res); // Free memory allocated by getaddrinfo
 	throw std::runtime_error("Error getting local IPv4.");
+}
+
+bool Node::dataLegit(string& data)
+{
+	return !data.empty();
 }
 
 bool Node::isHandshake(string received)
@@ -347,13 +404,12 @@ void Node::clientHandshake(SOCKET clientSocket)
 			currentConversation->setNxtPort(nextNodePortInt);
 		}
 		catch (std::runtime_error e) {
-			logger.error("Error in receiving next node properties");
 			cout << e.what() << endl;
 
 			// We received destination. We are the exit node
 			currentConversation->setAsExitNode();
 
-			logger.log("Received destination. I am the exit node");
+			logger.log("Received destination. I am the exit node\n");
 		}
 	}
 

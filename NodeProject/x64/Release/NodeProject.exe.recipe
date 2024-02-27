@@ -2,9 +2,6 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\zivsi\source\repos\TorNetwork\x64\Release\TorNetwork.exe</FullPath>
-    </ProjectOutput>
-    <ProjectOutput>
       <FullPath>C:\Users\zivsi\source\repos\TorNetwork\x64\Release\NodeProject.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>

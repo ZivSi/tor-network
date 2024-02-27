@@ -46,6 +46,7 @@ class Node : public IConnection
 {
 public:
 	Node();
+	Node(string parentIP, unsigned short parentPort);
 	~Node();
 
 	/*
@@ -54,12 +55,12 @@ public:
 	void start();
 
 private:
+	Logger logger;
+
 	/*
 	* List of active conversations the server involved in
 	*/
 	unordered_map<string, ConversationObject*> conversationsMap; // Conversations involved in
-
-	Logger logger;
 
 	/*
 	* Static variable to set the ports to each node
@@ -107,7 +108,12 @@ private:
 	void handshake(ClientConnection* parentConnection);
 	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
 
-	void handleNode(SOCKET nodeSocket, string initialMessage);
+	void listenToNextNode(SOCKET nodeSocket, ConversationObject* currentConversation); // For reverse conversation
+	void listenToHosts(ConversationObject* currentConversation);
+	void handleNode(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage);
+	void handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage);
+
+	void collectAndSendReversedMessages(ConversationObject* currentConversation, const SOCKET& nodeSocket);
 
 	void sendAlive();
 
@@ -119,5 +125,6 @@ private:
 	void removeConversationFromMap(string conversationId);
 
 	string getLocalIpv4();
-};
 
+	bool dataLegit(string& data);
+};

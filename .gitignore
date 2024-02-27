@@ -8,8 +8,6 @@
 *.suo
 *.user
 *.sln.docstates
-*.vcxproj
-*.vcxproj.filters
 *.vcxproj.user
 
 # Ignore compiled files

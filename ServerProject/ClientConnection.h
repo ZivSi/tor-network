@@ -20,6 +20,7 @@ using std::exception;
 class ClientConnection
 {
 public:
+	ClientConnection(string ip, unsigned short port);
 	ClientConnection(string ip, unsigned short port, Logger logger);
 	ClientConnection(string ip, unsigned short port, Logger logger, ECCHandler* eccHandler);
 	~ClientConnection();
@@ -35,6 +36,7 @@ public:
 
 	void sendEncrypted(string data);
 
+	string receiveDataFromTcp();
 	string receiveData();
 	string receiveKeys(bool initialize);
 

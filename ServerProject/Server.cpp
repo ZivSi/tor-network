@@ -196,6 +196,13 @@ void Server::handleClient(SOCKET clientSocket)
 
 		closesocket(clientSocket);
 	}
+	catch (...) {
+		aliveNodesMutex.unlock();
+
+		logger.error("Unknown error in handleClient(). Closing...");
+
+		closesocket(clientSocket);
+	}
 }
 
 bool Server::isNode(string data) {

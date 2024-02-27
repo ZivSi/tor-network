@@ -53,19 +53,19 @@ public:
 	void handleClient(SOCKET clientSocket) override;
 
 private:
+	Logger logger;
+
 	bool stop;
 
 	mutex aliveNodesMutex;
 	vector<NodeData*> aliveNodes;
 
-	mutex nodesMutex;
-	Logger logger;
-
 	string receiveECCKeys(SOCKET clientSocket);
 	string receiveAESKey(SOCKET clientSocket);
 
-	bool isNode(string decrypted);
 	bool nodeIsDead(NodeData* node);
+
+	bool isNode(string decrypted);
 
 	// If true
 	bool isValidFormat(string decrypted);

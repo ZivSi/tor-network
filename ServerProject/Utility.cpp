@@ -1,11 +1,11 @@
 #include "Utility.h"
 
 
-unsigned long long Utility::capture_time() {
+constexpr unsigned long long Utility::capture_time() {
 	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
-long long Utility::calculate_time(long long start_time) {
+constexpr long long Utility::calculateDifference(long long start_time) {
 	return capture_time() - start_time;
 }
 
@@ -52,7 +52,7 @@ bool Utility::isValidTime(const string& input) {
 	return capture_time() - std::stoll(input) < Constants::MAX_PING_ALIVE_MS;
 }
 
-bool Utility::isPrime(unsigned long int n) {
+constexpr bool Utility::isPrime(unsigned long int n) {
 	if (n < 2) {
 		return false;
 	}
@@ -189,7 +189,7 @@ bool Utility::isValidIpv4(const std::string& ip)
 
 bool Utility::isValidPort(unsigned short port)
 {
-	return (port >= 0 && port <= 65535);
+	return (port > 0 && port <= 65535);
 }
 
 bool Utility::isValidInteger(const std::string& str)
