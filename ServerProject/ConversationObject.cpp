@@ -36,8 +36,19 @@ ConversationObject::~ConversationObject() {
 	if (this->prvNodeSocket != -1) {
 		closesocket(this->prvNodeSocket);
 	}
+
+	for (auto it = this->destinationMap.begin(); it != this->destinationMap.end(); it++) {
+		delete it->second;
+	}
+
+	this->destinationMap.clear();
+
+	while (!messageQueue.empty()) {
+		messageQueue.pop();
+	}
 }
 
+// ----------------- Getters -----------------
 SOCKET ConversationObject::getPrvNodeSOCKET() const {
 	return this->prvNodeSocket;
 }
@@ -66,7 +77,6 @@ unsigned short ConversationObject::getNxtPort() const
 	return this->nxtPort;
 }
 
-
 string ConversationObject::getConversationId() {
 	return this->conversationId;
 }
@@ -75,6 +85,48 @@ AesKey* ConversationObject::getKey() {
 	return &(this->key);
 }
 
+bool ConversationObject::isEmpty() const
+{
+	return conversationId == "";
+}
+
+bool ConversationObject::isExitNode() const
+{
+	return this->exitNode;
+}
+
+bool ConversationObject::isTooOld() const
+{
+	return Utility::capture_time() - creationTime > Constants::PATH_TIMEOUT;
+}
+
+string DestinationData::getDestinationIP()
+{
+	return this->destinationIP;
+}
+
+unsigned short DestinationData::getDestinationPort()
+{
+	return this->destinationPort;
+}
+
+string DestinationData::getData()
+{
+	return this->data;
+}
+
+string ConnectionPair::getIP() const
+{
+	return this->ip;
+}
+
+unsigned short ConnectionPair::getPort() const
+{
+	return this->port;
+}
+
+
+// ----------------- Setters -----------------
 void ConversationObject::setPrvNodeSOCKET(SOCKET prvNode) {
 	this->prvNodeSocket = prvNode;
 }
@@ -86,24 +138,6 @@ void ConversationObject::setNxtNode(ClientConnection* nxtNode) {
 void ConversationObject::setPrvIP(string prvIP)
 {
 	this->prvIP = prvIP;
-}
-
-bool ConversationObject::isQueueEmpty() const
-{
-	return messageQueue.empty();
-}
-
-void ConversationObject::addMessage(string message)
-{
-	messageQueue.push(message);
-}
-
-string ConversationObject::getFirstMessage()
-{
-	string message = messageQueue.front();
-	messageQueue.pop();
-
-	return message;
 }
 
 void ConversationObject::setPrvPort(unsigned short prvPort)
@@ -129,7 +163,73 @@ void ConversationObject::setKey(AesKey key) {
 	this->key = key;
 }
 
+void ConversationObject::setAsExitNode()
+{
+	this->exitNode = true;
+}
 
+
+// ----------------- Map related -----------------
+ClientConnection* ConversationObject::addActiveConnection(DestinationData destinationData)
+{
+	ClientConnection* newConnection;
+
+	try {
+		newConnection = destinationData.createConnection();
+	}
+	catch (...) {
+		throw std::runtime_error("Could not create connection to destination");
+	}
+
+	this->destinationMap[ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort())] = newConnection;
+
+	return newConnection;
+}
+
+void ConversationObject::removeActiveConnection(DestinationData destinationData)
+{
+	auto it = this->destinationMap.find(ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort()));
+
+	if (it != this->destinationMap.end()) {
+		delete it->second;
+		this->destinationMap.erase(it);
+
+		return;
+	}
+
+	cerr << "Could not find connection to remove (IP: " << destinationData.getDestinationIP() << ", Port: " << destinationData.getDestinationPort() << ")" << endl;
+}
+
+ClientConnection* ConversationObject::getActiveConnection(DestinationData destinationData)
+{
+	auto it = this->destinationMap.find(ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort()));
+
+	if (it != this->destinationMap.end()) {
+		return it->second;
+	}
+
+	return nullptr;
+}
+
+bool ConversationObject::isDestinationActive(DestinationData destinationData)
+{
+	auto it = this->destinationMap.find(ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort()));
+
+	bool found = it != this->destinationMap.end();
+
+	if (!found) {
+		return false;
+	}
+
+	return it->second->isConnectionActive();
+}
+
+ClientConnection* DestinationData::createConnection()
+{
+	return new ClientConnection(this->destinationIP, this->destinationPort);
+}
+
+// ----------------- Utility -----------------
 // TODO: make sure that the generated ID is unique
 string ConversationObject::generateID() {
 	std::random_device rd;
@@ -147,63 +247,52 @@ string ConversationObject::generateID() {
 	return uuid;
 }
 
-bool ConversationObject::isEmpty() const
+string ConnectionPair::toString() const
 {
-	return conversationId == "";
+	return ip + ":" + to_string(port);
 }
 
-void ConversationObject::setAsExitNode()
+std::ostream& operator<<(std::ostream& os, const ConnectionPair& obj)
 {
-	this->exitNode = true;
+	os << obj.ip << ":" << obj.port;
+
+	return os;
 }
 
-bool ConversationObject::isExitNode() const
+
+// ----------------- Queue Related -----------------
+bool ConversationObject::isQueueEmpty() const
 {
-	return this->exitNode;
+	return messageQueue.empty();
 }
 
-bool ConversationObject::isTooOld() const
+void ConversationObject::addMessage(string message)
 {
-	return Utility::capture_time() - creationTime > Constants::PATH_TIMEOUT;
+	messageQueue.push(message);
 }
 
-ClientConnection* ConversationObject::addActiveConnection(DestinationData destinationData)
+string ConversationObject::getFirstMessage()
 {
-	ClientConnection* newConnection = destinationData.createConnection();
-	this->destinationMap[ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort())] = newConnection;
+	string message = messageQueue.front();
+	messageQueue.pop();
 
-	return newConnection;
-}
-
-void ConversationObject::removeActiveConnection(DestinationData destinationData)
-{
-	auto it = this->destinationMap.find(ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort()));
-
-	if (it != this->destinationMap.end()) {
-		delete it->second;
-		this->destinationMap.erase(it);
-	}
-}
-
-ClientConnection* ConversationObject::getActiveConnection(DestinationData destinationData)
-{
-	auto it = this->destinationMap.find(ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort()));
-
-	if (it != this->destinationMap.end()) {
-		return it->second;
-	}
-
-	return nullptr;
+	return message;
 }
 
 void ConversationObject::collectMessages()
 {
+	if (!isExitNode()) {
+		cerr << "You are not supposed to collect messages in this conversation object. You are not an exit node" << endl;
+
+		return;
+	}
+
 	for (auto it = this->destinationMap.begin(); it != this->destinationMap.end(); it++) {
 		ClientConnection* connection = it->second;
 
 		string receivedData = connection->receiveDataFromTcp();
 
-		if (receivedData != "") {
+		if (receivedData != "") { // Data is legit and not noise
 			receivedData = connection->getIP() + SPLITER + to_string(connection->getPort()) + SPLITER + receivedData;
 			string encryptedData = AesHandler::encryptAES(receivedData, &(this->key));
 
@@ -212,11 +301,8 @@ void ConversationObject::collectMessages()
 	}
 }
 
-bool ConversationObject::isDestinationActive(DestinationData destinationData)
-{
-	return this->destinationMap.find(ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort())) != this->destinationMap.end();
-}
 
+// ----------------- Constructor and Destructor (DestinationData and ConnectionPair) -----------------
 DestinationData::DestinationData(string destinationIP, unsigned short destinationPort, string data)
 {
 	this->destinationIP = destinationIP;
@@ -237,26 +323,6 @@ DestinationData::~DestinationData()
 {
 }
 
-string DestinationData::getDestinationIP()
-{
-	return this->destinationIP;
-}
-
-unsigned short DestinationData::getDestinationPort()
-{
-	return this->destinationPort;
-}
-
-string DestinationData::getData()
-{
-	return this->data;
-}
-
-ClientConnection* DestinationData::createConnection()
-{
-	return new ClientConnection(this->destinationIP, this->destinationPort);
-}
-
 ConnectionPair::ConnectionPair(string ip, unsigned short port)
 {
 	this->ip = ip;
@@ -267,24 +333,17 @@ ConnectionPair::~ConnectionPair()
 {
 }
 
-string ConnectionPair::getIP() const
-{
-	return this->ip;
-}
-
-unsigned short ConnectionPair::getPort() const
-{
-	return this->port;
-}
-
+// ----------------- Overloaded Operators -----------------
 bool ConnectionPair::operator==(const ConnectionPair& other) const
 {
 	return this->ip == other.ip && this->port == other.port;
 }
 
-bool ConnectionPair::operator<(const ConnectionPair& other) const {
-	// Compare IP addresses first, then ports
-	if (ip != other.ip)
-		return ip < other.ip;
-	return port < other.port;
+bool ConnectionPair::operator<(const ConnectionPair& other) const
+{
+	if (this->ip == other.ip) {
+		return this->port < other.port;
+	}
+
+	return this->ip < other.ip;
 }

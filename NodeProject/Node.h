@@ -1,13 +1,13 @@
 #pragma once
 
-#include "AesHandler.h"
-#include "ClientConnection.h"
-#include "Constants.h"
-#include "ConversationObject.h"
-#include "ECCHandler.h"
-#include "IConnection.h"
-#include "Logger.h"
-#include "Utility.h"
+#include "../ServerProject/AesHandler.h"
+#include "../ServerProject/ClientConnection.h"
+#include "../ServerProject/Constants.h"
+#include "../ServerProject/ConversationObject.h"
+#include "../ServerProject/ECCHandler.h"
+#include "../ServerProject/IConnection.h"
+#include "../ServerProject/Logger.h"
+#include "../ServerProject/Utility.h"
 
 #include "unordered_map"
 #include <chrono>
@@ -45,86 +45,57 @@ using namespace Constants;
 class Node : public IConnection
 {
 public:
+	// ----------------- Constructors & Destructor -----------------
 	Node();
 	Node(string parentIP, unsigned short parentPort);
 	~Node();
 
-	/*
-	* Run server with increase of the PORT (Choose this to start the server)
-	*/
+	// ----------------- Main Method -----------------
 	void start();
 
 private:
 	Logger logger;
 
-	/*
-	* List of active conversations the server involved in
-	*/
+	// ----------------- Variables -----------------
 	unordered_map<string, ConversationObject*> conversationsMap; // Conversations involved in
-
-	/*
-	* Static variable to set the ports to each node
-	*/
 	static unsigned short PORT;
-
-	/*
-	* The node's server socket
-	*/
 	bool stop;
 	string myIP;
 	unsigned short myPort;
-
-	/*
-	* The socket of the parent server
-	*/
 	ClientConnection* parentConnection;
 
-	/*
-	* Set actions to perform when new connection is made
-	*/
+	// ----------------- Connection Handling -----------------
 	void acceptSocket(SOCKET socket) override;
-
-	/*
-	* Handle node or client connected
-	* If client - receive AES, generate conversation ID and perform handshake
-	* If node - extract current conversation id, decrypt, send
-	*/
 	void handleClient(SOCKET clientSocket) override;
 
-	bool conversationExists(ConversationObject* currentConversation);
+	void listenToNextNode(SOCKET nodeSocket, ConversationObject* currentConversation);
+	void listenToHosts(ConversationObject* currentConversation);
+	void handleNode(SOCKET previousNodeSocket, ConversationObject* currentConversation, string initialMessage);
+	void handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* currentConversation, string initialMessage);
 
-
-	/*
-	* The conversation will start with ECC key
-	*/
+	// ----------------- Handshake Related -----------------
 	bool isHandshake(string received);
-	string buildAliveFormat();
-
 	void clientHandshake(SOCKET clientSocket);
-
-	/*
-	* With parent. Send formatted alive message
-	*/
 	void handshake(ClientConnection* parentConnection);
 	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
-
-	void listenToNextNode(SOCKET nodeSocket, ConversationObject* currentConversation); // For reverse conversation
-	void listenToHosts(ConversationObject* currentConversation);
-	void handleNode(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage);
-	void handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage);
-
-	void collectAndSendReversedMessages(ConversationObject* currentConversation, const SOCKET& nodeSocket);
-
-	void sendAlive();
-
 	string receiveECCKeys(SOCKET clientSocket);
 
-	ConversationObject* findConversationBy(string conversationId);
-	bool isConnectedTo(ClientConnection* nextNode);
+	// ----------------- Error Handling -----------------
+	void sendErrorToClient(SOCKET previousNodeSocket, string errorMessage);
 
-	void removeConversationFromMap(string conversationId);
+	// ----------------- Utility -----------------
+	string buildAliveFormat();
+	bool dataLegit(string& data);
 
+	// ----------------- Getters -----------------
 	string getLocalIpv4();
 
-	bool dataLegit(string& data);
+	// ----------------- Helper Methods -----------------
+	bool conversationExists(ConversationObject* currentConversation);
+	ConversationObject* findConversationBy(string conversationId);
+	bool isConnectedTo(ClientConnection* nextNode);
+	void removeConversationFromMap(string conversationId);
+
+	// ----------------- Connection Alive -----------------
+	void sendAlive();
 };

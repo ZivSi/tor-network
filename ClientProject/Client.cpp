@@ -160,7 +160,7 @@ void Client::checkConnectionAliveTimer()
 		currentPathAliveTime += 1000;
 
 		if (currentPathAliveTime > Constants::PATH_TIMEOUT) {
-			logger.error("Path si alive for too long. Disconnecting...");
+			logger.error("Path is alive for too long. Disconnecting...");
 
 			clearCurrentPath();
 

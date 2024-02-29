@@ -1,7 +1,7 @@
+#include "../ServerProject/ClientConnection.h"
+#include "../ServerProject/ConversationObject.h"
 #include "Client.h"
-#include "ClientConnection.h"
 #include "RelayObject.h"
-#include <ConversationObject.h>
 #include <thread>
 
 using std::thread;

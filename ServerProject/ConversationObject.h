@@ -15,6 +15,8 @@ using std::string;
 using std::queue;
 using std::map;
 
+
+// Class that takes data in format of "IP:PORT:DATA" and creates an object from it for easy access
 class DestinationData
 {
 private:
@@ -39,7 +41,7 @@ public:
 };
 
 
-// Will be used to represent the active connection the current client is in
+// Will be used to represent the active connection. Will be used mostly for the map
 class ConnectionPair
 {
 private:
@@ -55,8 +57,14 @@ public:
 
 	bool operator==(const ConnectionPair& other) const;
 	bool operator<(const ConnectionPair& other) const;
+
+	friend std::ostream& operator<<(std::ostream& os, const ConnectionPair& obj);
+
+	string toString() const;
 };
 
+// Object to hold data of specific client's conversation.
+// Stores client's active connections, messages, keys, and other data
 class ConversationObject
 {
 private:

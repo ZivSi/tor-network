@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ClientConnection.h"
-#include "Constants.h"
-#include "Logger.h"
-#include "NodeData.h"
+#include "../ServerProject/ClientConnection.h"
+#include "../ServerProject/Constants.h"
+#include "../ServerProject/Logger.h"
+#include "../ServerProject/NodeData.h"
 #include "RelayObject.h";
 #include <iostream>
 #include <mutex>

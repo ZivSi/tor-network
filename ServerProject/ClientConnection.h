@@ -57,10 +57,11 @@ public:
 
 	void closeConnection();
 
-	bool isConversationActive() const;
+	bool isConnectionActive() const;
 
 private:
-	const int MAX_ATTEMPTS = 20;
+	const int MAX_ATTEMPTS = 3;
+	const int DELAY_IN_CONNECTION_LOOP = 1000;
 
 	int failedAttempts = 0;
 
@@ -75,6 +76,6 @@ private:
 
 	AesHandler aesHandler;
 
-	bool conversationActive = false;
+	bool connectionActive = false;
 };
 

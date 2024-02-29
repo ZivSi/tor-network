@@ -30,7 +30,7 @@ ClientConnection::ClientConnection(string ip, unsigned short port, Logger logger
 
 ClientConnection::~ClientConnection()
 {
-	if (conversationActive) { closeConnection(); }
+	if (connectionActive) { closeConnection(); }
 
 	WSACleanup();
 }
@@ -74,7 +74,7 @@ SOCKET ClientConnection::connectToServer()
 		logger.log("Connected to " + this->ip + ":" + to_string(this->port));
 	}
 
-	conversationActive = true;
+	connectionActive = true;
 
 	return connection;
 }
@@ -90,15 +90,16 @@ SOCKET ClientConnection::connectInLoop()
 		}
 		catch (std::runtime_error e) {
 			failedAttempts++;
+
 			logger.error("Couldn't connect to server");
 			cout << "Runtime error: " << e.what() << endl;
 
-			Sleep(3000);
+			Sleep(DELAY_IN_CONNECTION_LOOP);
 		}
 	}
 
 	if (failedAttempts == MAX_ATTEMPTS) {
-		throw std::runtime_error("Reached maximum number of failed attempts to connect to server");
+		throw std::runtime_error("Reached maximum number of failed attempts to connect to server (" + to_string(MAX_ATTEMPTS) + ")");
 	}
 
 	return this->connection;
@@ -307,11 +308,11 @@ void ClientConnection::closeConnection()
 		logger.log("Closed connection to " + this->ip + ":" + to_string(this->port));
 	}
 
-	conversationActive = false;
+	connectionActive = false;
 }
 
-bool ClientConnection::isConversationActive() const
+bool ClientConnection::isConnectionActive() const
 {
-	return conversationActive;
+	return connectionActive;
 }
 

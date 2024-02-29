@@ -54,3 +54,6 @@ x64/
 *.obj
 *.ipbj
 *.ipdb
+
+*.vsidx
+*.opendb

@@ -79,7 +79,6 @@ void Node::handleClient(SOCKET clientSocket)
 		received = this->receiveData(clientSocket); // ECC keys or data from previous node
 	}
 	catch (std::runtime_error e) {
-
 		logger.error("Error in receiving ECC keys (or data from previous node)");
 
 		return;
@@ -168,7 +167,7 @@ void Node::listenToHosts(ConversationObject* currentConversation) {
 	}
 }
 
-void Node::handleNode(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage)
+void Node::handleNode(SOCKET previousNodeSocket, ConversationObject* currentConversation, string initialMessage)
 {
 	logger.success("Handling node\n");
 
@@ -183,14 +182,14 @@ void Node::handleNode(SOCKET nodeSocket, ConversationObject* currentConversation
 	}
 
 
-	thread listenNextNodeThread(&Node::listenToNextNode, this, nodeSocket, currentConversation);
+	thread listenNextNodeThread(&Node::listenToNextNode, this, previousNodeSocket, currentConversation);
 	listenNextNodeThread.detach();
 
 	while (!stop) {
 		if (currentConversation->isTooOld()) {
 			removeConversationFromMap(currentConversation->getConversationId());
 			if (currentConversation != nullptr) { delete currentConversation; }
-			closesocket(nodeSocket);
+			closesocket(previousNodeSocket);
 			return;
 		}
 
@@ -200,11 +199,11 @@ void Node::handleNode(SOCKET nodeSocket, ConversationObject* currentConversation
 			nextNode->sendData(decrypted);
 		}
 
-		received = receiveData(nodeSocket);
+		received = receiveData(previousNodeSocket);
 	}
 }
 
-void Node::handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConversation, string initialMessage)
+void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* currentConversation, string initialMessage)
 {
 	logger.success("Handling node as exit\n");
 
@@ -217,7 +216,7 @@ void Node::handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConver
 		if (currentConversation->isTooOld()) {
 			removeConversationFromMap(currentConversation->getConversationId());
 			delete currentConversation;
-			closesocket(nodeSocket);
+			closesocket(previousNodeSocket);
 			return;
 		}
 
@@ -227,27 +226,25 @@ void Node::handleNodeAsExit(SOCKET nodeSocket, ConversationObject* currentConver
 
 		ConnectionPair host(dd.getDestinationIP(), dd.getDestinationPort());
 
-		if (!currentConversation->isDestinationActive(dd)) {
-			currentConversation->addActiveConnection(dd);
+
+		try {
+			if (!currentConversation->isDestinationActive(dd)) {
+				currentConversation->addActiveConnection(dd);
+			}
+
+			currentConversation->getActiveConnection(dd)->sendData(dd.getData());
+		}
+		catch (std::runtime_error e) {
+			string errorMessage = "Node " + this->getIP() + ":" + to_string(this->getPort()) + " - ID: " + currentConversation->getConversationId() + SPLITER + "Can't connect to host at " + host.toString();
+
+			logger.error(errorMessage);
+
+			sendErrorToClient(previousNodeSocket, errorMessage);
 		}
 
-		currentConversation->getActiveConnection(dd)->sendData(dd.getData());
-
-		received = receiveData(nodeSocket);
+		received = receiveData(previousNodeSocket);
 	}
 }
-
-void Node::collectAndSendReversedMessages(ConversationObject* currentConversation, const SOCKET& nodeSocket)
-{
-	currentConversation->collectMessages();
-
-	while (!currentConversation->isQueueEmpty()) {
-		string encryptedReversedMessage = currentConversation->getFirstMessage();
-
-		sendData(nodeSocket, encryptedReversedMessage);
-	}
-}
-
 
 ConversationObject* Node::findConversationBy(string conversationId) {
 	auto it = conversationsMap.find(conversationId);
@@ -271,9 +268,13 @@ void Node::removeConversationFromMap(string conversationId)
 	if (it != conversationsMap.end()) {
 		delete it->second;
 		conversationsMap.erase(it);
+
+		logger.log("Removed conversation from map: " + conversationId);
+
+		return;
 	}
 
-	logger.log("Removed conversation from map: " + conversationId);
+	logger.error("Couldn't find conversation in map to remove. ID: " + conversationId + "\n");
 }
 
 string Node::getLocalIpv4() {
@@ -457,6 +458,11 @@ void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKey
 	parentConnection->sendData(encryptedKeys);
 
 	logger.keysInfo("Sent symmetric key (AES)");
+}
+
+void Node::sendErrorToClient(SOCKET previousNodeSocket, string errorMessage)
+{
+	sendData(previousNodeSocket, errorMessage);
 }
 
 string Node::buildAliveFormat() {
