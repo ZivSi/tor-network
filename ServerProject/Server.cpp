@@ -47,8 +47,6 @@ void Server::acceptSocket(SOCKET socket) {
 
 	try {
 		while (!stop) {
-
-			// Move clientSocket declaration outside the loop
 			clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
 
 			if (clientSocket == INVALID_SOCKET) {
@@ -115,6 +113,7 @@ void Server::handleClient(SOCKET clientSocket)
 		}
 		catch (std::runtime_error e) {
 			logger.error("Couldn't decrypt AES keys from client. Closing connection");
+
 			closesocket(clientSocket);
 			return;
 		}
@@ -128,11 +127,10 @@ void Server::handleClient(SOCKET clientSocket)
 			logger.log("Received empty data from client. Closing connection");
 
 			closesocket(clientSocket);
-
 			return;
 		}
 
-		string decrypted;
+		string decrypted = "";
 		try {
 			decrypted = AesHandler::decryptAES(received, &temp);
 			logger.log("Decrypted data from client: " + decrypted);
@@ -149,13 +147,11 @@ void Server::handleClient(SOCKET clientSocket)
 			sendNodesToClient(clientSocket);
 
 			closesocket(clientSocket);
-
 			return;
 		}
 
 		if (!isValidFormat(decrypted)) {
 			closesocket(clientSocket);
-
 			return;
 		}
 
@@ -169,7 +165,7 @@ void Server::handleClient(SOCKET clientSocket)
 
 		NodeData* node = getNodeInVector(ip, port);
 
-		if (node == NULL) {
+		if (node == nullptr) {
 
 			aliveNodesMutex.lock();
 			this->aliveNodes.push_back(new NodeData(ip, port, receivedECCKeys, Utility::capture_time(), 1, 0));
@@ -324,7 +320,7 @@ NodeData* Server::getNodeInVector(string ip, unsigned short port) {
 
 	aliveNodesMutex.unlock();
 
-	return NULL;
+	return nullptr;
 }
 
 void Server::checkAliveNodes()

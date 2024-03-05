@@ -21,12 +21,22 @@ vector<string> Utility::splitString(const string& input, const string& delimiter
 }
 
 void Utility::extractAESKey(const string& input, string& output) {
+	if (input.length() < 16) {
+		cerr << "Input is too short to extract key" << endl;
+		return;
+	}
+
 	for (int i = 0; i < 16; i++) {
 		output += input[i];
 	}
 }
 
 void Utility::extractAESIv(const string& input, string& output) {
+	if (input.length() < 32) {
+		cerr << "Input is too short to extract IV" << endl;
+		return;
+	}
+
 	for (int i = 16; i < 32; i++) {
 		output += input[i];
 	}
