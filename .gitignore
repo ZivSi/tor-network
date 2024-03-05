@@ -40,6 +40,7 @@ __pycache__/
 *.db
 *.sqlite
 *.sql
+*.db-shm
 
 # Ignore macOS-specific files
 .DS_Store
@@ -48,12 +49,16 @@ __pycache__/
 .idea/
 .vscode/
 x64/
+.vs/
+
 
 # Ignore additional files
 *.tlog
 *.obj
 *.ipbj
 *.ipdb
+*.pdb
+*.idb
 
 *.vsidx
 *.opendb
