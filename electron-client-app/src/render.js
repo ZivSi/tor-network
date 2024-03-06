@@ -1,50 +1,53 @@
-/*
-Use render.js for client-side code in web applications, particularly for interacting with the DOM and creating dynamic web pages.
-*/
-
-
-
 console.log("Render.js is being called");
 
 const MIN_LENGTH = 3;
-var showError = false;
-var errorShown = false;
 
 // ----------- On start -----------
 document.addEventListener("DOMContentLoaded", function () {
-    initializeInputListener();
-
-    document.getElementById('errormessage').style.display = 'none';
-});
-
-function initializeInputListener() {
-    var pathLengthInput = document.getElementById('pathLen');
-    var errorTextView = document.getElementById('errormessage');
-
-    pathLengthInput.addEventListener('input', function (event) {
-        const lengthValue = parseInt(event.target.value);
-
-        showError = lengthValue < MIN_LENGTH || isNaN(lengthValue);
+    const pathLengthInput = document.getElementById('pathLen');
+    const errorTextView = document.getElementById('errormessage');
+    const minusButton = document.querySelector('.number-input button.minus');
+    const plusButton = document.querySelector('.number-input button.plus');
+    
+    hideError(errorTextView); // Hide error message initially
+    
+    // Check input value on input event
+    pathLengthInput.addEventListener('input', function(event) {
+        const lengthValue = parseInt(pathLengthInput.value);
         
-        console.log(showError ? "Less than min len!" : "");
-        event.target.value = showError ? 3 : event.target.value;        
-
-
-        // Conditions will have better runtime than each time set the visibilty every time
-        if (showError && !errorShown) {
-            setVisibility(errorTextView, true);
-            errorShown = true;
-        } else if (!showError && errorShown) {
-            setVisibility(errorTextView, false);
-            errorShown = false;
+        if (lengthValue < MIN_LENGTH || isNaN(lengthValue)) {
+            showError(errorTextView);
+        } else {
+            hideError(errorTextView);
         }
     });
+    
+    // Disable minus button if path length is already at minimum
+    if (parseInt(pathLengthInput.value) === MIN_LENGTH) {
+        minusButton.disabled = true;
+    }
+    
+    // Event listener for minus button click
+    minusButton.addEventListener('click', function(event) {
+        const lengthValue = parseInt(pathLengthInput.value);
+        if (lengthValue === MIN_LENGTH) {
+            event.preventDefault(); // Prevent default action (decreasing value)
+        }
+    });
+    
+    // Event listener for plus button click
+    plusButton.addEventListener('click', function(event) {
+        const lengthValue = parseInt(pathLengthInput.value);
+        if (lengthValue === MIN_LENGTH) {
+            minusButton.disabled = false; // Enable minus button if path length is increased from minimum
+        }
+    });
+});
+
+function showError(element) {
+    element.style.display = 'inline';
 }
 
-function setVisibility(element, visible) {
-    if (visible) {
-        element.style.display = 'inline';
-    } else {
-        element.style.display = 'none';
-    }
+function hideError(element) {
+    element.style.display = 'none';
 }

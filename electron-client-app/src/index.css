@@ -37,23 +37,34 @@ input {
   padding: 0 18px;
 }
 
-input[type="button"] {
-  background: #59316B;
+.connect-button {
+  background-color: #222;
   color: #fff;
-  position: relative;
-  top: 25px;
-  width: 140px;
-  height: 40px;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease; /* Add transition for smooth animation */
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-input[type="button"]:active {
-  background-color: #230721; /* Change background color on click */
+.connect-button:hover {
+  background-color: #444;
 }
+
+.connect-button:active {
+  background-color: #111;
+  transform: translateY(1px);
+}
+
+.connect-button:focus {
+  outline: none;
+}
+
 
 #errormessage {
-  color: red;
+  color: yellow;
 }
 
 input[type="number"] {
