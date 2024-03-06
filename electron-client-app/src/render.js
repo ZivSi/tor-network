@@ -30,9 +30,8 @@ function initializeInputListener() {
         event.target.value = showError ? 3 : event.target.value;        
 
 
-        // Conditions will have better runtime than each time set the visibilty
+        // Conditions will have better runtime than each time set the visibilty every time
         if (showError && !errorShown) {
-            errorTextView.style.display = 'inline';
             setVisibility(errorTextView, true);
             errorShown = true;
         } else if (!showError && errorShown) {
