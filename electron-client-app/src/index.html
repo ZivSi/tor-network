@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
+
+  <title>Tor Program</title>
+  <link rel="stylesheet" href="index.css" />
+
+  <script src="render.js"></script>
+</head>
+
+<body>
+  <img src="./drawable/onion.png" style="width: 65px; height: auto; display: inline-block; vertical-align: middle;">
+  <h1 style="display: inline-block; vertical-align: middle;">Tor Network</h1>
+  <p>Welcome to a program powered by the Tor concept</p>
+  <br />
+
+  <form action="" id="opening-screen">
+    <div class="fields">
+      <span>
+        <div class="number-input">
+          <button onclick="this.parentNode.querySelector('input[type=number]').stepDown()"></button>
+          <input class="quantity" value="3" type="number" id="pathLen" style="width: 80px;">
+          <button onclick="this.parentNode.querySelector('input[type=number]').stepUp()" class="plus"></button>
+        </div>
+
+        <br />
+        <small id="errormessage">For security purposes, you cannot have path length with less than 3 relays</small>
+      </span>
+
+      <div class="connect">
+        <input class="connect" value="Connect" type="button" />
+      </div>
+  </form>
+</body>
+
+</html>
