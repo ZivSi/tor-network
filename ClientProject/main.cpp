@@ -33,6 +33,18 @@ void commandLine(Client* client, ClientConnection* entry) {
 
 int main()
 {
+	// const aesKey = "secret key 123";
+	// const iv = "1234567890123456";
+
+	string aesKey = "secret key 123";
+	string iv = "1234567890123456";
+
+	AesHandler* aesHandler = new AesHandler(aesKey, iv);
+	cout << "AesHandler created" << endl;
+	string encryptedHelloWorld = aesHandler->encrypt("Hello World");
+	cout << "Encrypted: " << encryptedHelloWorld << endl;
+
+
 	Client client;
 	cout << "Client started" << endl;
 

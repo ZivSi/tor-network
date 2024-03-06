@@ -1,122 +1,128 @@
+/* Set font family, margin, max width, and padding for the body */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   margin: auto;
   max-width: 38rem;
   padding: 2rem;
 }
 
-html,
-body {
-  background: #7D4698;
-  text-align: center;
-
-  color: #fff;
-  font-weight: 100;
-  font-size: 1.2em;
-  margin-bottom: 10px;
+/* Style for the html and body elements */
+html, body {
+  background: #7D4698; /* Background color */
+  text-align: center; /* Center align text */
+  color: #fff; /* Text color */
+  font-weight: 100; /* Font weight */
+  font-size: 1.2em; /* Font size */
+  margin-bottom: 10px; /* Margin bottom */
 }
 
+/* Style for the container class */
 .container {
-  position: relative;
-  top: 100px;
+  position: relative; /* Relative positioning */
+  top: 100px; /* 100px from the top */
 }
 
+/* Style for input elements */
 input {
-  border: none;
-  outline: none;
-  display: inline-block;
-  height: 34px;
-  vertical-align: middle;
-  position: relative;
-  bottom: 14px;
-  right: 9px;
-  border-radius: 22px;
-  width: 220px;
-  box-sizing: border-box;
-  padding: 0 18px;
+  border: none; /* No border */
+  outline: none; /* No outline */
+  display: inline-block; /* Display as inline block */
+  height: 34px; /* Height */
+  vertical-align: middle; /* Vertical alignment */
+  position: relative; /* Relative positioning */
+  bottom: 14px; /* 14px from the bottom */
+  right: 9px; /* 9px from the right */
+  border-radius: 22px; /* Border radius */
+  width: 220px; /* Width */
+  box-sizing: border-box; /* Border-box box sizing */
+  padding: 0 18px; /* Padding */
 }
 
+/* Style for input[type="button"] elements */
 input[type="button"] {
-  background: #59316B;
-  color: #fff;
-  position: relative;
-  top: 25px;
-  width: 140px;
-  height: 40px;
-  cursor: pointer;
-  transition: background-color 0.3s ease; /* Add transition for smooth animation */
+  background: #59316B; /* Background color */
+  color: #fff; /* Text color */
+  position: relative; /* Relative positioning */
+  top: 25px; /* 25px from the top */
+  width: 140px; /* Width */
+  height: 40px; /* Height */
+  cursor: pointer; /* Cursor pointer */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
 }
 
+/* Style for input[type="button"] when active */
 input[type="button"]:active {
-  background-color: #230721; /* Change background color on click */
+  background-color: #230721; /* Background color on click */
 }
 
+/* Style for error message element */
 #errormessage {
-  color: red;
+  color: red; /* Text color */
 }
 
+/* Style for input[type="number"] elements */
 input[type="number"] {
-  -webkit-appearance: textfield;
-  -moz-appearance: textfield;
-  appearance: textfield;
+  -webkit-appearance: textfield; /* Webkit appearance */
+  -moz-appearance: textfield; /* Moz appearance */
+  appearance: textfield; /* Appearance */
 }
 
+/* Remove inner and outer spin button for input[type="number"] */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
+  -webkit-appearance: none; /* Webkit appearance */
 }
 
+/* Style for number input */
 .number-input {
-  border: 0;
-  display: inline-flex;
+  border: 0; /* No border */
+  display: inline-flex; /* Display as inline flex */
 }
 
-.number-input,
-.number-input * {
-  box-sizing: border-box;
-}
-
+/* Style for number input button */
 .number-input button {
-  outline: none;
-  -webkit-appearance: none;
-  background-color: transparent;
-  border: none;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  cursor: pointer;
-  margin: 0;
-  position: relative;
-  box-shadow: 0px 0px 1px #474747;
-  border-radius: 50%;
+  outline: none; /* No outline */
+  -webkit-appearance: none; /* Webkit appearance */
+  background-color: transparent; /* Transparent background color */
+  border: none; /* No border */
+  align-items: center; /* Align items */
+  justify-content: center; /* Justify content */
+  width: 3rem; /* Width */
+  height: 3rem; /* Height */
+  cursor: pointer; /* Cursor pointer */
+  margin: 0; /* Margin */
+  position: relative; /* Relative positioning */
+  box-shadow: 0px 0px 1px #474747; /* Box shadow */
+  border-radius: 50%; /* Border radius */
 }
 
+/* Style for before and after pseudo-elements of number input button */
 .number-input button:before,
 .number-input button:after {
-  display: inline-block;
-  position: absolute;
-  content: '';
-  width: 1rem;
-  height: 2px;
-  background-color: #212121;
-  transform: translate(-50%, -50%);
+  display: inline-block; /* Display as inline block */
+  position: absolute; /* Absolute positioning */
+  content: ''; /* Empty content */
+  width: 1rem; /* Width */
+  height: 2px; /* Height */
+  background-color: #212121; /* Background color */
+  transform: translate(-50%, -50%); /* Transform */
 }
 
+/* Style for plus button after pseudo-element */
 .number-input button.plus:after {
-  transform: translate(-50%, -50%) rotate(90deg);
+  transform: translate(-50%, -50%) rotate(90deg); /* Transform */
 }
 
+/* Style for input[type="number"] elements in number input */
 .number-input input[type=number] {
-  font-family: sans-serif;
-  max-width: 5rem;
-  padding: .5rem;
-  border: none;
-  border-width: 0 2px;
-  font-size: 2rem;
-  height: 3rem;
-  font-weight: bold;
-  text-align: center;
-  color: #9be3df;
+  font-family: sans-serif; /* Font family */
+  max-width: 5rem; /* Maximum width */
+  padding: .5rem; /* Padding */
+  border: none; /* No border */
+  border-width: 0 2px; /* Border width */
+  font-size: 2rem; /* Font size */
+  height: 3rem; /* Height */
+  font-weight: bold; /* Font weight */
+  text-align: center; /* Text alignment */
+  color: #9be3df; /* Text color */
 }
