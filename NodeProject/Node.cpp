@@ -208,7 +208,7 @@ void Node::listenToHosts(ConversationObject* currentConversation) {
 			sendData(previousNodeSocket, encryptedReversedMessage);
 		}
 
-		Sleep(200); // TODO: Remove for high performance mode
+		// Sleep(200); // TODO: Remove for high performance mode
 	}
 }
 
@@ -246,7 +246,7 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 			currentConversation->getActiveConnection(dd)->sendData(dd.getData());
 		}
 		catch (std::runtime_error e) {
-			string errorMessage = "Node " + this->getIP() + ":" + to_string(this->getPort()) + " - ID: " + currentConversation->getConversationId() + SPLITER + "Can't connect to host at " + host.toString();
+			string errorMessage = "Node {" + this->getIP() + ":" + to_string(this->getPort()) + "} - ID: " + currentConversation->getConversationId() + SPLITER + "Can't connect to host at " + host.toString();
 
 			logger.error(errorMessage);
 

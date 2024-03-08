@@ -8,8 +8,6 @@ using std::thread;
 
 void commandLine(Client* client, ClientConnection* entry) {
 	while (true) {
-		cout << "Enter input: ";
-
 		// Get input from the user
 		string input;
 		std::getline(std::cin, input);
@@ -26,7 +24,7 @@ void commandLine(Client* client, ClientConnection* entry) {
 			client->sendData(dd.getDestinationIP(), dd.getDestinationPort(), dd.getData(), entry);
 		}
 		catch (...) {
-			exit(1);
+			cerr << "Invalid input" << endl;
 		}
 	}
 }
@@ -71,8 +69,6 @@ int main()
 		string decrypted = client.decrypt(data);
 
 		cout << "Received: " << decrypted << endl;
-
-		Sleep(3000);
 	}
 
 	delete entry;

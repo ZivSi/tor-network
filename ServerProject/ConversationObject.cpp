@@ -292,8 +292,6 @@ void ConversationObject::collectMessages()
 		return;
 	}
 
-	cout << "There are " << this->destinationMap.size() << " active connections" << endl;
-
 
 	for (auto it = this->destinationMap.begin(); it != this->destinationMap.end(); it++) {
 		ClientConnection* connection = it->second;
