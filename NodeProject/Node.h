@@ -81,7 +81,7 @@ private:
 	string receiveECCKeys(SOCKET clientSocket);
 
 	// ----------------- Error Handling -----------------
-	void sendErrorToClient(SOCKET previousNodeSocket, string errorMessage);
+	void sendErrorToClient(SOCKET previousNodeSocket, string errorMessage, AesKey* aesKey);
 
 	// ----------------- Utility -----------------
 	string buildAliveFormat();

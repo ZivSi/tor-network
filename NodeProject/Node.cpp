@@ -208,7 +208,7 @@ void Node::listenToHosts(ConversationObject* currentConversation) {
 			sendData(previousNodeSocket, encryptedReversedMessage);
 		}
 
-		Sleep(200); // Remove for high
+		Sleep(200); // TODO: Remove for high performance mode
 	}
 }
 
@@ -239,9 +239,8 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 		try {
 			if (!currentConversation->isDestinationActive(dd)) {
 				cout << "Connection to " << dd.getDestinationIP() << ":" << dd.getDestinationPort() << " is not active\n";
-
-				cout << "Connecting to " << dd.getDestinationIP() << ":" << dd.getDestinationPort() << endl;
 				currentConversation->addActiveConnection(dd);
+				cout << "Connected to " << dd.getDestinationIP() << ":" << dd.getDestinationPort() << endl;
 			}
 
 			currentConversation->getActiveConnection(dd)->sendData(dd.getData());
@@ -251,7 +250,7 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 
 			logger.error(errorMessage);
 
-			sendErrorToClient(previousNodeSocket, errorMessage);
+			sendErrorToClient(previousNodeSocket, errorMessage, currentConversation->getKey());
 		}
 
 		received = receiveData(previousNodeSocket);
@@ -472,9 +471,11 @@ void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKey
 	logger.keysInfo("Sent symmetric key (AES)");
 }
 
-void Node::sendErrorToClient(SOCKET previousNodeSocket, string errorMessage)
+void Node::sendErrorToClient(SOCKET previousNodeSocket, string errorMessage, AesKey* aesKey)
 {
-	sendData(previousNodeSocket, errorMessage);
+	string encryptedErrorMessage = AesHandler::encryptAES(errorMessage, aesKey);
+
+	sendData(previousNodeSocket, encryptedErrorMessage);
 }
 
 string Node::buildAliveFormat() {
