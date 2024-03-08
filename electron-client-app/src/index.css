@@ -38,26 +38,34 @@ input {
   padding: 0 18px; /* Padding */
 }
 
-/* Style for input[type="button"] elements */
-input[type="button"] {
-  background: #59316B; /* Background color */
-  color: #fff; /* Text color */
-  position: relative; /* Relative positioning */
-  top: 25px; /* 25px from the top */
-  width: 140px; /* Width */
-  height: 40px; /* Height */
-  cursor: pointer; /* Cursor pointer */
-  transition: background-color 0.3s ease; /* Smooth background color transition */
+.connect-button {
+  background-color: #222;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-/* Style for input[type="button"] when active */
-input[type="button"]:active {
-  background-color: #230721; /* Background color on click */
+.connect-button:hover {
+  background-color: #444;
 }
 
-/* Style for error message element */
+.connect-button:active {
+  background-color: #111;
+  transform: translateY(1px);
+}
+
+.connect-button:focus {
+  outline: none;
+}
+
+
 #errormessage {
-  color: red; /* Text color */
+  color: yellow;
 }
 
 /* Style for input[type="number"] elements */
