@@ -109,6 +109,7 @@ public:
 
 	void addMessage(string message);
 	bool isQueueEmpty() const;
+	size_t getQueueSize() const;
 	string getFirstMessage();
 
 	void setPrvNodeSOCKET(SOCKET prvNodeSocket);

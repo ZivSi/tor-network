@@ -266,6 +266,11 @@ bool ConversationObject::isQueueEmpty() const
 	return messageQueue.empty();
 }
 
+size_t ConversationObject::getQueueSize() const
+{
+	return messageQueue.size();
+}
+
 void ConversationObject::addMessage(string message)
 {
 	messageQueue.push(message);
@@ -287,10 +292,13 @@ void ConversationObject::collectMessages()
 		return;
 	}
 
+	cout << "There are " << this->destinationMap.size() << " active connections" << endl;
+
+
 	for (auto it = this->destinationMap.begin(); it != this->destinationMap.end(); it++) {
 		ClientConnection* connection = it->second;
 
-		string receivedData = connection->receiveDataFromTcp();
+		string receivedData = connection->receiveDataFromTcp(); // TODO: cancel block. do not wait for data. just check if there is data to read and if not, return ""
 
 		if (receivedData != "") { // Data is legit and not noise
 			receivedData = connection->getIP() + SPLITER + to_string(connection->getPort()) + SPLITER + receivedData;

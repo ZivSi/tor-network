@@ -153,19 +153,6 @@ void Node::listenToNextNode(SOCKET previousNodeSocket, ConversationObject* curre
 	}
 }
 
-void Node::listenToHosts(ConversationObject* currentConversation) {
-	SOCKET previousNodeSocket = currentConversation->getPrvNodeSOCKET();
-
-	while (!stop) {
-		currentConversation->collectMessages();
-
-		while (!currentConversation->isQueueEmpty()) {
-			string encryptedReversedMessage = currentConversation->getFirstMessage();
-
-			sendData(previousNodeSocket, encryptedReversedMessage);
-		}
-	}
-}
 
 void Node::handleNode(SOCKET previousNodeSocket, ConversationObject* currentConversation, string initialMessage)
 {
@@ -203,6 +190,28 @@ void Node::handleNode(SOCKET previousNodeSocket, ConversationObject* currentConv
 	}
 }
 
+void Node::listenToHosts(ConversationObject* currentConversation) {
+	SOCKET previousNodeSocket = currentConversation->getPrvNodeSOCKET();
+
+	while (!stop) {
+		currentConversation->collectMessages();
+
+		if (currentConversation->isTooOld()) {
+			cout << "Conversation is too old" << endl;
+			// handleNodeAsExit() will remove the conversation from the map
+			return;
+		}
+
+		while (!currentConversation->isQueueEmpty()) {
+			string encryptedReversedMessage = currentConversation->getFirstMessage();
+
+			sendData(previousNodeSocket, encryptedReversedMessage);
+		}
+
+		Sleep(200); // Remove for high
+	}
+}
+
 void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* currentConversation, string initialMessage)
 {
 	logger.success("Handling node as exit\n");
@@ -229,6 +238,9 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 
 		try {
 			if (!currentConversation->isDestinationActive(dd)) {
+				cout << "Connection to " << dd.getDestinationIP() << ":" << dd.getDestinationPort() << " is not active\n";
+
+				cout << "Connecting to " << dd.getDestinationIP() << ":" << dd.getDestinationPort() << endl;
 				currentConversation->addActiveConnection(dd);
 			}
 

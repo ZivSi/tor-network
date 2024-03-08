@@ -4,9 +4,12 @@
 #include "ECCHandler.h"
 #include "Logger.h"
 #include "Utility.h"
+#include <errno.h> // for errno
 #include <exception>
+#include <fcntl.h>
 #include <string>
 #include <sys/types.h>
+#include <vector>
 
 #include <WinSock2.h>
 #include <WS2tcpip.h>
@@ -36,7 +39,7 @@ public:
 
 	void sendEncrypted(string data);
 
-	string receiveDataFromTcp();
+	string receiveDataFromTcp(); // Receive data without getting the size first
 	string receiveData();
 	string receiveKeys(bool initialize);
 

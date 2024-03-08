@@ -160,16 +160,32 @@ void ClientConnection::sendEncrypted(string data)
 	sendData(aesHandler.encrypt(data));
 }
 
-string ClientConnection::receiveDataFromTcp() 
+string ClientConnection::receiveDataFromTcp()
 {
 	string data;
 
 	constexpr size_t chunkSize = 4096;
-	vector<char> buffer(chunkSize);
+	std::vector<char> buffer(chunkSize);
 
-	size_t bytesReceived = recv(connection, buffer.data(), chunkSize, 0);
+	// Set socket to non-blocking mode
+	u_long mode = 1; // non-blocking mode
+	ioctlsocket(connection, FIONBIO, &mode);
 
-	data.append(buffer.data(), bytesReceived);
+	int bytesReceived = recv(connection, buffer.data(), chunkSize, 0);
+
+	// Check if there was an error or if no data was received
+	if (bytesReceived == SOCKET_ERROR) {
+		int errorCode = WSAGetLastError();
+		if (errorCode != WSAEWOULDBLOCK) {
+			std::cerr << "recv failed with error: " << errorCode << std::endl;
+		}
+	}
+	else if (bytesReceived > 0) {
+		data.append(buffer.data(), bytesReceived);
+	}
+
+	mode = 0; // blocking mode
+	ioctlsocket(connection, FIONBIO, &mode);
 
 	return data;
 }
