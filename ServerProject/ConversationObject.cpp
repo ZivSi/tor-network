@@ -295,10 +295,22 @@ void ConversationObject::collectMessages()
 
 	for (auto it = this->destinationMap.begin(); it != this->destinationMap.end(); it++) {
 		ClientConnection* connection = it->second;
+		string receivedData = "";
 
-		string receivedData = connection->receiveDataFromTcp(); // TODO: cancel block. do not wait for data. just check if there is data to read and if not, return ""
+		try
+		{
+			receivedData = connection->receiveDataFromTcp();
+		}
+		catch (std::runtime_error e)
+		{
+			// Host unreachable so we remove the connection
+			cerr << "Host: " << it->first << " is unreachable. Removing connection" << endl;
 
-		if (receivedData != "") { // Data is legit and not noise
+			delete it->second;
+			this->destinationMap.erase(it);
+		}
+
+		if (receivedData != "") { // The data is legit and not some noise
 			receivedData = connection->getIP() + SPLITER + to_string(connection->getPort()) + SPLITER + receivedData;
 			string encryptedData = AesHandler::encryptAES(receivedData, &(this->key));
 

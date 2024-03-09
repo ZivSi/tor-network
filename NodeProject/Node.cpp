@@ -239,11 +239,11 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 		try {
 			if (!currentConversation->isDestinationActive(dd)) {
 				cout << "Connection to " << dd.getDestinationIP() << ":" << dd.getDestinationPort() << " is not active\n";
-				currentConversation->addActiveConnection(dd);
+				currentConversation->addActiveConnection(dd); // Might throw exception
 				cout << "Connected to " << dd.getDestinationIP() << ":" << dd.getDestinationPort() << endl;
 			}
 
-			currentConversation->getActiveConnection(dd)->sendData(dd.getData());
+			currentConversation->getActiveConnection(dd)->sendDataTcp(dd.getData());
 		}
 		catch (std::runtime_error e) {
 			string errorMessage = "Node {" + this->getIP() + ":" + to_string(this->getPort()) + "} - ID: " + currentConversation->getConversationId() + SPLITER + "Can't connect to host at " + host.toString();

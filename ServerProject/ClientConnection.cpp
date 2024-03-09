@@ -160,6 +160,30 @@ void ClientConnection::sendEncrypted(string data)
 	sendData(aesHandler.encrypt(data));
 }
 
+void ClientConnection::sendDataTcp(string data) {
+	size_t dataSize = data.size();
+
+	try {
+		// Send the data itself
+		size_t bytesSent = send(connection, data.data(), dataSize, 0);
+		if (bytesSent == -1) {
+			// If send() returns -1, handle the error
+			throw std::runtime_error("Failed to send data");
+		}
+
+		if (static_cast<size_t>(bytesSent) != dataSize) {
+			// Handle the case where not all bytes of the data were sent
+			throw std::runtime_error("Incomplete data sent");
+		}
+	}
+	catch (std::runtime_error e) {
+		logger.error(e.what());
+		closeConnection();
+
+		throw e;
+	}
+}
+
 string ClientConnection::receiveDataFromTcp()
 {
 	string data;
@@ -177,7 +201,7 @@ string ClientConnection::receiveDataFromTcp()
 	if (bytesReceived == SOCKET_ERROR) {
 		int errorCode = WSAGetLastError();
 		if (errorCode != WSAEWOULDBLOCK) {
-			std::cerr << "recv failed with error: " << errorCode << std::endl;
+			throw std::runtime_error("Host unreachable");
 		}
 	}
 	else if (bytesReceived > 0) {
