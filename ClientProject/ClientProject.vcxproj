@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\NodeProject\JsonResponse.cpp" />
     <ClCompile Include="..\ServerProject\AesHandler.cpp" />
     <ClCompile Include="..\ServerProject\ClientConnection.cpp" />
     <ClCompile Include="..\ServerProject\Constants.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="RelayObject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\NodeProject\JsonResponse.h" />
     <ClInclude Include="..\ServerProject\AesHandler.h" />
     <ClInclude Include="..\ServerProject\ClientConnection.h" />
     <ClInclude Include="..\ServerProject\Constants.h" />
@@ -170,6 +172,10 @@
     <ClInclude Include="..\ServerProject\Utility.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="RelayObject.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ClientProject.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

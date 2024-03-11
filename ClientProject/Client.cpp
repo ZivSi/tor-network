@@ -7,7 +7,6 @@ Client::Client() : logger("Client"), clientConnection("127.0.0.1", SERVER_PORT, 
 
 	waitForNodes();
 
-
 	receiveResponseFromServer();
 
 	startPathDesign();
@@ -39,11 +38,11 @@ void Client::waitForNodes()
 	while (receivedRelays.empty()) {
 		clientConnection.closeConnection();
 
-		Sleep(3000);
+		Sleep(CLIENT_WAIT_FOR_NODES);
 
 		clientConnection.connectInLoop();
 		clientConnection.handshake();
-		clientConnection.sendEncrypted("Hi. I'm a client");
+		clientConnection.sendEncrypted(CLIENT_INITIAL_MESSAGE);
 
 		receiveResponseFromServer();
 	}
@@ -258,6 +257,16 @@ void Client::printNodes()
 unsigned long long Client::getConnectionTime()
 {
 	return currentPathAliveTime;
+}
+
+bool Client::isErrorResponse(std::string& responseString)
+{
+	try {
+		return JsonResponse::fromString(responseString).isErrorResponse();
+	}
+	catch (std::exception& e) {
+		return false;
+	}
 }
 
 void Client::clearCurrentPath()

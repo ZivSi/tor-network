@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../NodeProject/JsonResponse.h"
 #include "../ServerProject/ClientConnection.h"
 #include "../ServerProject/Constants.h"
 #include "../ServerProject/Logger.h"
@@ -50,6 +51,8 @@ public:
 	void printNodes();
 
 	unsigned long long getConnectionTime();
+
+	bool isErrorResponse(string& reponseString);
 
 private:
 	ECCHandler eccHandler;

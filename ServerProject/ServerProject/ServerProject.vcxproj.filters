@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Encryption Files">
+      <UniqueIdentifier>{5fb1eea6-3072-4db3-aecb-871d1421c826}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\AesHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\ClientConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -30,9 +30,6 @@
     <ClCompile Include="..\DatabaseHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ECCHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\IConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,9 +40,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\NodeData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\RSAHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Server.cpp">
@@ -63,11 +57,17 @@
     <ClCompile Include="..\..\ClientProject\RelayObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\AesHandler.cpp">
+      <Filter>Encryption Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ECCHandler.cpp">
+      <Filter>Encryption Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\RSAHandler.cpp">
+      <Filter>Encryption Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\AesHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\ClientConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -80,9 +80,6 @@
     <ClInclude Include="..\DatabaseHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ECCHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\IConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,9 +87,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\NodeData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\RSAHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Server.h">
@@ -112,6 +106,15 @@
     </ClInclude>
     <ClInclude Include="..\..\ClientProject\RelayObject.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AesHandler.h">
+      <Filter>Encryption Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ECCHandler.h">
+      <Filter>Encryption Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\RSAHandler.h">
+      <Filter>Encryption Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

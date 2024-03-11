@@ -152,6 +152,7 @@
     <ClCompile Include="..\ServerProject\sqlite3.c" />
     <ClCompile Include="..\ServerProject\StatsData.cpp" />
     <ClCompile Include="..\ServerProject\Utility.cpp" />
+    <ClCompile Include="JsonResponse.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Node.cpp" />
   </ItemGroup>
@@ -170,6 +171,7 @@
     <ClInclude Include="..\ServerProject\sqlite3.h" />
     <ClInclude Include="..\ServerProject\StatsData.h" />
     <ClInclude Include="..\ServerProject\Utility.h" />
+    <ClInclude Include="JsonResponse.h" />
     <ClInclude Include="Node.h" />
   </ItemGroup>
   <ItemGroup>

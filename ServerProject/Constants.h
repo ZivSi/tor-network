@@ -18,11 +18,13 @@ namespace Constants {
 	extern const unsigned short SERVER_PORT;
 	extern const string SPLITER;
 	extern const string NODE_INIT_FORMAT;
+	extern const string CLIENT_INITIAL_MESSAGE;
 	extern const int NODE_SPLIT_SIZE;
 	extern const int DEFAULT_PATH_LENGTH;
 	extern const int MAX_TIME_ALIVE;
 	extern const int MAX_PING_ALIVE_MS;
 	extern const int PATH_TIMEOUT;
+	extern const int CLIENT_WAIT_FOR_NODES;
 
 	extern const int AES_KEY_SIZE_BYTES;
 
@@ -42,5 +44,12 @@ namespace Constants {
 		CONDITION_NUMBER = 6,
 		HASH = 7,
 		EXTENDED_HASH = 8
+	};
+
+	enum ErrorCodes {
+		HOST_RESPONSE = 0,
+		HOST_UNREACHABLE = 1,
+		NODE_UNREACHABLE = 2,
+		CONNECTION_TIMEOUT = 3
 	};
 }
