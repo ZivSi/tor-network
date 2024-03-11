@@ -12,6 +12,7 @@ class JsonResponse
 {
 public:
 	JsonResponse(string nodeIp, unsigned short nodePort, string nodeConversationId, int messageCode, string senderIp, unsigned short senderPort, string message);
+	JsonResponse(string formattedJsonString);
 	~JsonResponse();
 
 	bool isErrorResponse() const;

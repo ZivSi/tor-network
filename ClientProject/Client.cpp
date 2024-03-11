@@ -262,7 +262,7 @@ unsigned long long Client::getConnectionTime()
 bool Client::isErrorResponse(std::string& responseString)
 {
 	try {
-		return JsonResponse::fromString(responseString).isErrorResponse();
+		return JsonResponse(responseString).isErrorResponse();
 	}
 	catch (std::exception& e) {
 		return false;

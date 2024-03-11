@@ -13,6 +13,11 @@ JsonResponse::JsonResponse(string nodeIp, unsigned short nodePort, string nodeCo
 	this->message = message;
 }
 
+JsonResponse::JsonResponse(string formattedJsonString)
+{
+	*this = JsonResponse::fromString(formattedJsonString);
+}
+
 JsonResponse::~JsonResponse() {
 
 }

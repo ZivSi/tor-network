@@ -223,6 +223,8 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 
 	while (!stop) {
 		if (currentConversation->isTooOld()) {
+
+
 			removeConversationFromMap(currentConversation->getConversationId());
 			delete currentConversation;
 			closesocket(previousNodeSocket);
@@ -250,7 +252,7 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 
 			logger.error(errorMessage);
 
-			sendErrorToClient(previousNodeSocket, errorMessage, currentConversation->getKey());
+			sendCouldNotConnectToHost(currentConversation, dd.getDestinationIP(), dd.getDestinationPort());
 		}
 
 		received = receiveData(previousNodeSocket);
@@ -471,12 +473,41 @@ void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKey
 	logger.keysInfo("Sent symmetric key (AES)");
 }
 
-void Node::sendErrorToClient(SOCKET previousNodeSocket, string errorMessage, AesKey* aesKey)
+void Node::sendMessageToClient(ConversationObject* conversation, string hostIp, unsigned short hostPort, int messageCode, string message)
 {
-	string encryptedErrorMessage = AesHandler::encryptAES(errorMessage, aesKey);
+	JsonResponse response(this->myIP,
+		this->myPort,
+		conversation->getConversationId(),
+		messageCode,
+		hostIp,
+		hostPort,
+		message);
 
-	sendData(previousNodeSocket, encryptedErrorMessage);
+	string encryptedMessage = AesHandler::encryptAES(response.toString(), conversation->getKey());
+
+	sendData(conversation->getPrvNodeSOCKET(), encryptedMessage);
 }
+
+void Node::sendCouldNotConnectToHost(ConversationObject* conversation, string hostIp, unsigned short hostPort) {
+	string errorMessage = "Error: Could not connect to " + hostIp + ":" + to_string(hostPort);
+
+	sendMessageToClient(conversation, "", 0, Constants::ErrorCodes::HOST_RESPONSE, errorMessage);
+}
+
+void Node::sendConversationTimeout(ConversationObject* conversation)
+{
+	string errorMessage = "Error: Conversation timeout";
+
+	sendMessageToClient(conversation, "", 0, Constants::ErrorCodes::CONVERSATION_TIMEOUT, errorMessage);
+}
+
+void Node::sendNodeUnreachable(ConversationObject* conversation)
+{
+	string errorMessage = "Error: Next node unreachable. Design new path without " + SPLITER + conversation->getNxtIP() + SPLITER + to_string(conversation->getNxtPort());
+
+	sendMessageToClient(conversation, "", 0, Constants::ErrorCodes::NODE_UNREACHABLE, errorMessage);
+}
+
 
 string Node::buildAliveFormat() {
 	unsigned long int nonPrime = Utility::generateNonPrime();

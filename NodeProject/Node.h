@@ -8,6 +8,7 @@
 #include "../ServerProject/IConnection.h"
 #include "../ServerProject/Logger.h"
 #include "../ServerProject/Utility.h"
+#include "JsonResponse.h"
 
 #include "unordered_map"
 #include <chrono>
@@ -80,9 +81,12 @@ private:
 	void sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys);
 	string receiveECCKeys(SOCKET clientSocket);
 
-	// ----------------- Error Handling -----------------
-	void sendErrorToClient(SOCKET previousNodeSocket, string errorMessage, AesKey* aesKey);
 
+	void sendMessageToClient(ConversationObject* conversation, string hostIp, unsigned short hostPort, int messageCode, string message);
+	// ----------------- Error Handling -----------------
+	void sendCouldNotConnectToHost(ConversationObject* conversation, string hostIp, unsigned short hostPort);
+	void sendConversationTimeout(ConversationObject* conversation);
+	void sendNodeUnreachable(ConversationObject* conversation);
 	// ----------------- Utility -----------------
 	string buildAliveFormat();
 	bool dataLegit(string& data);
