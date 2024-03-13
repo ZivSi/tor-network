@@ -6,6 +6,19 @@
 
 using std::thread;
 
+string formatData(const string& data) {
+	string formattedData = data;
+
+	// Iterate through the string and replace occurrences of "\\n" with "\n"
+	size_t pos = formattedData.find("\\n");
+	while (pos != string::npos) {
+		formattedData.replace(pos, 2, "\n"); // Replace 2 characters with a single newline character
+		pos = formattedData.find("\\n", pos + 1); // Find next occurrence starting from pos + 1
+	}
+
+	return formattedData;
+}
+
 void commandLine(Client* client, ClientConnection* entry) {
 	while (true) {
 		// Get input from the user
@@ -21,13 +34,15 @@ void commandLine(Client* client, ClientConnection* entry) {
 		try {
 			DestinationData dd(input);
 
-			client->sendData(dd.getDestinationIP(), dd.getDestinationPort(), dd.getData(), entry);
+			client->sendData(dd.getDestinationIP(), dd.getDestinationPort(), formatData(dd.getData()), entry);
 		}
 		catch (...) {
 			cerr << "Invalid input" << endl;
 		}
 	}
 }
+
+
 
 int main()
 {
