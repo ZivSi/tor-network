@@ -203,9 +203,14 @@ void Node::listenToHosts(ConversationObject* currentConversation) {
 		}
 
 		while (!currentConversation->isQueueEmpty()) {
-			string encryptedReversedMessage = currentConversation->getFirstMessage();
+			string reversedMessage = currentConversation->getFirstMessage();
+			DestinationData dd(reversedMessage);
 
-			sendData(previousNodeSocket, encryptedReversedMessage);
+			JsonResponse jsonResponse = JsonResponse(this->myIP, this->myPort, currentConversation->getConversationId(), Constants::ErrorCodes::HOST_RESPONSE, dd.getDestinationIP(), dd.getDestinationPort(), dd.getData());
+
+			string encryptedJsonResponse = AesHandler::encryptAES(jsonResponse.toString(), currentConversation->getKey());
+
+			sendData(previousNodeSocket, encryptedJsonResponse);
 		}
 
 		// Sleep(200); // TODO: Remove for high performance mode

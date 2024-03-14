@@ -312,9 +312,8 @@ void ConversationObject::collectMessages()
 
 		if (receivedData != "") { // The data is legit and not some noise
 			receivedData = connection->getIP() + SPLITER + to_string(connection->getPort()) + SPLITER + receivedData;
-			string encryptedData = AesHandler::encryptAES(receivedData, &(this->key));
 
-			this->addMessage(encryptedData);
+			this->addMessage(receivedData);
 		}
 	}
 }
