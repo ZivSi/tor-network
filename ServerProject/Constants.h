@@ -16,6 +16,7 @@ namespace Constants {
 	extern const int UUID_ENCRYPTED_SIZE;
 	extern const string SERVER_IP;
 	extern const unsigned short SERVER_PORT;
+	extern const unsigned short MAPPING_SERVER_PORT;
 	extern const string SPLITER;
 	extern const string NODE_INIT_FORMAT;
 	extern const string CLIENT_INITIAL_MESSAGE;

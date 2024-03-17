@@ -95,7 +95,7 @@ class Server(port: Int = 5060 * 2) {
         clientSocket.getOutputStream().write(publicKey.toByteArray())
     }
 
-    private fun receivePublicKey(clientSocket: Socket): Pair<Long, Long> {
+    private fun receivePublicKey(clientSocket: Socket): Pair<ULong, ULong> {
         val publicKey = clientSocket.getInputStream().bufferedReader().readLine()
         return Utility.splitRsaKey(publicKey)
     }

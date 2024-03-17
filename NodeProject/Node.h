@@ -8,6 +8,7 @@
 #include "../ServerProject/IConnection.h"
 #include "../ServerProject/Logger.h"
 #include "../ServerProject/Utility.h"
+#include "../ServerProject/RSAHandler.h"
 #include "JsonResponse.h"
 
 #include "unordered_map"
@@ -56,6 +57,7 @@ public:
 
 private:
 	Logger logger;
+	RSAHandler rsaHandler;
 
 	// ----------------- Variables -----------------
 	unordered_map<string, ConversationObject*> conversationsMap; // Conversations involved in
@@ -102,4 +104,7 @@ private:
 
 	// ----------------- Connection Alive -----------------
 	void sendAlive();
+
+	// ----------------- Mapping Server -----------------
+	string getPropertiesByUsername(string username);
 };

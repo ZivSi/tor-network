@@ -69,10 +69,10 @@ class Utility {
             "gold"
         )
 
-        fun splitRsaKey(rsaKey: String): Pair<Long, Long> {
+        fun splitRsaKey(rsaKey: String): Pair<ULong, ULong> {
             val split = rsaKey.split(SPLITER)
 
-            return Pair(split[0].toLong(), split[1].toLong())
+            return Pair(split[0].toULong(), split[1].toULong())
         }
 
         fun generateUsername(): String {

@@ -1,21 +1,21 @@
+import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class RSAHandler(keySize: Int = 1024) {
-    private var p: Long = 0
-    private var q: Long = 0
-    private var modulus: Long = 0
-    private var t: Long = 0
-    private var publicKey: Long = 0
-    private var privateKey: Long = 0
-    private var clientPublicKey: Long = 0
-    private var clientModulus: Long = 0
+
+class RSAHandler(keySize: Int = 2048 * 2 * 2) {
+    private var p: ULong = 0UL
+    private var q: ULong = 0UL
+    private var modulus: ULong = 0UL
+    private var t: ULong = 0UL
+    private var publicKey: ULong = 0UL
+    private var privateKey: ULong = 0UL
+    private var clientPublicKey: ULong = 0UL
+    private var clientModulus: ULong = 0UL
 
     init {
-        val biggestNum = 2.0.pow(keySize - 1).toLong()
-
-        p = generatePrime(biggestNum)
-        q = generatePrime(biggestNum)
+        p = generatePrime(keySize)
+        q = generatePrime(keySize)
 
         modulus = p * q
         t = totient(modulus)
@@ -24,35 +24,35 @@ class RSAHandler(keySize: Int = 1024) {
         privateKey = calculateD(publicKey, t)
     }
 
-    fun setClientPublicKey(clientPublicKey: Long) {
+    fun setClientPublicKey(clientPublicKey: ULong) {
         this.clientPublicKey = clientPublicKey
     }
 
-    fun setClientModulus(clientModulus: Long) {
+    fun setClientModulus(clientModulus: ULong) {
         this.clientModulus = clientModulus
     }
 
-    fun getPublicKey(): Long {
+    fun getPublicKey(): ULong {
         return publicKey
     }
 
-    fun getModulus(): Long {
+    fun getModulus(): ULong {
         return modulus
     }
 
-    fun getPrivateKey(): Long {
+    fun getPrivateKey(): ULong {
         return privateKey
     }
 
     fun encrypt(m: String): List<Long> {
-        if (clientPublicKey == 0L || clientModulus == 0L) {
+        if (clientPublicKey == 0UL || clientModulus == 0UL) {
             throw RuntimeException("Client public key or modulus not set")
         }
 
         val encryptedMessage = mutableListOf<Long>()
 
         for (c in m) {
-            val encryptedChar = modPow(c.toLong(), clientPublicKey, clientModulus)
+            val encryptedChar = modPow(c.code.toLong().toULong(), clientPublicKey, clientModulus)
             encryptedMessage.add(encryptedChar)
         }
 
@@ -65,7 +65,7 @@ class RSAHandler(keySize: Int = 1024) {
         return encryptedList.joinToString(separator = ", ", prefix = "[", postfix = "]")
     }
 
-    private fun decrypt(encrypted: List<Long>): String {
+    private fun decrypt(encrypted: List<ULong>): String {
         val decryptedMessage = StringBuilder()
 
         for (encryptedChar in encrypted) {
@@ -77,55 +77,57 @@ class RSAHandler(keySize: Int = 1024) {
     }
 
     fun decrypt(encrypted: String): String {
-        // Encrypted message is in format: "[1, 2, 3, 4]"
-        val encryptedList = encrypted.substring(1, encrypted.length - 1).split(", ").map { it.toLong() }
+        // Remove brackets and split by comma and space
+        val encryptedList = encrypted.substring(1, encrypted.length - 1).split(", ").map { it.toULong() }
         return decrypt(encryptedList)
     }
 
-    private fun generatePrime(bigNum: Long): Long {
-        var prime = (0..<bigNum).random()
 
-        while (!isPrime(prime)) {
-            prime = (0..<bigNum).random()
-        }
+    private fun generatePrime(bigNum: Int): ULong {
+        while (true) {
+            val number = (bigNum / 2..bigNum).random().toULong()
 
-        return prime
-    }
-
-    private fun totient(n: Long): Long {
-        var result = n
-        var nVar = n
-
-        for (i in 2..sqrt(nVar.toDouble()).toLong()) {
-            if (nVar % i == 0L) {
-                while (nVar % i == 0L) {
-                    nVar /= i
-                }
-
-                result -= result / i
+            if (isPrime(number)) {
+                return number
             }
         }
+    }
 
-        if (nVar > 1) {
-            result -= result / nVar
+    private fun totient(n: ULong): ULong {
+        var result = n
+        var i = 2UL
+        var n = n
+
+        while (i * i <= n) {
+            if (n % i == 0UL) {
+                result -= result / i
+                while (n % i == 0UL) {
+                    n /= i
+                }
+            }
+            i += 1UL
+        }
+
+        if (n > 1UL) {
+            result -= result / n
         }
 
         return result
     }
 
-    private fun isPrime(n: Long): Boolean {
-        if (n <= 1) return false
+    private fun isPrime(n: ULong): Boolean {
+        if (n < 2UL) return false
 
-        for (i in 2..sqrt(n.toDouble()).toLong()) {
-            if (n % i == 0L) return false
+        for (i in 2UL..sqrt(n.toDouble()).toULong() + 1UL) {
+            if (n % i == 0UL) return false
         }
 
         return true
     }
 
-    private fun generateE(num: Long): Long {
-        for (e in 2..<num) {
-            if (gcd(e, num) == 1L) {
+    private fun generateE(num: ULong): ULong {
+        for (e in 2UL..<num) {
+            if (gcd(e, num) == 1UL) {
                 return e
             }
         }
@@ -133,63 +135,42 @@ class RSAHandler(keySize: Int = 1024) {
         throw RuntimeException("Couldn't generate e")
     }
 
-    private fun modPow(base: Long, exponent: Long, modulus: Long): Long {
-        var result = 1L
+    private fun modPow(base: ULong, exponent: ULong, modulus: ULong): Long {
+        var result = 1UL
         var exp = exponent
         var baseVar = base
 
-        while (exp > 0) {
-            if (exp % 2 == 1L) {
+        while (exp > 0UL) {
+            if (exp % 2UL == 1UL) {
                 result = (result * baseVar) % modulus
             }
-            exp /= 2
+            exp /= 2UL
             baseVar = (baseVar * baseVar) % modulus
         }
 
-        return result
+        return result.toLong()
     }
 
-    private fun calculateD(e: Long, totient: Long): Long {
-        val d = modInverse(e, totient)
-        return d
-    }
+    private fun calculateD(e: ULong, totient: ULong): ULong {
+        var k = 1UL
 
-    private fun modInverse(a: Long, m: Long): Long {
-        var aVar = a
-        var mVar = m
-        val m0 = m
-        var y: Long = 0
-        var x: Long = 1
-
-        if (m == 1L) return 0
-
-        while (aVar > 1) {
-            val q = aVar / mVar
-            val t = mVar
-
-            mVar = aVar % mVar
-            aVar = t
-            val tVar = y
-
-            y = x - q * y
-            x = tVar
+        while ((k * totient + 1UL) % e != 0UL) {
+            k += 1UL
         }
 
-        if (x < 0) x += m0
+        return (k * totient + 1UL) / e
+    }
 
+
+    private fun gcd(a: ULong, b: ULong): ULong {
+        var x = a
+        var y = b
+        while (y != 0UL) {
+            val temp = y
+            y = x % y
+            x = temp
+        }
         return x
-    }
-
-    private fun gcd(a: Long, b: Long): Long {
-        var aVar = a
-        var bVar = b
-
-        while (bVar != 0L) {
-            val temp = bVar
-            bVar = aVar % bVar
-            aVar = temp
-        }
-        return aVar
     }
 
     fun foramtForSending(): String {

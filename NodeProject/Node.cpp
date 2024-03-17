@@ -5,6 +5,8 @@ unsigned short Node::PORT = SERVER_PORT + 1;
 
 Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
 {
+	this->rsaHandler = RSAHandler(2048);
+
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
@@ -16,6 +18,8 @@ Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLoc
 
 Node::Node(string parentIP, unsigned short parentPort) : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
 {
+	this->rsaHandler = RSAHandler(2048);
+
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
@@ -238,7 +242,13 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 
 
 		string decrypted = AesHandler::decryptAES(received.substr(UUID_ENCRYPTED_SIZE, received.size()), currentConversation->getKey());
-		DestinationData dd(decrypted);
+		
+		try {
+			DestinationData dd(decrypted);
+		}
+		catch (std::runtime_error e) {
+			
+		}
 
 		ConnectionPair host(dd.getDestinationIP(), dd.getDestinationPort());
 

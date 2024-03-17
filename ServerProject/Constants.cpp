@@ -13,6 +13,7 @@ namespace Constants {
 	const int UUID_ENCRYPTED_SIZE = 89;
 	const string SERVER_IP = "10.0.0.40";
 	const unsigned short SERVER_PORT = 5060;
+	const unsigned short SERVER_PORT = 5060 * 2;
 	const string SPLITER = "::::";
 
 	// Server port::::publicKey::::Current time in ms::::Random non prime number::::Random number::::Condition number::::Hash of the first parts::::Extended hash of the rest

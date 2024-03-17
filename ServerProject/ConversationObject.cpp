@@ -331,6 +331,10 @@ DestinationData::DestinationData(string decryptedData)
 {
 	vector<string> destinationProperties = Utility::splitString(decryptedData, SPLITER);
 
+	if (destinationProperties.size() != 3) {
+		throw std::runtime_error("Invalid data format");
+	}
+
 	this->destinationIP = destinationProperties[IP_INDEX];
 	this->destinationPort = static_cast<unsigned short>(stoi(destinationProperties[PORT_INDEX]));
 	this->data = destinationProperties[DATA_INDEX];
