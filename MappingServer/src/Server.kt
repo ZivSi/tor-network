@@ -1,5 +1,6 @@
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -7,6 +8,7 @@ class Server(port: Int = 5060 * 2) {
     private var usernamesMap = mutableMapOf<String, ConnectionPair>()
     private var port = min(abs(port), 65535)
     private val rsaHandler = RSAHandler()
+    private val PEPPER3 = "thisIsAPepperForTheKotlinServerYe=s"
 
     init {
     }
@@ -58,9 +60,11 @@ class Server(port: Int = 5060 * 2) {
             val decrypted = rsaHandler.decrypt(data)
 
             if (isExitNode(decrypted)) {
-                println("Exit node asks for \"$decrypted\"")
+                val (hashed, username) = decrypted.split(Utility.SPLITER)
 
-                val connectionPair = usernamesMap.get(decrypted)
+                println("Exit node asks for \"$username\"")
+
+                val connectionPair = usernamesMap.get(username)
 
                 if (connectionPair == null) {
                     val notFoundEncrypted = rsaHandler.encryptToString("Not found")
@@ -110,10 +114,12 @@ class Server(port: Int = 5060 * 2) {
         try {
             ConnectionPair(decrypted)
 
-            // If you could create a ConnectionPair, it's a client which sent its connection details
             return false
         } catch (e: Exception) {
-            return true
+            val (hashed, username) = decrypted.split(Utility.SPLITER)
+            val currentHash = Utility.hashStr(username + PEPPER3).uppercase(Locale.getDefault())
+
+            return hashed == currentHash
         }
     }
 }

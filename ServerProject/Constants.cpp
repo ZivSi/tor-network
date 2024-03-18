@@ -32,6 +32,7 @@ namespace Constants {
 
 	const string PEPPER = "myCoolPepper";
 	const string PEPPER2 = "anotherPepper:)";
+	const string PEPPER3 = "thisIsAPepperForTheKotlinServerYe=s";
 
 	const string NO_NOEDS_REPONSE = "NO_NODES";
 	const string NODE_HELLO = "HELLO";

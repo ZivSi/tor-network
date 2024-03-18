@@ -1,3 +1,6 @@
+import java.math.BigInteger
+import java.security.MessageDigest
+
 class Utility {
     companion object {
         const val SPLITER = "::::"
@@ -77,6 +80,13 @@ class Utility {
 
         fun generateUsername(): String {
             return "${colors.random()} ${animals.random()}"
+        }
+
+        fun hashStr(input: String): String {
+            val digest = MessageDigest.getInstance("SHA-256")
+            val hashBytes = digest.digest(input.toByteArray())
+            val hashed = BigInteger(1, hashBytes).toString(16).padStart(64, '0')
+            return hashed
         }
     }
 }

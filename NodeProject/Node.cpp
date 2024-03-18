@@ -632,7 +632,9 @@ string Node::getPropertiesByUsername(string username)
 	rsaHandler.setClientPublicKey(stoll(properties[0]));
 	rsaHandler.setClientModulus(stoll(properties[1]));
 
-	string encrypted = rsaHandler.encryptToString(username);
+	string hashedUsername = Utility::hashStr(username + PEPPER3) + SPLITER + username;
+
+	string encrypted = rsaHandler.encryptToString(hashedUsername);
 
 	mappingServerConnection.sendDataTcp(encrypted + "\n");
 

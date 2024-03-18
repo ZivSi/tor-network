@@ -31,6 +31,7 @@ namespace Constants {
 
 	extern const string PEPPER;
 	extern const string PEPPER2;
+	extern const string PEPPER3;
 
 	extern const string NO_NOEDS_REPONSE;
 	extern const string NODE_HELLO;
