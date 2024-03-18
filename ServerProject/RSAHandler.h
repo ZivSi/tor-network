@@ -2,13 +2,17 @@
 
 #pragma warning(disable : 4244)
 
+#include "Constants.h"
 #include <cstdint>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 using std::string;
+using std::to_string;
 using std::vector;
+
+using namespace Constants;
 
 class RSAHandler {
 public:
@@ -22,9 +26,13 @@ public:
 	int64_t getPrivateKey();
 
 	vector<int64_t> encrypt(string m);
+	string encryptToString(std::string m);
 	string decrypt(const vector<int64_t>& encrypted);
+	string decrypt(const std::string& encrypted);
 
 	static vector<int64_t> stringToVector(string str);
+
+	string formatForSending();
 
 private:
 	int64_t generate_prime(int64_t big_num);
@@ -36,6 +44,8 @@ private:
 	int64_t mod_inverse(int64_t a, int64_t m);
 
 	int64_t gcd(int64_t a, int64_t b);
+
+	vector<int64_t> parseEncryptedString(const std::string& encrypted);
 
 	int64_t p;
 	int64_t q;

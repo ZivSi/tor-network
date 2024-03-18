@@ -14,6 +14,8 @@ class Server(port: Int = 5060 * 2) {
     fun start() {
         println("Server started")
 
+        usernamesMap["test"] = ConnectionPair("127.0.0.1", 10210)
+
         val serverSocket = createServerSocket()
         listenForConnections(serverSocket)
     }
@@ -27,7 +29,7 @@ class Server(port: Int = 5060 * 2) {
 
         while (true) {
             val clientSocket = serverSocket.accept()
-            println("Client connected: ${clientSocket.inetAddress.hostAddress}:${clientSocket.port}")
+            println("Client connected: (${clientSocket.inetAddress.hostAddress}:${clientSocket.port})")
 
             val thread = Thread {
                 handleConnection(clientSocket)
@@ -45,6 +47,8 @@ class Server(port: Int = 5060 * 2) {
             rsaHandler.setClientPublicKey(clientPublicKey)
             rsaHandler.setClientModulus(clientModulus)
 
+            println("Received client public key: ($clientPublicKey, $clientModulus)")
+
             sendPublicKey(clientSocket)
 
             val data = clientSocket.getInputStream().bufferedReader().readLine()
@@ -54,6 +58,8 @@ class Server(port: Int = 5060 * 2) {
             val decrypted = rsaHandler.decrypt(data)
 
             if (isExitNode(decrypted)) {
+                println("Exit node asks for \"$decrypted\"")
+
                 val connectionPair = usernamesMap.get(decrypted)
 
                 if (connectionPair == null) {
@@ -104,7 +110,7 @@ class Server(port: Int = 5060 * 2) {
         try {
             ConnectionPair(decrypted)
 
-            // If you could create a ConnectionPair, it's a client whice sent its connection details
+            // If you could create a ConnectionPair, it's a client which sent its connection details
             return false
         } catch (e: Exception) {
             return true

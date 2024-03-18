@@ -31,6 +31,7 @@ public:
 
 	DestinationData(string destinationIP, unsigned short destinationPort, string data);
 	DestinationData(string decryptedData);
+	DestinationData(vector<string>* splitData);
 	~DestinationData();
 
 	string getDestinationIP();
@@ -50,6 +51,8 @@ private:
 
 public:
 	ConnectionPair(string ip, unsigned short port);
+	ConnectionPair(string properties);
+	ConnectionPair();
 	~ConnectionPair();
 
 	string getIP() const;

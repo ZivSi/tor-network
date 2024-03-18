@@ -7,8 +7,8 @@
 #include "../ServerProject/ECCHandler.h"
 #include "../ServerProject/IConnection.h"
 #include "../ServerProject/Logger.h"
-#include "../ServerProject/Utility.h"
 #include "../ServerProject/RSAHandler.h"
+#include "../ServerProject/Utility.h"
 #include "JsonResponse.h"
 
 #include "unordered_map"
@@ -61,6 +61,7 @@ private:
 
 	// ----------------- Variables -----------------
 	unordered_map<string, ConversationObject*> conversationsMap; // Conversations involved in
+	unordered_map<string, ConnectionPair> savedUsernames; // Conversations involved in
 	static unsigned short PORT;
 	bool stop;
 	string myIP;
@@ -75,6 +76,10 @@ private:
 	void listenToHosts(ConversationObject* currentConversation);
 	void handleNode(SOCKET previousNodeSocket, ConversationObject* currentConversation, string initialMessage);
 	void handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* currentConversation, string initialMessage);
+
+	bool usernameIncluded(std::vector<std::string>& properties);
+
+	void sendToUsername(std::string& decrypted, vector<string>* packetProperties, ConversationObject* currentConversation);
 
 	// ----------------- Handshake Related -----------------
 	bool isHandshake(string received);

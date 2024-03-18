@@ -5,6 +5,7 @@
 #include "../ServerProject/Constants.h"
 #include "../ServerProject/Logger.h"
 #include "../ServerProject/NodeData.h"
+#include "../ServerProject\ConversationObject.h"
 #include "RelayObject.h";
 #include <iostream>
 #include <mutex>
@@ -45,7 +46,10 @@ public:
 
 	ClientConnection* connectToEntryNode();
 	void sendData(string ip, unsigned short port, string message, ClientConnection* entryNodeConnection); // Call connectToEntryNode() before this
-	string encrypt(string ip, unsigned short port, string data);
+	void sendData(string username, string message, ClientConnection* entryNodeConnection);
+	void sendData(DestinationData dd, ClientConnection* entryNodeConnection);
+	string encrypt(string ip, unsigned short port, string message);
+	string encrypt(string username, string message);
 	string decrypt(string encrypted);
 
 	void printNodes();

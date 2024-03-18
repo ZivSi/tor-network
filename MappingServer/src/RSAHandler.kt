@@ -3,9 +3,9 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 
-class RSAHandler(keySize: Int = 2048 * 2 * 2) {
-    private var p: ULong = 0UL
-    private var q: ULong = 0UL
+class RSAHandler(keySize: UInt = 65536U) {
+    private var p: UInt = 0U
+    private var q: UInt = 0U
     private var modulus: ULong = 0UL
     private var t: ULong = 0UL
     private var publicKey: ULong = 0UL
@@ -17,7 +17,7 @@ class RSAHandler(keySize: Int = 2048 * 2 * 2) {
         p = generatePrime(keySize)
         q = generatePrime(keySize)
 
-        modulus = p * q
+        modulus = (p * q).toULong()
         t = totient(modulus)
 
         publicKey = generateE(t)
@@ -83,11 +83,11 @@ class RSAHandler(keySize: Int = 2048 * 2 * 2) {
     }
 
 
-    private fun generatePrime(bigNum: Int): ULong {
+    private fun generatePrime(bigNum: UInt): UInt {
         while (true) {
-            val number = (bigNum / 2..bigNum).random().toULong()
+            val number = (bigNum / 2U..bigNum).random().toUInt()
 
-            if (isPrime(number)) {
+            if (isPrime(number.toULong())) {
                 return number
             }
         }

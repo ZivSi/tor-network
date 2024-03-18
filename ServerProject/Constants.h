@@ -53,4 +53,9 @@ namespace Constants {
 		NODE_UNREACHABLE = 2,
 		CONVERSATION_TIMEOUT = 3
 	};
+
+	enum PacketUsernameIndexes {
+		USERNAME_INDEX = 0,
+		MESSAGE_INDEX = 1
+	};
 }

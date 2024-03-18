@@ -1,6 +1,6 @@
 #include "RSAHandler.h"
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <numeric>
 
 RSAHandler::RSAHandler(int key_size) {
@@ -51,6 +51,21 @@ std::vector<int64_t> RSAHandler::encrypt(string m) {
 	return encryptedMessage;
 }
 
+string RSAHandler::encryptToString(std::string m) {
+	std::vector<int64_t> encryptedList = encrypt(m);
+	string result = "[";
+
+	if (!encryptedList.empty()) {
+		result += std::to_string(encryptedList[0]);
+		for (size_t i = 1; i < encryptedList.size(); ++i) {
+			result += ", " + std::to_string(encryptedList[i]);
+		}
+	}
+
+	result += "]";
+	return result;
+}
+
 std::string RSAHandler::decrypt(const std::vector<int64_t>& encrypted) {
 	std::string decryptedMessage;
 
@@ -60,6 +75,30 @@ std::string RSAHandler::decrypt(const std::vector<int64_t>& encrypted) {
 	}
 
 	return decryptedMessage;
+}
+
+string RSAHandler::decrypt(const std::string& encrypted) {
+	// Extract the encrypted numbers from the string
+	std::vector<int64_t> encryptedList = parseEncryptedString(encrypted);
+	// Decrypt the encrypted numbers and return the result
+	return decrypt(encryptedList);
+}
+
+std::vector<int64_t> RSAHandler::parseEncryptedString(const std::string& encrypted) {
+	std::vector<int64_t> encryptedList;
+	// Remove brackets and split by comma and space
+	size_t startPos = encrypted.find("[") + 1;
+	size_t endPos = encrypted.find("]");
+	std::string numbers = encrypted.substr(startPos, endPos - startPos);
+	size_t pos = 0;
+	while ((pos = numbers.find(", ")) != std::string::npos) {
+		std::string numberStr = numbers.substr(0, pos);
+		encryptedList.push_back(std::stoll(numberStr));
+		numbers.erase(0, pos + 2);
+	}
+	// Last number
+	encryptedList.push_back(std::stoll(numbers));
+	return encryptedList;
 }
 
 vector<int64_t> RSAHandler::stringToVector(string str)
@@ -85,6 +124,11 @@ vector<int64_t> RSAHandler::stringToVector(string str)
 	}
 
 	return result;
+}
+
+string RSAHandler::formatForSending()
+{
+	return to_string(publicKey) + SPLITER + to_string(modulus);
 }
 
 int64_t RSAHandler::generate_prime(int64_t big_num) {

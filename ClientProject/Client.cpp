@@ -193,16 +193,70 @@ void Client::sendData(string ip, unsigned short port, string message, ClientConn
 	entryNodeConnection->sendData(encryptedData);
 }
 
-string Client::encrypt(string ip, unsigned short port, string data)
+void Client::sendData(string username, string message, ClientConnection* entryNodeConnection)
+{
+	if (!pathAvailable()) {
+		throw std::runtime_error("Path not established yet");
+	}
+
+	string encryptedData = encrypt(username, message);
+
+
+	entryNodeConnection->sendData(encryptedData);
+}
+
+void Client::sendData(DestinationData dd, ClientConnection* entryNodeConnection)
+{
+	if (!pathAvailable()) {
+		throw std::runtime_error("Path not established yet");
+	}
+
+	sendData(dd.getDestinationIP(), dd.getDestinationPort(), dd.getData(), entryNodeConnection);
+}
+
+string Client::encrypt(string ip, unsigned short port, string message)
 {
 
 	if (!pathAvailable()) {
 		throw std::runtime_error("Path not established yet");
 	}
 
-	string encrypted = ip + SPLITER + to_string(port) + SPLITER + data;
+	if (ip.size() < 7 || ip.size() > 15 || port == 0) {
+		throw std::runtime_error("IP and port must be provided");
+	}
+
+	string encrypted = ip + SPLITER + to_string(port) + SPLITER + message;
+
 	RelayObject* relayObject;
 
+
+	currentPathMutex.lock();
+	for (int i = currentPath.size() - 1; i >= 0; i--) {
+		relayObject = currentPath.at(i);
+		AesKey* currentKeys = relayObject->getAesKeys();
+
+		encrypted = AesHandler::encryptAES(encrypted, currentKeys);
+		encrypted = relayObject->getConversationIdEncrypted() + encrypted;
+	}
+
+	currentPathMutex.unlock();
+
+	return encrypted;
+}
+
+string Client::encrypt(string username, string message)
+{
+	if (!pathAvailable()) {
+		throw std::runtime_error("Path not established yet");
+	}
+
+	if (username.empty()) {
+		throw std::runtime_error("Username must be provided");
+	}
+
+	string encrypted = username + SPLITER + message;
+
+	RelayObject* relayObject;
 
 	currentPathMutex.lock();
 	for (int i = currentPath.size() - 1; i >= 0; i--) {

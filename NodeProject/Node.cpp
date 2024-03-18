@@ -39,6 +39,8 @@ Node::~Node()
 
 	conversationsMap.clear();
 
+	savedUsernames.clear();
+
 	delete parentConnection;
 
 	logger.log("Node destroyed");
@@ -242,14 +244,25 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 
 
 		string decrypted = AesHandler::decryptAES(received.substr(UUID_ENCRYPTED_SIZE, received.size()), currentConversation->getKey());
-		
-		try {
-			DestinationData dd(decrypted);
-		}
-		catch (std::runtime_error e) {
-			
+		vector<string> properties = Utility::splitString(decrypted, SPLITER);
+
+		if (usernameIncluded(properties)) {
+			// We need to ask the mapping server for the IP and port of the username
+
+			try {
+				sendToUsername(decrypted, &properties, currentConversation);
+			}
+			catch (std::runtime_error e) {
+				cout << "Inside handleNodeAsExit: " << e.what() << endl;
+				cerr << e.what() << endl;
+			}
+
+			received = receiveData(previousNodeSocket);
+
+			continue;
 		}
 
+		DestinationData dd(decrypted);
 		ConnectionPair host(dd.getDestinationIP(), dd.getDestinationPort());
 
 
@@ -271,6 +284,51 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 		}
 
 		received = receiveData(previousNodeSocket);
+	}
+}
+
+bool Node::usernameIncluded(std::vector<std::string>& properties)
+{
+	return properties.size() < 3;
+}
+
+void Node::sendToUsername(std::string& decrypted, vector<string>* packetProperties, ConversationObject* currentConversation)
+{
+	string username = packetProperties->at(PacketUsernameIndexes::USERNAME_INDEX);
+	string message = packetProperties->at(PacketUsernameIndexes::MESSAGE_INDEX);
+
+
+	// Is username inside savedUsernames?
+	auto it = savedUsernames.find(username);
+	bool usernameIsKnown = it != savedUsernames.end();
+
+	if (!usernameIsKnown) {
+		cout << "Asking the mapping server for the IP and port of " << username << endl;
+
+		string ipAndPort = getPropertiesByUsername(username);
+
+		savedUsernames.insert(std::pair<string, ConnectionPair>(username, ConnectionPair(ipAndPort)));
+	}
+	else {
+		cout << "Username is known. IP and port: " << it->second.toString() << endl;
+	}
+	try {
+		string properties = savedUsernames[username].toString();
+
+		DestinationData dd(properties + SPLITER + message);
+
+
+		ClientConnection* connection = currentConversation->getActiveConnection(dd);
+
+		if (connection == nullptr) {
+			connection = currentConversation->addActiveConnection(dd);
+		}
+
+		connection->sendDataTcp(message);
+	}
+	catch (std::runtime_error e) {
+		cout << "Inside sendToUsername: " << e.what() << endl;
+		cerr << e.what() << endl;
 	}
 }
 
@@ -556,6 +614,33 @@ void Node::sendAlive()
 
 		Sleep(MAX_TIME_ALIVE / 3);
 	}
+}
+
+string Node::getPropertiesByUsername(string username)
+{
+	// Ask the mapping server for the IP and port of the username
+	ClientConnection mappingServerConnection(SERVER_IP, MAPPING_SERVER_PORT, logger);
+
+	mappingServerConnection.sendDataTcp(rsaHandler.formatForSending() + "\n");
+
+	cout << "Sent RSA keys: " << rsaHandler.formatForSending() << endl;
+
+	string received = mappingServerConnection.receiveDataFromTcp(true);
+
+	vector<string> properties = Utility::splitString(received, SPLITER);
+
+	rsaHandler.setClientPublicKey(stoll(properties[0]));
+	rsaHandler.setClientModulus(stoll(properties[1]));
+
+	string encrypted = rsaHandler.encryptToString(username);
+
+	mappingServerConnection.sendDataTcp(encrypted + "\n");
+
+	string response = mappingServerConnection.receiveDataFromTcp(true); // We are sure the server will return an answer
+
+	string decrypted = rsaHandler.decrypt(response);
+
+	return decrypted; // Should receive IP::::PORT
 }
 
 string Node::receiveECCKeys(SOCKET clientSocket)

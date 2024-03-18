@@ -249,7 +249,7 @@ string ConversationObject::generateID() {
 
 string ConnectionPair::toString() const
 {
-	return ip + ":" + to_string(port);
+	return ip + SPLITER + to_string(port);
 }
 
 std::ostream& operator<<(std::ostream& os, const ConnectionPair& obj)
@@ -291,7 +291,6 @@ void ConversationObject::collectMessages()
 
 		return;
 	}
-
 
 	for (auto it = this->destinationMap.begin(); it != this->destinationMap.end(); it++) {
 		ClientConnection* connection = it->second;
@@ -340,6 +339,18 @@ DestinationData::DestinationData(string decryptedData)
 	this->data = destinationProperties[DATA_INDEX];
 }
 
+DestinationData::DestinationData(vector<string>* splitData)
+{
+	if (splitData->size() != 3) {
+		throw std::runtime_error("Invalid data format");
+	}
+
+	this->destinationIP = splitData->at(IP_INDEX);
+	this->destinationPort = static_cast<unsigned short>(stoi(splitData->at(PORT_INDEX)));
+	this->data = splitData->at(DATA_INDEX);
+
+}
+
 DestinationData::~DestinationData()
 {
 }
@@ -348,6 +359,24 @@ ConnectionPair::ConnectionPair(string ip, unsigned short port)
 {
 	this->ip = ip;
 	this->port = port;
+}
+
+ConnectionPair::ConnectionPair(string properties)
+{
+	vector<string> connectionProperties = Utility::splitString(properties, SPLITER);
+
+	if (connectionProperties.size() != 2) {
+		throw std::runtime_error("Invalid data format");
+	}
+
+	this->ip = connectionProperties[0];
+	this->port = static_cast<unsigned short>(stoi(connectionProperties[1]));
+}
+
+ConnectionPair::ConnectionPair()
+{
+	this->ip = "";
+	this->port = 0;
 }
 
 ConnectionPair::~ConnectionPair()

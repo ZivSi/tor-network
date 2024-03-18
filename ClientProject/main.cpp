@@ -21,8 +21,8 @@ string formatData(const string& data) {
 
 void commandLine(Client* client, ClientConnection* entry) {
 	while (true) {
-		// Get input from the user
-		string input;
+		string input = "";
+
 		std::getline(std::cin, input);
 
 		if (input == "exit") {
@@ -34,10 +34,13 @@ void commandLine(Client* client, ClientConnection* entry) {
 		try {
 			DestinationData dd(input);
 
-			client->sendData(dd.getDestinationIP(), dd.getDestinationPort(), formatData(dd.getData()), entry);
+			client->sendData(dd, entry);
 		}
 		catch (...) {
-			cerr << "Invalid input" << endl;
+			vector<string> parts = Utility::splitString(input);
+			cout << "Username provided is: " << parts[0] << endl;
+
+			client->sendData(parts[0], formatData(parts[1]), entry);
 		}
 	}
 }
@@ -56,7 +59,7 @@ int main()
 
 	string keys = entry->receiveKeys(true);
 
-	client.sendData("127.0.0.1", 10210, "Hello from client", entry);
+	client.sendData("test", "Hello from client", entry);
 
 	thread(commandLine, &client, entry).detach();
 
