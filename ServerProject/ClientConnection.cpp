@@ -183,17 +183,18 @@ void ClientConnection::sendDataTcp(string data) {
 		throw e;
 	}
 }
-
-string ClientConnection::receiveDataFromTcp()
+string ClientConnection::receiveDataFromTcp(bool block)
 {
 	string data;
 
 	constexpr size_t chunkSize = 4096;
 	std::vector<char> buffer(chunkSize);
 
-	// Set socket to non-blocking mode
-	u_long mode = 1; // non-blocking mode
-	ioctlsocket(connection, FIONBIO, &mode);
+	// Set socket to non-blocking mode if block is false
+	if (!block) {
+		u_long mode = 1; // non-blocking mode
+		ioctlsocket(connection, FIONBIO, &mode);
+	}
 
 	int bytesReceived = recv(connection, buffer.data(), chunkSize, 0);
 
@@ -208,8 +209,11 @@ string ClientConnection::receiveDataFromTcp()
 		data.append(buffer.data(), bytesReceived);
 	}
 
-	mode = 0; // blocking mode
-	ioctlsocket(connection, FIONBIO, &mode);
+	// Reset socket to blocking mode if necessary
+	if (!block) {
+		u_long mode = 0; // blocking mode
+		ioctlsocket(connection, FIONBIO, &mode);
+	}
 
 	return data;
 }

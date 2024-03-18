@@ -39,7 +39,7 @@ public:
 
 	void sendEncrypted(string data);
 	void sendDataTcp(string data); // Send without sending the size first
-	string receiveDataFromTcp(); // Receive data without getting the size first
+	string receiveDataFromTcp(bool block = false); // Receive data without getting the size first
 	string receiveData();
 	string receiveKeys(bool initialize);
 
