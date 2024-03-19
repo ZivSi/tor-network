@@ -17,6 +17,10 @@ namespace Constants {
 	extern const string SERVER_IP;
 	extern const unsigned short SERVER_PORT;
 	extern const unsigned short MAPPING_SERVER_PORT;
+	extern const unsigned short LOCAL_CLIENT_PORT;
+
+	extern const string START_PATH_DESIGN_STRING;
+
 	extern const string SPLITER;
 	extern const string NODE_INIT_FORMAT;
 	extern const string CLIENT_INITIAL_MESSAGE;

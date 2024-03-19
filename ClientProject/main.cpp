@@ -6,19 +6,6 @@
 
 using std::thread;
 
-string formatData(const string& data) {
-	string formattedData = data;
-
-	// Iterate through the string and replace occurrences of "\\n" with "\n"
-	size_t pos = formattedData.find("\\n");
-	while (pos != string::npos) {
-		formattedData.replace(pos, 2, "\n"); // Replace 2 characters with a single newline character
-		pos = formattedData.find("\\n", pos + 1); // Find next occurrence starting from pos + 1
-	}
-
-	return formattedData;
-}
-
 void commandLine(Client* client, ClientConnection* entry) {
 	while (true) {
 		string input = "";
@@ -38,7 +25,7 @@ void commandLine(Client* client, ClientConnection* entry) {
 			vector<string> split = Utility::splitString(input, SPLITER);
 			if (split.size() == 2) {
 				string username = split[0];
-				string message = formatData(split[1]);
+				string message = Utility::formatData(split[1]);
 
 				client->sendData(username, message, entry);
 			}
@@ -49,9 +36,6 @@ void commandLine(Client* client, ClientConnection* entry) {
 	}
 }
 
-
-
-
 int main()
 {
 	Client client;
@@ -59,10 +43,9 @@ int main()
 
 	client.printNodes();
 
+	/*
 	ClientConnection* entry = client.connectToEntryNode();
 	cout << "Connected to entry node" << endl;
-
-	string keys = entry->receiveKeys(true);
 
 	client.sendData("test", "Hello from client", entry);
 
@@ -72,7 +55,7 @@ int main()
 	{
 		string data = entry->receiveData();
 
-		if (data == "")
+		if (data.empty())
 		{
 			continue;
 		}
@@ -83,6 +66,9 @@ int main()
 	}
 
 	delete entry;
+	*/
+
+	Sleep(1000000 * 10000 * 1000000);
 
 	return 0;
 }

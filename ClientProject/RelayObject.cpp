@@ -67,6 +67,11 @@ void RelayObject::setConversationId(string conversationId)
 	this->conversationIdEncrypted = eccHandler->encrypt(conversationId);
 }
 
+string RelayObject::toString()
+{
+	return this->ip + ":" + std::to_string(this->port);
+}
+
 RelayProperties::RelayProperties(string ip, unsigned short port)
 {
 	this->ip = ip;

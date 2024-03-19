@@ -107,6 +107,10 @@ string IConnection::receiveData(SOCKET connection) {
 		throw std::runtime_error("Failed to receive data size");
 	}
 
+	if (dataSize > 1000000) {
+		logger->error("Data size is: " + to_string(dataSize));
+		throw std::runtime_error("Data size is too large");
+	}
 
 	string data;
 	data.reserve(dataSize); // Reserve space for the entire data

@@ -14,6 +14,9 @@ namespace Constants {
 	const string SERVER_IP = "127.0.0.1";
 	const unsigned short SERVER_PORT = 5060;
 	const unsigned short MAPPING_SERVER_PORT = 5060 * 2;
+	const unsigned short LOCAL_CLIENT_PORT = 5060 * 3;
+	// START_PATH_DESIGN_STRING
+	const string START_PATH_DESIGN_STRING = "START PATH DESIGN";
 	const string SPLITER = "::::";
 
 	// Server port::::publicKey::::Current time in ms::::Random non prime number::::Random number::::Condition number::::Hash of the first parts::::Extended hash of the rest

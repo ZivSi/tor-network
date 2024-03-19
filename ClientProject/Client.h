@@ -6,6 +6,7 @@
 #include "../ServerProject/Logger.h"
 #include "../ServerProject/NodeData.h"
 #include "../ServerProject\ConversationObject.h"
+#include "../ServerProject\IConnection.h"
 #include "RelayObject.h";
 #include <iostream>
 #include <mutex>
@@ -22,10 +23,15 @@ using std::endl;
 using std::string;
 using std::vector;
 using std::mutex;
+using std::thread;
 
 using namespace Constants;
 
-class Client
+/*
+* This class will act as a server for the electron client.
+*/
+
+class Client : public IConnection
 {
 public:
 	// ----------------- Constructors & Destructor -----------------
@@ -36,6 +42,9 @@ public:
 	void stopClient();
 
 	// ----------------- Connection Handling -----------------
+	void acceptSocket(SOCKET socket) override;
+	void handleClient(SOCKET clientSocket) override;
+
 	void waitForNodes();
 	void receiveResponseFromServer();
 	ClientConnection* connectToEntryNode();
@@ -45,6 +54,10 @@ public:
 	void handshakeWithCurrentPath();
 	void handshakeWithNode(string ip, unsigned short nodePort, unsigned int nodeIndex);
 
+	bool isPathDesignCommand(string command);
+	int extractPathLength(string command);
+	string pathToString();
+
 	// ----------------- Connection Alive Check -----------------
 	void checkConnectionAliveTimer();
 
@@ -52,6 +65,10 @@ public:
 	void sendData(string ip, unsigned short port, string message, ClientConnection* entryNodeConnection);
 	void sendData(string username, string message, ClientConnection* entryNodeConnection);
 	void sendData(DestinationData dd, ClientConnection* entryNodeConnection);
+
+	void sendToElectron(SOCKET socket, const string& message);
+
+	void receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection);
 
 	// ----------------- Encryption & Decryption -----------------
 	string encrypt(string ip, unsigned short port, string message);
@@ -82,5 +99,5 @@ private:
 	bool pathIsTooOld();
 
 	// ----------------- Control Variables -----------------
-	bool stop = true;
+	bool stop = false;
 };

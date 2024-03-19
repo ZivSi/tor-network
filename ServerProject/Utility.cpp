@@ -157,6 +157,19 @@ string Utility::extractData(const string& received)
 	return received.substr(Constants::UUID_ENCRYPTED_SIZE + Constants::IP_SIZE + Constants::PORT_SIZE);
 }
 
+string Utility::formatData(const string& data) {
+	string formattedData = data;
+
+	// Iterate through the string and replace occurrences of "\\n" with "\n"
+	size_t pos = formattedData.find("\\n");
+	while (pos != string::npos) {
+		formattedData.replace(pos, 2, "\n"); // Replace 2 characters with a single newline character
+		pos = formattedData.find("\\n", pos + 1); // Find next occurrence starting from pos + 1
+	}
+
+	return formattedData;
+}
+
 bool Utility::isValidIpv4(const std::string& ip)
 {
 	std::vector<std::string> parts;

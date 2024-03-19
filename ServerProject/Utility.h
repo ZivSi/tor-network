@@ -47,6 +47,9 @@ public:
 	static unsigned short extractPort(const string& received);
 	static string extractData(const string& received);
 
+	static string formatData(const string& data);
+
+
 	// ----------------- Validation -----------------
 	static bool isValidIpv4(const std::string& ip);
 	static bool isValidPort(unsigned short port);

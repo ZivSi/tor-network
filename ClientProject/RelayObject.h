@@ -35,6 +35,8 @@ public:
 	void setAesKeys(AesKey aesKeys);
 	void setEccHandler(ECCHandler* eccHandler);
 	void setConversationId(string conversationId);
+
+	string toString();
 };
 
 
