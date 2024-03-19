@@ -133,7 +133,7 @@ void Server::handleClient(SOCKET clientSocket)
 		string decrypted = "";
 		try {
 			decrypted = AesHandler::decryptAES(received, &temp);
-			logger.log("Decrypted data from client: " + decrypted);
+			logger.log("Decrypted data from");
 		}
 		catch (std::runtime_error e) {
 			logger.error("Error in decrypting data from client");
