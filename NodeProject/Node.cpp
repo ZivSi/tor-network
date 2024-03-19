@@ -151,7 +151,8 @@ void Node::listenToNextNode(SOCKET previousNodeSocket, ConversationObject* curre
 		string received = nextNode->receiveData();
 
 		if (dataLegit(received)) {
-			cout << "Data legit in listenNextNode: " << received << endl;
+			logger.log("Data legit in listenNextNode: " + received);
+
 			string encrypted = AesHandler::encryptAES(received, currentConversation->getKey());
 
 			sendData(previousNodeSocket, encrypted);
@@ -180,6 +181,8 @@ void Node::handleNode(SOCKET previousNodeSocket, ConversationObject* currentConv
 
 	while (!stop) {
 		if (currentConversation->isTooOld()) {
+			logger.error("Conversation is too old. Removing conversation from map");
+
 			removeConversationFromMap(currentConversation->getConversationId());
 			if (currentConversation != nullptr) { delete currentConversation; }
 			closesocket(previousNodeSocket);
@@ -203,7 +206,6 @@ void Node::listenToHosts(ConversationObject* currentConversation) {
 		currentConversation->collectMessages();
 
 		if (currentConversation->isTooOld()) {
-			cout << "Conversation is too old" << endl;
 			// handleNodeAsExit() will remove the conversation from the map
 			return;
 		}
@@ -234,7 +236,7 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 
 	while (!stop) {
 		if (currentConversation->isTooOld()) {
-
+			logger.error("Conversation is too old. Removing conversation from map");
 
 			removeConversationFromMap(currentConversation->getConversationId());
 			delete currentConversation;
@@ -246,14 +248,20 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 		string decrypted = AesHandler::decryptAES(received.substr(UUID_ENCRYPTED_SIZE, received.size()), currentConversation->getKey());
 		vector<string> properties = Utility::splitString(decrypted, SPLITER);
 
+		string username = properties[PacketUsernameIndexes::USERNAME_INDEX];
+
 		if (usernameIncluded(properties)) {
 			// We need to ask the mapping server for the IP and port of the username
 
 			try {
-				sendToUsername(decrypted, &properties, currentConversation);
+				bool result = sendToUsername(decrypted, &properties, currentConversation);
+
+				if (!result) {
+					sendCouldNotFindUsername(currentConversation, username);
+				}
 			}
 			catch (std::runtime_error e) {
-				cout << "Inside handleNodeAsExit: " << e.what() << endl;
+				logger.error("Inside handleNodeAsExit: ");
 				cerr << e.what() << endl;
 			}
 
@@ -268,9 +276,9 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 
 		try {
 			if (!currentConversation->isDestinationActive(dd)) {
-				cout << "Connection to " << dd.getDestinationIP() << ":" << dd.getDestinationPort() << " is not active\n";
+				logger.log("Connection to " + dd.getDestinationIP() + ":" + to_string(dd.getDestinationPort()) + " is not active");
 				currentConversation->addActiveConnection(dd); // Might throw exception
-				cout << "Connected to " << dd.getDestinationIP() << ":" << dd.getDestinationPort() << endl;
+				logger.success("Connected to " + dd.getDestinationIP() + ":" + to_string(dd.getDestinationPort()));
 			}
 
 			currentConversation->getActiveConnection(dd)->sendDataTcp(dd.getData());
@@ -292,7 +300,7 @@ bool Node::usernameIncluded(std::vector<std::string>& properties)
 	return properties.size() < 3;
 }
 
-void Node::sendToUsername(std::string& decrypted, vector<string>* packetProperties, ConversationObject* currentConversation)
+bool Node::sendToUsername(std::string& decrypted, vector<string>* packetProperties, ConversationObject* currentConversation)
 {
 	string username = packetProperties->at(PacketUsernameIndexes::USERNAME_INDEX);
 	string message = packetProperties->at(PacketUsernameIndexes::MESSAGE_INDEX);
@@ -306,12 +314,23 @@ void Node::sendToUsername(std::string& decrypted, vector<string>* packetProperti
 		cout << "Asking the mapping server for the IP and port of " << username << endl;
 
 		string ipAndPort = getPropertiesByUsername(username);
+		try {
+			ConnectionPair properties(ipAndPort);
 
-		savedUsernames.insert(std::pair<string, ConnectionPair>(username, ConnectionPair(ipAndPort)));
+
+			savedUsernames.insert(std::pair<string, ConnectionPair>(username, properties));
+
+			it = savedUsernames.find(username);
+		}
+		catch (...) {
+			logger.error("Could not get the IP and port of " + username + " from the mapping server. Username is not known.");
+
+			return false;
+		}
 	}
-	else {
-		cout << "Username is known. IP and port: " << it->second.toString() << endl;
-	}
+
+	logger.log("Username is known. IP and port: " + it->second.toString());
+
 	try {
 		string properties = savedUsernames[username].toString();
 
@@ -325,10 +344,14 @@ void Node::sendToUsername(std::string& decrypted, vector<string>* packetProperti
 		}
 
 		connection->sendDataTcp(message);
+
+		return true;
 	}
 	catch (std::runtime_error e) {
-		cout << "Inside sendToUsername: " << e.what() << endl;
+		logger.error("Inside sendToUsername: ");
 		cerr << e.what() << endl;
+
+		return false;
 	}
 }
 
@@ -469,7 +492,7 @@ void Node::clientHandshake(SOCKET clientSocket)
 		string nextNodeProperties = receiveData(clientSocket);
 		decryptedNextNodeProperties = AesHandler::decryptAES(nextNodeProperties, &aesPair);
 
-		cout << "Received next node properties: " << decryptedNextNodeProperties << endl;
+		logger.success("Received next node properties: " + decryptedNextNodeProperties);
 
 		try {
 			if (decryptedNextNodeProperties == Constants::EXIT_NODE_STRING) {
@@ -491,7 +514,8 @@ void Node::clientHandshake(SOCKET clientSocket)
 			currentConversation->setNxtPort(nextNodePortInt);
 		}
 		catch (std::runtime_error e) {
-			cout << e.what() << endl;
+			// logger.error("Error in setting next node properties"); not really error
+			// cout << e.what() << endl;
 
 			// We received destination. We are the exit node
 			currentConversation->setAsExitNode();
@@ -534,7 +558,7 @@ void Node::handshake(ClientConnection* parentConnection)
 
 void Node::sendAESKeys(ClientConnection* parentConnection, string receivedECCKeys)
 {
-	cout << "Server's public key is: " << receivedECCKeys << endl;
+	logger.keysInfo("Received ECC keys from server");
 	ECCHandler serverECCHandler(receivedECCKeys);
 
 	string keysStr = parentConnection->getAesKey().serializeKey();
@@ -581,6 +605,13 @@ void Node::sendNodeUnreachable(ConversationObject* conversation)
 	sendMessageToClient(conversation, "", 0, Constants::ErrorCodes::NODE_UNREACHABLE, errorMessage);
 }
 
+void Node::sendCouldNotFindUsername(ConversationObject* conversation, string username)
+{
+	string errorMessage = "Error: Could not find username \"" + username + "\"";
+
+	sendMessageToClient(conversation, "", 0, Constants::ErrorCodes::USERNAME_NOT_FOUND, errorMessage);
+}
+
 
 string Node::buildAliveFormat() {
 	unsigned long int nonPrime = Utility::generateNonPrime();
@@ -623,7 +654,7 @@ string Node::getPropertiesByUsername(string username)
 
 	mappingServerConnection.sendDataTcp(rsaHandler.formatForSending() + "\n");
 
-	cout << "Sent RSA keys: " << rsaHandler.formatForSending() << endl;
+	logger.keysInfo("Sent RSA keys");
 
 	string received = mappingServerConnection.receiveDataFromTcp(true);
 
@@ -631,6 +662,8 @@ string Node::getPropertiesByUsername(string username)
 
 	rsaHandler.setClientPublicKey(stoll(properties[0]));
 	rsaHandler.setClientModulus(stoll(properties[1]));
+
+	logger.keysInfo("Received RSA keys from mapping server");
 
 	string hashedUsername = Utility::hashStr(username + PEPPER3) + SPLITER + username;
 

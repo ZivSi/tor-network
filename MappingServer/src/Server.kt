@@ -16,7 +16,7 @@ class Server(port: Int = 5060 * 2) {
     fun start() {
         println("Server started")
 
-        usernamesMap["test"] = ConnectionPair("127.0.0.1", 10210)
+        usernamesMap["echo"] = ConnectionPair("45.79.112.203", 4242)
 
         val serverSocket = createServerSocket()
         listenForConnections(serverSocket)
@@ -49,12 +49,10 @@ class Server(port: Int = 5060 * 2) {
             rsaHandler.setClientPublicKey(clientPublicKey)
             rsaHandler.setClientModulus(clientModulus)
 
-            println("Received client public key: ($clientPublicKey, $clientModulus)")
 
             sendPublicKey(clientSocket)
 
             val data = clientSocket.getInputStream().bufferedReader().readLine()
-            println("Type of data: ${data::class.simpleName}")
             println("Received data: $data")
 
             val decrypted = rsaHandler.decrypt(data)
@@ -62,9 +60,9 @@ class Server(port: Int = 5060 * 2) {
             if (isExitNode(decrypted)) {
                 val (hashed, username) = decrypted.split(Utility.SPLITER)
 
-                println("Exit node asks for \"$username\"")
-
                 val connectionPair = usernamesMap.get(username)
+
+                println("Exit node asks for \"$username\" : $connectionPair")
 
                 if (connectionPair == null) {
                     val notFoundEncrypted = rsaHandler.encryptToString("Not found")

@@ -3,6 +3,8 @@
 
 Logger::Logger(string identifier) {
 	this->identifier = identifier;
+
+	timeFormat = "[%H:%M:%S::%3f] ";
 }
 
 Logger::~Logger() {}
@@ -68,11 +70,40 @@ void Logger::printLog()
 	}
 }
 
+string getCurrentTime() {
+	// Get current time point
+	auto now = std::chrono::system_clock::now();
+
+	// Convert to time_t (seconds since epoch)
+	std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+
+
+	std::tm time_info;
+	localtime_s(&time_info, &now_time);
+
+	// Get milliseconds
+	auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() % 1000;
+
+	// Format the time
+		// Format the time
+	std::ostringstream oss;
+	oss << std::put_time(&time_info, "%H:%M:%S") << ":" << std::setw(3) << std::setfill('0') << milliseconds;
+
+	return oss.str();
+}
+
 void Logger::printLastLogMessage()
 {
-	if (!logMessages.empty())
-	{
-		cout << logMessages.back() << endl;
+	try {
+		if (!logMessages.empty()) {
+			cout << getCurrentTime() << " | " << logMessages.back() << endl;
+		}
+	}
+	catch (const std::exception& e) {
+		std::cout << "Error in Logger::printLastLogMessage: " << e.what() << std::endl;
+	}
+	catch (...) {
+		std::cout << "Error in Logger::printLastLogMessage: Unknown error" << std::endl;
 	}
 }
 vector<string>* Logger::getLogMessages()

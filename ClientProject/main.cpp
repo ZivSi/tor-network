@@ -27,23 +27,28 @@ void commandLine(Client* client, ClientConnection* entry) {
 
 		if (input == "exit") {
 			client->stopClient();
-
 			exit(0);
 		}
 
 		try {
 			DestinationData dd(input);
-
 			client->sendData(dd, entry);
 		}
 		catch (...) {
-			vector<string> parts = Utility::splitString(input);
-			cout << "Username provided is: " << parts[0] << endl;
+			vector<string> split = Utility::splitString(input, SPLITER);
+			if (split.size() == 2) {
+				string username = split[0];
+				string message = formatData(split[1]);
 
-			client->sendData(parts[0], formatData(parts[1]), entry);
+				client->sendData(username, message, entry);
+			}
+			else {
+				cout << "Invalid input format. Please provide input in the format 'username::::message'" << endl;
+			}
 		}
 	}
 }
+
 
 
 

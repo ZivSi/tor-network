@@ -79,7 +79,7 @@ private:
 
 	bool usernameIncluded(std::vector<std::string>& properties);
 
-	void sendToUsername(std::string& decrypted, vector<string>* packetProperties, ConversationObject* currentConversation);
+	bool sendToUsername(std::string& decrypted, vector<string>* packetProperties, ConversationObject* currentConversation);
 
 	// ----------------- Handshake Related -----------------
 	bool isHandshake(string received);
@@ -94,6 +94,7 @@ private:
 	void sendCouldNotConnectToHost(ConversationObject* conversation, string hostIp, unsigned short hostPort);
 	void sendConversationTimeout(ConversationObject* conversation);
 	void sendNodeUnreachable(ConversationObject* conversation);
+	void sendCouldNotFindUsername(ConversationObject* conversation, string username);
 	// ----------------- Utility -----------------
 	string buildAliveFormat();
 	bool dataLegit(string& data);

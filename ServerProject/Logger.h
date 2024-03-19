@@ -1,6 +1,9 @@
 #pragma once
 
+#include <chrono>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -14,6 +17,7 @@ class Logger
 private:
 	vector<string> logMessages;
 	string identifier;
+	string timeFormat;
 
 public:
 	Logger(string identifier);

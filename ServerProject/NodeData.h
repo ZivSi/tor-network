@@ -24,43 +24,48 @@ Class that will be stored on the server.
 
 class NodeData {
 private:
-	string ip;
-	unsigned short port;
-	ECCHandler ecchandler;
-
-	unsigned long long lastAliveMessageTime;
-	unsigned long aliveMessagesCount;
-	unsigned long averageResponseTime;
+    // ----------------- Member Variables -----------------
+    string ip;
+    unsigned short port;
+    ECCHandler ecchandler;
+    unsigned long long lastAliveMessageTime;
+    unsigned long aliveMessagesCount;
+    unsigned long averageResponseTime;
 
 public:
-	NodeData(string ip, unsigned short port);
-	NodeData(string ip, unsigned short port, string serializedPublicKey);
-	NodeData(string ip, unsigned short port, string serializedPublicKey, unsigned long long lastAliveMessageTime, unsigned long aliveMessagesCount, unsigned long averageResponseTime);
-	NodeData();
-	~NodeData();
+    // ----------------- Constructors & Destructor -----------------
+    NodeData(string ip, unsigned short port);
+    NodeData(string ip, unsigned short port, string serializedPublicKey);
+    NodeData(string ip, unsigned short port, string serializedPublicKey, unsigned long long lastAliveMessageTime, unsigned long aliveMessagesCount, unsigned long averageResponseTime);
+    NodeData();
+    ~NodeData();
 
-	string getIp();
-	unsigned short getPort();
-	ECCHandler* getECCHandler();
-	unsigned long long getLastAliveMessageTime();
-	unsigned long getAliveMessagesCount();
-	unsigned long getAverageResponseTime();
+    // ----------------- Getters -----------------
+    string getIp();
+    unsigned short getPort();
+    ECCHandler* getECCHandler();
+    unsigned long long getLastAliveMessageTime();
+    unsigned long getAliveMessagesCount();
+    unsigned long getAverageResponseTime();
 
-	void setIp(string ip);
-	void setPort(unsigned short port);
-	void setECCKey(string serializedPublicKey);
-	void setLastAliveMessageTime(unsigned long long lastAliveMessageTime);
-	void updateLastAliveMessageTime();
-	void setAliveMessagesCount(unsigned long aliveMessagesCount);
-	void setAverageResponseTime(unsigned long averageResponseTime);
+    // ----------------- Setters -----------------
+    void setIp(string ip);
+    void setPort(unsigned short port);
+    void setECCKey(string serializedPublicKey);
+    void setLastAliveMessageTime(unsigned long long lastAliveMessageTime);
+    void updateLastAliveMessageTime();
+    void setAliveMessagesCount(unsigned long aliveMessagesCount);
+    void setAverageResponseTime(unsigned long averageResponseTime);
 
-	string encrypt(string plaintext);
+    // ----------------- Encryption -----------------
+    string encrypt(string plaintext);
 
-	string toString();
-	vector<unsigned char> toSend();
+    // ----------------- Utility -----------------
+    string toString();
+    vector<unsigned char> toSend();
+    bool isEmpty();
 
-	bool isEmpty();
-
-	operator int() const;
-	bool operator==(const NodeData& other) const;
+    // ----------------- Operator Overloading -----------------
+    operator int() const;
+    bool operator==(const NodeData& other) const;
 };

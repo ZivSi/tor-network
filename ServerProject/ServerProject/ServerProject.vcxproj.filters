@@ -92,9 +92,6 @@
     <ClInclude Include="..\Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ServerObject.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\sqlite3.h">
       <Filter>Header Files</Filter>
     </ClInclude>

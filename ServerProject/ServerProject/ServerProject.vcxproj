@@ -168,7 +168,6 @@
     <ClInclude Include="..\NodeData.h" />
     <ClInclude Include="..\RSAHandler.h" />
     <ClInclude Include="..\Server.h" />
-    <ClInclude Include="..\ServerObject.hpp" />
     <ClInclude Include="..\sqlite3.h" />
     <ClInclude Include="..\StatsData.h" />
     <ClInclude Include="..\Utility.h" />

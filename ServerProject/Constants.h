@@ -52,7 +52,8 @@ namespace Constants {
 		HOST_RESPONSE = 0,
 		HOST_UNREACHABLE = 1,
 		NODE_UNREACHABLE = 2,
-		CONVERSATION_TIMEOUT = 3
+		CONVERSATION_TIMEOUT = 3,
+		USERNAME_NOT_FOUND = 4,
 	};
 
 	enum PacketUsernameIndexes {
