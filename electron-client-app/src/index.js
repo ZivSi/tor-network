@@ -14,9 +14,12 @@ const createMainWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    icon: path.join(__dirname, '..', 'src', 'onion.ico'),
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
+      devTools: false,
     },
   });
 

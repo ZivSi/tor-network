@@ -5,35 +5,63 @@
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
 
-  <title>Tor Programme</title>
+  <title>The Onion Router</title>
   <link rel="stylesheet" href="index.css" />
 
   <script src="render.js"></script>
+  <script src="socket.js"></script>
 </head>
 
 <body>
+  <h1 style="display: inline-block; vertical-align: middle;">Tor Project</h1>
   <img src="./drawable/onion.png" style="width: 65px; height: auto; display: inline-block; vertical-align: middle;">
-  <h1 style="display: inline-block; vertical-align: middle;">Tor Network</h1>
-  <p>Welcome to a programme powered by the Tor concept</p>
+  <p id="welcome-text">Welcome to a programme powered by the Tor concept</p>
   <br />
 
   <form action="" id="opening-screen">
     <div class="fields">
       <span>
         <div class="number-input">
-          <button id="increase" type="button"></button>
-          <input class="quantity" value="3" type="number" id="pathLen" style="width: 80px;">
-          <button id="decrease" class="plus" type="button"></button>
+          <input class="quantity" type="number" id="pathLen" min="3" placeholder="Number of Relays">
         </div>
-
         <br />
-        <small id="errormessage">For security purposes, you cannot have path length with less than 3 relays</small>
       </span>
-
       <div class="connect">
-        <button class="connect-button">Connect</button>
+        <input type="checkbox" id="connect-checkbox" class="connect-checkbox">
+        <label for="connect-checkbox" class="connect-button">Connect</label>
       </div>
-  </form>
+    </div>
+    <br />
+    <div id="additional-inputs" style="display: none;">
+      <div>
+        
+      </div>
+      <input type="checkbox" id="input-checkbox" class="input-checkbox">
+      <input type="text" id="message" placeholder="Enter your message">
+      <br />
+      <span>Or</span>
+      <br />
+      <label for="file-upload" class="custom-file-upload">Choose File</label>
+      <input id="file-upload" type="file" />
+      <span id="file-name"></span>
+      <br />
+      <br />
+      <input type="text" id="ip-address" placeholder="Enter IP address">
+      <br/>
+      <br/>
+      <input type="number" id="port" placeholder="Enter port number">
+      <br />
+      <span style="color: #fff; align-items: center;">Or</span>
+      <br />
+      <input type="text" id="username" placeholder="Enter username" style="margin-top: 10px;">
+      <br />
+      <label for="connect-button" class="connect-button">Connect</label>
+      <!-- <label for="submit-checkbox" class="submit-button">Submit</label> -->
+    </div>
+    <br />
+  <div class="footer">
+    <p></p>
+  </div>
 </body>
 
 </html>

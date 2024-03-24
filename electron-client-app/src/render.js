@@ -1,53 +1,30 @@
-console.log("Render.js is being called");
+const { ipcRenderer } = require('electron');
+const { connectToServer, sendData } = require('./socket.js');
 
-const MIN_LENGTH = 3;
-
-// ----------- On start -----------
 document.addEventListener("DOMContentLoaded", function () {
-    const pathLengthInput = document.getElementById('pathLen');
-    const errorTextView = document.getElementById('errormessage');
-    const minusButton = document.querySelector('.number-input button.minus');
-    const plusButton = document.querySelector('.number-input button.plus');
-    
-    hideError(errorTextView); // Hide error message initially
-    
-    // Check input value on input event
-    pathLengthInput.addEventListener('input', function(event) {
-        const lengthValue = parseInt(pathLengthInput.value);
-        
-        if (lengthValue < MIN_LENGTH || isNaN(lengthValue)) {
-            showError(errorTextView);
+    var connectButton = document.querySelector('.connect-button');
+    var ipAddressInput = document.getElementById('ip-address');
+    var portInput = document.getElementById('port');
+    var usernameInput = document.getElementById('username');
+    var messageInput = document.getElementById('message');
+
+    connectButton.addEventListener('click', function(event) {
+        var ip = ipAddressInput.value.trim();
+        var port = portInput.value.trim();
+        var username = usernameInput.value.trim();
+        var message = messageInput.value.trim();
+
+        if (!ip || !port) {
+            alert('Please enter IP address and port number');
+            return;
+        }
+
+        connectToServer(ip, parseInt(port));
+
+        if (username) {
+            sendData(`USERNAME::::${username}::::${message}`);
         } else {
-            hideError(errorTextView);
-        }
-    });
-    
-    // Disable minus button if path length is already at minimum
-    if (parseInt(pathLengthInput.value) === MIN_LENGTH) {
-        minusButton.disabled = true;
-    }
-    
-    // Event listener for minus button click
-    minusButton.addEventListener('click', function(event) {
-        const lengthValue = parseInt(pathLengthInput.value);
-        if (lengthValue === MIN_LENGTH) {
-            event.preventDefault(); // Prevent default action (decreasing value)
-        }
-    });
-    
-    // Event listener for plus button click
-    plusButton.addEventListener('click', function(event) {
-        const lengthValue = parseInt(pathLengthInput.value);
-        if (lengthValue === MIN_LENGTH) {
-            minusButton.disabled = false; // Enable minus button if path length is increased from minimum
+            sendData(`IP::::${ip}::::${port}::::${message}`);
         }
     });
 });
-
-function showError(element) {
-    element.style.display = 'inline';
-}
-
-function hideError(element) {
-    element.style.display = 'none';
-}
