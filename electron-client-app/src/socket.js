@@ -55,7 +55,7 @@ class Connection {
 
     receiveInThread() {
         let dataSizeBuffer = Buffer.alloc(8); // Buffer to hold the size of the data
-    
+
         this.socket.on('data', (data) => {
             if (dataSizeBuffer.length > 0) {
                 // If dataSizeBuffer still has data, it means we're receiving the size
@@ -63,12 +63,14 @@ class Connection {
                     // Received enough data to extract the size
                     dataSizeBuffer = data.slice(0, 8); // Extract the size buffer
                     const dataSize = dataSizeBuffer.readBigUInt64LE(); // Convert buffer to size_t
-    
+
                     // Prepare to receive the actual data
                     let remainingData = data.slice(8); // Extract remaining data
                     const message = remainingData.toString(); // Convert remaining data to string
                     console.log('Received:', message);
-    
+
+                    this.buildJsonReponseObject(message);
+
                     // Reset dataSizeBuffer for future use
                     dataSizeBuffer = Buffer.alloc(8);
                 } else {
@@ -81,13 +83,13 @@ class Connection {
                 console.log('Received:', message);
             }
         });
-    
+
         this.socket.on('error', (err) => {
             console.error('Error:', err);
 
             alert("Error: " + err);
         });
-    
+
         this.socket.on('close', () => {
             console.log('Connection closed');
 
@@ -95,7 +97,24 @@ class Connection {
             location.reload();
         });
     }
-    
+
+    buildJsonReponseObject(message) {
+        try {
+            var jsonResponse = new JsonResponse(message);
+
+            console.error("Message code: " + jsonResponse.getCode());
+            if (jsonResponse.isError()) {                
+                alert("Error: " + jsonResponse.getMessage() + " (code: " + jsonResponse.getCode() + ")");
+            }
+            else if (jsonResponse.getMessage() == "Path design completed") {
+                alert("Path design completed!");
+            }
+
+        } catch (e) {
+            return;
+        }
+    }
+
     getSocket() {
         return this.socket;
     }

@@ -79,11 +79,7 @@ void Client::handleClient(SOCKET clientSocket)
 		try {
 			received = this->receiveData(clientSocket);
 
-			if (received.empty()) {
-				continue;
-			}
-
-			if (lastReceivedTime != 0 && (Utility::capture_time() - lastReceivedTime) > 1000 * 60) { // TODO: Change to 5 minutes
+			if (lastReceivedTime != 0 && (Utility::capture_time() - lastReceivedTime) > 1000 * 60 * 5) { // TODO: Change to 5 minutes
 				sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path is too old. Please start a new path design");
 				clearCurrentPath();
 
@@ -93,6 +89,11 @@ void Client::handleClient(SOCKET clientSocket)
 				pathDesignComplete = false;
 
 				return;
+			}
+
+
+			if (received.empty()) {
+				continue;
 			}
 
 			lastReceivedTime = Utility::capture_time();
