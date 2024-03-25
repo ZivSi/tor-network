@@ -25,8 +25,8 @@ Node::Node(string parentIP, unsigned short parentPort) : logger("Node " + to_str
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
-	parentIP = parentIP;
-	parentPort = parentPort;
+	this->parentIP = parentIP;
+	this->parentPort = parentPort;
 	this->parentConnection = new ClientConnection(parentIP, parentPort, logger);
 
 	thread acceptInThread(&Node::acceptSocket, this, getSocket());
@@ -102,7 +102,7 @@ void Node::handleClient(SOCKET clientSocket)
 		return;
 	}
 
-	logger.success("Node (?) connected");
+	logger.success("Node or client connected");
 
 	try {
 		string conversationId = Utility::extractConversationId(received);
@@ -674,6 +674,7 @@ void Node::sendAlive()
 string Node::getPropertiesByUsername(string username)
 {
 	// Ask the mapping server for the IP and port of the username
+	logger.log("Trying to connect to (" + parentIP + ":" + to_string(MAPPING_SERVER_PORT) + ")");
 	ClientConnection mappingServerConnection(parentIP, MAPPING_SERVER_PORT, logger);
 
 	mappingServerConnection.sendDataTcp(rsaHandler.formatForSending() + "\n");

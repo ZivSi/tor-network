@@ -84,10 +84,15 @@ class Connection {
     
         this.socket.on('error', (err) => {
             console.error('Error:', err);
+
+            alert("Error: " + err);
         });
     
         this.socket.on('close', () => {
             console.log('Connection closed');
+
+            alert("Connection closed");
+            location.reload();
         });
     }
     

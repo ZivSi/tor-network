@@ -169,6 +169,8 @@ void Client::handleClient(SOCKET clientSocket)
 						string username = split[0];
 						string message = Utility::formatData(split[1]);
 
+						logger.log("Username: " + username + " Message: " + message);
+
 						sendData(username, message, entryNodeConnection);
 					}
 					else {

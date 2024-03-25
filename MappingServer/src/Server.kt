@@ -93,6 +93,9 @@ class Server(port: Int = 5060 * 2) {
             clientSocket.getOutputStream().write(encrypted.toByteArray())
         } catch (e: Exception) {
             println("Error handling connection: ${e.message}")
+
+            clientSocket.close()
+            return
         } finally {
             clientSocket.close()
         }

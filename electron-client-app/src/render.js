@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var ipField = document.getElementById('ip-address');
     var portField = document.getElementById('port');
     var connection = null;
+    var usernameField = document.getElementById('username');
 
     pathLengthInput.value = "3";
     ipField.value = "127.0.0.1";
@@ -59,8 +60,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // ip and port given?
-        if(ipField.value === "" || portField.value === "") {
-            alert("Please enter the IP and port of the server");
+        if((ipField.value === "" || portField.value === "") && (usernameField.value === "")) {
+            alert("Please enter the IP and port of the server or the username of the user you want to send a message to");
 
             return;
         }
@@ -69,8 +70,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         messageText = formatMessage(messageText) + "\n";
 
-        console.log("Ip: " + ipField.value + "\nPort: " + portField.value + "\nMessage: " + messageText);
+        if(usernameField.value !== "") {
+            connection.sendMessageToUser(usernameField.value, messageText);
 
+            return;
+        }
+        
         connection.sendMessage(ipField.value, portField.value, messageText);
     });
 });
