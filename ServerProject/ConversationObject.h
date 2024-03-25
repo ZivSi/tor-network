@@ -128,8 +128,8 @@ public:
 	void collectMessages();
 	ClientConnection* addActiveConnection(DestinationData destinationData);
 	void removeActiveConnection(DestinationData destinationData);
-	ClientConnection* getActiveConnection(DestinationData destinationData);
-	bool isDestinationActive(DestinationData destinationData);
+	ClientConnection* getConnection(DestinationData destinationData);
+	bool hasDestinationInMap(DestinationData destinationData);
 
 
 	// ----------------- Queue Related -----------------

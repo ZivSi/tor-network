@@ -1,52 +1,73 @@
 const net = require('net');
 
-const SERVER_ADDRESS = 'localhost';
-const SERVER_PORT = 5060 * 3; 
 const START_PATH_DESIGN_STRING = "START PATH DESIGN";
 const NUM_OF_NODES = "5";
 
-function connectToServer() {
-    const clientSocket = net.createConnection({ host: SERVER_ADDRESS, port: SERVER_PORT }, () => {
-        console.log('Connected to server');
 
-        sendData(clientSocket, `${START_PATH_DESIGN_STRING}:${NUM_OF_NODES}`);
+function sendData(connection, data) {
+    try {
+        // First send the size of the data in 8 bytes
+        const dataSizeBuffer = Buffer.alloc(8);
+        dataSizeBuffer.writeBigUInt64LE(BigInt(data.length));
 
-        clientSocket.on('data', (data) => {
+        console.log("Sending data size:", dataSizeBuffer);
+
+        connection.write(dataSizeBuffer);
+
+        // Send the actual data
+        console.log("Sending data:", data);
+        connection.write(data);
+    } catch (error) {
+        console.error("Error sending data:", error);
+    }
+}
+
+
+class Connection {
+    constructor(serverIp = "127.0.0.1", serverPort = 5060 * 3) {
+        this.serverIp = serverIp;
+        this.serverPort = serverPort;
+
+        this.socket = connectTo(this.serverIp, this.serverPort);
+    }
+
+    connectTo(ip, port) {
+        return net.createConnection({ host: ip, port: port }, () => {
+            console.log('Connected to: ' + ip + ':' + port);
+        });
+    }
+
+    handshake(numOfNodes) {
+        sendData(this.socket, `${START_PATH_DESIGN_STRING}:${numOfNodes}`);
+    }
+
+    sendMessage(ip, port, message) {
+        sendData(this.socket, `${ip}::::${port}::::${message}`);
+    }
+
+    sendMessage(username, message) {
+        sendData(this.socket, `${username}::::${message}`);
+    }
+
+    receiveInThread() {
+        this.socket.on('data', (data) => {
             const dataSize = data.readUIntLE(0, 8);
             const message = data.slice(8, 8 + dataSize).toString();
             console.log('Received:', message);
         });
 
-        clientSocket.on('error', (err) => {
+        this.socket.on('error', (err) => {
             console.error('Error:', err);
         });
 
-        clientSocket.on('close', () => {
+        this.socket.on('close', () => {
             console.log('Connection closed');
         });
+    }
 
-        process.stdin.on('data', (input) => {
-            const message = input.toString().trim();
-            if (message.toLowerCase() === 'quit') {
-                clientSocket.end();
-                process.exit();
-            }
-            sendData(clientSocket, message);
-        });
-    });
-
-    return clientSocket;
+    getSocket() {
+        return this.socket;
+    }
 }
 
-function sendData(connection, data) {
-    const dataSize = Buffer.byteLength(data);
-    const dataBuffer = Buffer.allocUnsafe(8 + dataSize);
-
-    dataBuffer.writeUIntLE(dataSize, 0, 8);
-    dataBuffer.write(data, 8, dataSize, 'utf8');
-
-    console.log('Sending data:', data);
-    connection.write(dataBuffer);
-}
-
-module.exports = connectToServer;
+module.exports = Connection, sendData;

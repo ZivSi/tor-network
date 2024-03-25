@@ -200,7 +200,7 @@ void ConversationObject::removeActiveConnection(DestinationData destinationData)
 	cerr << "Could not find connection to remove (IP: " << destinationData.getDestinationIP() << ", Port: " << destinationData.getDestinationPort() << ")" << endl;
 }
 
-ClientConnection* ConversationObject::getActiveConnection(DestinationData destinationData)
+ClientConnection* ConversationObject::getConnection(DestinationData destinationData)
 {
 	auto it = this->destinationMap.find(ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort()));
 
@@ -211,7 +211,7 @@ ClientConnection* ConversationObject::getActiveConnection(DestinationData destin
 	return nullptr;
 }
 
-bool ConversationObject::isDestinationActive(DestinationData destinationData)
+bool ConversationObject::hasDestinationInMap(DestinationData destinationData)
 {
 	auto it = this->destinationMap.find(ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort()));
 
@@ -234,7 +234,7 @@ ClientConnection* DestinationData::createConnection()
 string ConversationObject::generateID() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> dis(0, LETTERS.size() - 1);
+	std::uniform_int_distribution<> dis(0, static_cast<int>(LETTERS.size() - 1));
 
 	std::string uuid;
 	uuid.reserve(UUID_LEN);

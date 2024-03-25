@@ -1,6 +1,5 @@
 ﻿#include "Node.h"
 
-// Port variable
 unsigned short Node::PORT = SERVER_PORT + 1;
 
 Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLocalIpv4()), IConnection(myIP, Node::PORT, &logger)
@@ -9,6 +8,9 @@ Node::Node() : logger("Node " + to_string(Node::PORT)), stop(false), myIP(getLoc
 
 	myPort = Node::PORT;
 	Node::PORT += 1;
+
+	parentIP = SERVER_IP;
+	parentPort = SERVER_PORT;
 
 	this->parentConnection = new ClientConnection(SERVER_IP, SERVER_PORT, logger);
 
@@ -23,6 +25,8 @@ Node::Node(string parentIP, unsigned short parentPort) : logger("Node " + to_str
 	myPort = Node::PORT;
 	Node::PORT += 1;
 
+	parentIP = parentIP;
+	parentPort = parentPort;
 	this->parentConnection = new ClientConnection(parentIP, parentPort, logger);
 
 	thread acceptInThread(&Node::acceptSocket, this, getSocket());
@@ -148,6 +152,11 @@ void Node::listenToNextNode(SOCKET previousNodeSocket, ConversationObject* curre
 			return;
 		}
 
+		if (!nextNode->isConnectionActive()) {
+			sendNodeUnreachable(currentConversation);
+			return;
+		}
+
 		string received = nextNode->receiveData();
 
 		if (dataLegit(received)) {
@@ -169,10 +178,24 @@ void Node::handleNode(SOCKET previousNodeSocket, ConversationObject* currentConv
 	ClientConnection* nextNode = currentConversation->getNxtNode();
 
 	if (nextNode == nullptr) {
-		nextNode = new ClientConnection(currentConversation->getNxtIP(), currentConversation->getNxtPort(), this->logger);
-		nextNode->receiveKeys(true);
+		try {
+			nextNode = new ClientConnection(currentConversation->getNxtIP(), currentConversation->getNxtPort(), this->logger);
+			nextNode->receiveKeys(true);
 
-		currentConversation->setNxtNode(nextNode);
+			currentConversation->setNxtNode(nextNode);
+
+		}
+		catch (std::runtime_error e) {
+			logger.error("Error ni connecting to next node: " + currentConversation->getNxtIP() + ":" + to_string(currentConversation->getNxtPort()));
+
+			sendNodeUnreachable(currentConversation);
+
+			// delete conversation
+			removeConversationFromMap(currentConversation->getConversationId());
+			if (currentConversation != nullptr) { delete currentConversation; }
+
+			return;
+		}
 	}
 
 
@@ -275,13 +298,14 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 
 
 		try {
-			if (!currentConversation->isDestinationActive(dd)) {
+			if (!currentConversation->hasDestinationInMap(dd)) {
 				logger.log("Connection to " + dd.getDestinationIP() + ":" + to_string(dd.getDestinationPort()) + " is not active");
 				currentConversation->addActiveConnection(dd); // Might throw exception
 				logger.success("Connected to " + dd.getDestinationIP() + ":" + to_string(dd.getDestinationPort()));
 			}
 
-			currentConversation->getActiveConnection(dd)->sendDataTcp(dd.getData());
+			logger.log("Sending to (" + dd.getDestinationIP() + ":" + to_string(dd.getDestinationPort()) + "): " + dd.getData());
+			currentConversation->getConnection(dd)->sendDataTcp(dd.getData());
 		}
 		catch (std::runtime_error e) {
 			string errorMessage = "Node {" + this->getIP() + ":" + to_string(this->getPort()) + "} - ID: " + currentConversation->getConversationId() + SPLITER + "Can't connect to host at " + host.toString();
@@ -337,7 +361,7 @@ bool Node::sendToUsername(std::string& decrypted, vector<string>* packetProperti
 		DestinationData dd(properties + SPLITER + message);
 
 
-		ClientConnection* connection = currentConversation->getActiveConnection(dd);
+		ClientConnection* connection = currentConversation->getConnection(dd);
 
 		if (connection == nullptr) {
 			connection = currentConversation->addActiveConnection(dd);
@@ -650,7 +674,7 @@ void Node::sendAlive()
 string Node::getPropertiesByUsername(string username)
 {
 	// Ask the mapping server for the IP and port of the username
-	ClientConnection mappingServerConnection(SERVER_IP, MAPPING_SERVER_PORT, logger);
+	ClientConnection mappingServerConnection(parentIP, MAPPING_SERVER_PORT, logger);
 
 	mappingServerConnection.sendDataTcp(rsaHandler.formatForSending() + "\n");
 

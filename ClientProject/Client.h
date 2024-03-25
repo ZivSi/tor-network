@@ -66,7 +66,10 @@ public:
 	void sendData(string username, string message, ClientConnection* entryNodeConnection);
 	void sendData(DestinationData dd, ClientConnection* entryNodeConnection);
 
-	void sendToElectron(SOCKET socket, const string& message);
+	// ----------------- Electron Communication -----------------
+	void informElectron(SOCKET socket, const string& message);
+	void passResponseToElectron(SOCKET socket, const string& response);
+	void sendErrorToElectron(SOCKET socket, int errorType, const string& message);
 
 	void receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection);
 

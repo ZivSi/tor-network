@@ -73,7 +73,7 @@ void IConnection::sendData(SOCKET connection, const string& data) {
 
 		send(connection, reinterpret_cast<const char*>(&dataSize), sizeof(size_t), 0);
 
-		send(connection, data.data(), dataSize, 0);
+		send(connection, data.data(), static_cast<int>(dataSize), 0);
 	}
 	catch (...) {
 		logger->error("Couldn't send data. Client disconnected");
@@ -122,7 +122,7 @@ string IConnection::receiveData(SOCKET connection) {
 	size_t totalReceived = 0;
 	while (totalReceived < dataSize) {
 		size_t bytesToReceive = min(chunkSize, dataSize - totalReceived);
-		size_t bytesReceived = recv(connection, buffer.data(), bytesToReceive, 0);
+		size_t bytesReceived = recv(connection, buffer.data(), static_cast<int>(bytesToReceive), 0);
 
 		if (bytesReceived < 0) {
 			// Handle receive error

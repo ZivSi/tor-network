@@ -110,6 +110,8 @@ void ClientConnection::handshake()
 	receiveKeys(true); // Initialize parent ECC
 	sendECCKeys();
 	sendAESKeys();
+
+	logger.success("Handshake completed");
 }
 
 
@@ -131,7 +133,7 @@ void ClientConnection::sendData(string data) {
 		}
 
 		// Send the data itself
-		bytesSent = send(connection, data.data(), dataSize, 0);
+		bytesSent = send(connection, data.data(), static_cast<int>(dataSize), 0);
 		if (bytesSent == -1) {
 			// If send() returns -1, handle the error
 			throw std::runtime_error("Failed to send data");
@@ -165,7 +167,7 @@ void ClientConnection::sendDataTcp(string data) {
 
 	try {
 		// Send the data itself
-		size_t bytesSent = send(connection, data.data(), dataSize, 0);
+		size_t bytesSent = send(connection, data.data(), static_cast<int>(dataSize), 0);
 		if (bytesSent == -1) {
 			// If send() returns -1, handle the error
 			throw std::runtime_error("Failed to send data");
@@ -239,7 +241,7 @@ string ClientConnection::receiveData() {
 		size_t totalReceived = 0;
 		while (totalReceived < dataSize) {
 			size_t bytesToReceive = min(chunkSize, dataSize - totalReceived);
-			size_t bytesReceived = recv(connection, buffer.data(), bytesToReceive, 0);
+			size_t bytesReceived = recv(connection, buffer.data(), static_cast<int>(bytesToReceive), 0);
 
 			if (bytesReceived < 0) {
 				// Handle receive error
@@ -266,6 +268,10 @@ string ClientConnection::receiveData() {
 		// closeConnection();
 
 		// throw e;
+
+		logger.error("Failed to receive data");
+		cerr << "Runtime error: " << e.what() << endl;
+		return "";
 	}
 }
 
@@ -290,7 +296,7 @@ void ClientConnection::sendECCKeys()
 	string eccKeysSerialized = this->eccHandler.serializeKey();
 	sendKeys(eccKeysSerialized);
 
-	logger.keysInfo("Sent public key");
+	// logger.keysInfo("Sent public key");
 }
 
 void ClientConnection::sendECCKeys(ECCHandler* eccHandler)

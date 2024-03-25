@@ -64,4 +64,18 @@ namespace Constants {
 		USERNAME_INDEX = 0,
 		MESSAGE_INDEX = 1
 	};
+
+
+	enum BackToFront
+	{
+		MESSAGE = 0,
+		INFO = 1,
+		ERROR_NODES_LENGTH = 2,
+		ERROR_USERNAME_NOT_FOUND = 3,
+		ERROR_HOST_UNREACHABLE = 4,
+		ERROR_PATH_NOT_COMPLETE = 5,
+		INVALID_ARGS = 6,
+		USERNAME = 7,
+	};
+
 }

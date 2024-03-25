@@ -56,6 +56,9 @@ public:
 	void start();
 
 private:
+	string parentIP;
+	unsigned short parentPort;
+
 	Logger logger;
 	RSAHandler rsaHandler;
 

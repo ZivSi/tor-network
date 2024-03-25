@@ -87,35 +87,35 @@ void Client::handleClient(SOCKET clientSocket)
 				if (pathLength == -1 || pathLength < DEFAULT_PATH_LENGTH) {
 					logger.error("Invalid path length received");
 
-					sendToElectron(clientSocket, "Invalid path length received");
+					sendErrorToElectron(clientSocket, INVALID_ARGS, "Invalid path length received");
 
 					continue;
 				}
 
-				sendToElectron(clientSocket, "Waiting for nodes...");
+				informElectron(clientSocket, "Waiting for nodes...");
 
 				waitForNodes();
 				receiveResponseFromServer();
 
-				sendToElectron(clientSocket, "Path design starting now...");
+				informElectron(clientSocket, "Path design starting now...");
 				startPathDesign();
 
-				sendToElectron(clientSocket, "Path design completed");
-				sendToElectron(clientSocket, "Handshaking with nodes...");
+				informElectron(clientSocket, "Path design completed");
+				informElectron(clientSocket, "Handshaking with nodes...");
 
 				handshakeWithCurrentPath();
 
-				sendToElectron(clientSocket, "Handshake completed");
+				informElectron(clientSocket, "Handshake completed");
 				pathDesignComplete = true;
 
-				sendToElectron(clientSocket, "Path design completed");
+				informElectron(clientSocket, "Path design completed");
 
-				sendToElectron(clientSocket, "Path: " + pathToString());
+				informElectron(clientSocket, "Path: " + pathToString());
 
 				entryNodeConnection = connectToEntryNode();
 			}
 			else if (pathIsTooOld()) {
-				sendToElectron(clientSocket, "Path is too old. Please start a new path design");
+				sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path is too old. Please start a new path design");
 				clearCurrentPath();
 
 				pathDesignComplete = false;
@@ -131,6 +131,8 @@ void Client::handleClient(SOCKET clientSocket)
 				try {
 					DestinationData dd(received);
 					sendData(dd, entryNodeConnection);
+
+					logger.log("Passing data to next node: " + dd.getData());
 				}
 				catch (...) {
 					vector<string> split = Utility::splitString(received, SPLITER);
@@ -142,12 +144,12 @@ void Client::handleClient(SOCKET clientSocket)
 						sendData(username, message, entryNodeConnection);
 					}
 					else {
-						sendToElectron(clientSocket, "Invalid input format. Please provide input in the format 'username::::message' or ip::::port::::message");
+						sendErrorToElectron(clientSocket, INVALID_ARGS, "Invalid input format. Please provide input in the format 'username::::message' or ip::::port::::message");
 					}
 				}
 			}
 			else {
-				sendToElectron(clientSocket, "Path design not started yet");
+				sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path design not completed");
 			}
 		}
 		catch (std::exception& e) {
@@ -387,9 +389,25 @@ void Client::sendData(DestinationData dd, ClientConnection* entryNodeConnection)
 	sendData(dd.getDestinationIP(), dd.getDestinationPort(), dd.getData(), entryNodeConnection);
 }
 
-void Client::sendToElectron(SOCKET socket, const string& message)
+void Client::informElectron(SOCKET socket, const string& message)
 {
-	IConnection::sendData(socket, message);
+	JsonResponse response(LOCALHOST, LOCAL_CLIENT_PORT, "0", INFO, LOCALHOST, LOCAL_CLIENT_PORT, message);
+
+	IConnection::sendData(socket, response.toString());
+}
+
+void Client::passResponseToElectron(SOCKET socket, const string& messageResponse)
+{
+	JsonResponse response(LOCALHOST, LOCAL_CLIENT_PORT, "0", MESSAGE, LOCALHOST, LOCAL_CLIENT_PORT, messageResponse);
+
+	IConnection::sendData(socket, response.toString());
+}
+
+void Client::sendErrorToElectron(SOCKET socket, int errorType, const string& message)
+{
+	JsonResponse response(LOCALHOST, LOCAL_CLIENT_PORT, "0", errorType, LOCALHOST, LOCAL_CLIENT_PORT, message);
+
+	IConnection::sendData(socket, response.toString());
 }
 
 void Client::receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection)
@@ -404,7 +422,7 @@ void Client::receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** e
 
 		string decrypted = decrypt(data);
 		cout << "Received from next node: " << decrypted << endl;
-		sendToElectron(electronSocket, decrypted);
+		informElectron(electronSocket, decrypted);
 	}
 }
 
