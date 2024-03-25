@@ -41,6 +41,12 @@ public:
 	unsigned short getDestinationPort();
 	string getData();
 
+	// ----------------- Setters -----------------
+	void setDestinationIP(string destinationIP);
+	void setDestinationPort(unsigned short destinationPort);
+	void setData(string data);
+
+
 	// ----------------- Connection Creation -----------------
 	ClientConnection* createConnection();
 };

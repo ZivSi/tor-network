@@ -115,6 +115,22 @@ string DestinationData::getData()
 	return this->data;
 }
 
+void DestinationData::setDestinationIP(string destinationIP)
+{
+	this->destinationIP = destinationIP;
+
+}
+
+void DestinationData::setDestinationPort(unsigned short destinationPort)
+{
+	this->destinationPort = destinationPort;
+}
+
+void DestinationData::setData(string data)
+{
+	this->data = data;
+}
+
 string ConnectionPair::getIP() const
 {
 	return this->ip;

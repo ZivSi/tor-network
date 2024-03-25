@@ -1,39 +1,97 @@
-const { ipcRenderer } = require('electron');
-const { sendData } = require('./socket.js');
-
-// Get the Connection class from ./socket.js
-const Connection = require('./socket.js');
-
-// Open developer tools
-document.addEventListener("keydown", (e) => {
-    if (e.key === "F12") {
-        ipcRenderer.send('open-dev-tools');
-    }
-});
+const MIN_PATH_LENGTH = 3;
+const SPLITER = "::::";
 
 document.addEventListener("DOMContentLoaded", function () {
     var connectButton = document.querySelector('.connect-button');
-    var ipAddressInput = document.getElementById('ip-address');
-    var portInput = document.getElementById('port');
-    var usernameInput = document.getElementById('username');
-    var messageInput = document.getElementById('message');
+    var pathLengthInput = document.getElementById('pathLen');
+    var additionalInputs = document.getElementById('additional-inputs');
+    var fileInput = document.getElementById('file-upload');
+    var fileNameDisplay = document.getElementById('file-name');
+    var welcomeText = document.getElementById('welcome-text');
+    var sendButton = document.querySelector('.connect2-button');
+    var messageBox = document.getElementById('message');
+    var ipField = document.getElementById('ip-address');
+    var portField = document.getElementById('port');
+    var connection = null;
 
-    connectButton.addEventListener('click', function (event) {
-        var ip = ipAddressInput.value.trim();
-        var port = portInput.value.trim();
-        var username = usernameInput.value.trim();
-        var message = messageInput.value.trim();
+    pathLengthInput.value = "3";
+    ipField.value = "127.0.0.1";
+    portField.value = "10210";
+    messageBox.value = "Hello from client";
 
-        console.log("Clicked connect button:", ip, port, username, message);
 
-        // We don't need the user to tell us the local server's IP and port
+    connectButton.addEventListener('click', function(event) {
+        console.log("connectButton clicked");
 
-        var connection = Connection()
+        if(!pathValueValid(pathLengthInput.value)) {
+            alert("Please enter a valid path length");
 
-        if (username) {
-            sendData(connection.getSocket(), `USERNAME::::${username}::::${message}`);
-        } else {
-            sendData(connection.getSocket(), `IP::::${ip}::::${port}::::${message}`);
+            location.reload();
+
+            return;
         }
+
+        hideElements(pathLengthInput, additionalInputs, welcomeText);
+
+        //connecting to local server
+        connection = new Connection();
+        console.log("connected");
+
+        console.log("Sending handshake message");
+        connection.handshake(pathLengthInput.value);
+
+        // Start listening for incoming messages
+        connection.receiveInThread();
+    });
+
+    fileInput.addEventListener('change', function(event) {
+        var fileName = event.target.files[0].name;
+        fileNameDisplay.textContent = 'Selected file: ' + fileName;
+    });
+
+    sendButton.addEventListener('click', function(event) {
+        console.log("sendButton clicked");
+
+        if(connection === null) {
+            alert("Please connect to the server first");
+
+            return;
+        }
+
+        // ip and port given?
+        if(ipField.value === "" || portField.value === "") {
+            alert("Please enter the IP and port of the server");
+
+            return;
+        }
+
+        var messageText = messageBox.value;
+
+        messageText = formatMessage(messageText) + "\n";
+
+        console.log("Ip: " + ipField.value + "\nPort: " + portField.value + "\nMessage: " + messageText);
+
+        connection.sendMessage(ipField.value, portField.value, messageText);
     });
 });
+
+
+function hideElements(pathLengthInput, additionalInputs, welcomeText) {
+    pathLengthInput.style.visibility = 'hidden';
+    additionalInputs.style.display = 'block';
+    welcomeText.style.display = 'none';
+}
+
+function pathValueValid(pathValue) {
+    return pathValue >= MIN_PATH_LENGTH && pathValue !== null;
+}
+
+function buildMessage(ip, port, messageText) {
+    return `${ip}${SPLITER}${port}${SPLITER}${messageText}`;
+}
+
+function formatMessage(messageText) {
+    // Replace \n with newline character
+    const formattedMessage = messageText.replace(/\\n/g, '\n');
+    return formattedMessage;
+}

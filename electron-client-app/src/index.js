@@ -19,7 +19,8 @@ const createMainWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
-      devTools: false,
+      contextIsolation: false,
+      devTools: true,
     },
   });
 

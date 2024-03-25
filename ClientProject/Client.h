@@ -50,7 +50,7 @@ public:
 	ClientConnection* connectToEntryNode();
 
 	// ----------------- Path Design & Handshake -----------------
-	void startPathDesign();
+	void startPathDesign(unsigned int pathLength);
 	void handshakeWithCurrentPath();
 	void handshakeWithNode(string ip, unsigned short nodePort, unsigned int nodeIndex);
 
@@ -71,7 +71,7 @@ public:
 	void passResponseToElectron(SOCKET socket, const string& response);
 	void sendErrorToElectron(SOCKET socket, int errorType, const string& message);
 
-	void receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection);
+	void receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop);
 
 	// ----------------- Encryption & Decryption -----------------
 	string encrypt(string ip, unsigned short port, string message);

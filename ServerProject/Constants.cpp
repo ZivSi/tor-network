@@ -26,6 +26,7 @@ namespace Constants {
 
 	const int NODE_SPLIT_SIZE = static_cast<const int>(Utility::splitString(NODE_INIT_FORMAT, SPLITER).size());
 	const int DEFAULT_PATH_LENGTH = 3;
+	const int MAX_PATH_LENGTH = 10;
 	const int MAX_TIME_ALIVE = 10000;
 	const int MAX_PING_ALIVE_MS = 2000;
 	const int PATH_TIMEOUT = 10 * 60 * 1000; // 10 minutes

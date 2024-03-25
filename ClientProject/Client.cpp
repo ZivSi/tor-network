@@ -66,8 +66,12 @@ void Client::handleClient(SOCKET clientSocket)
 	bool pathDesignComplete = false;
 	ClientConnection* entryNodeConnection = nullptr;
 
-	thread receiveThread(&Client::receiveInLoopToElectron, this, clientSocket, &entryNodeConnection);
+	bool stop = false;
+
+	thread receiveThread(&Client::receiveInLoopToElectron, this, clientSocket, &entryNodeConnection, &stop);
 	receiveThread.detach();
+
+	unsigned long long lastReceivedTime = 0;
 
 	while (!stop) {
 		string received = "";
@@ -79,10 +83,30 @@ void Client::handleClient(SOCKET clientSocket)
 				continue;
 			}
 
+			if (lastReceivedTime != 0 && (Utility::capture_time() - lastReceivedTime) > 1000 * 60) { // TODO: Change to 5 minutes
+				sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path is too old. Please start a new path design");
+				clearCurrentPath();
+
+				stop = true;
+
+				// Reset the path design
+				pathDesignComplete = false;
+
+				return;
+			}
+
+			lastReceivedTime = Utility::capture_time();
+
+			logger.log("Received from electron: " + received);
+
 			if (isPathDesignCommand(received)) {
+				logger.success("Path design command received");
+
 				clearCurrentPath();
 
 				int pathLength = extractPathLength(received);
+
+				logger.log("Path length: " + std::to_string(pathLength));
 
 				if (pathLength == -1 || pathLength < DEFAULT_PATH_LENGTH) {
 					logger.error("Invalid path length received");
@@ -98,7 +122,7 @@ void Client::handleClient(SOCKET clientSocket)
 				receiveResponseFromServer();
 
 				informElectron(clientSocket, "Path design starting now...");
-				startPathDesign();
+				startPathDesign(pathLength);
 
 				informElectron(clientSocket, "Path design completed");
 				informElectron(clientSocket, "Handshaking with nodes...");
@@ -130,6 +154,10 @@ void Client::handleClient(SOCKET clientSocket)
 
 				try {
 					DestinationData dd(received);
+
+					string formattedData = Utility::formatData(dd.getData());
+					dd.setData(formattedData);
+
 					sendData(dd, entryNodeConnection);
 
 					logger.log("Passing data to next node: " + dd.getData());
@@ -209,12 +237,15 @@ void Client::receiveResponseFromServer()
 }
 
 
-void Client::startPathDesign()
+void Client::startPathDesign(unsigned int pathLength)
 {
+	pathLength = max(pathLength, DEFAULT_PATH_LENGTH);
+	pathLength = min(pathLength, MAX_PATH_LENGTH);
+
 	clearCurrentPath();
 
 	currentPathMutex.lock();
-	for (int i = 0; i < DEFAULT_PATH_LENGTH; i++) {
+	for (int i = 0; i < pathLength; i++) {
 		unsigned int randomIndex = Utility::generateRandomNumber(0, this->receivedRelays.size() - 1);
 		string currentIp = receivedRelays.at(randomIndex).getIp();
 		unsigned short currentPort = receivedRelays.at(randomIndex).getPort();
@@ -410,10 +441,15 @@ void Client::sendErrorToElectron(SOCKET socket, int errorType, const string& mes
 	IConnection::sendData(socket, response.toString());
 }
 
-void Client::receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection)
+void Client::receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop)
 {
-	while (!stop) {
-		if (*entryNodeConnection == nullptr) { continue; }
+	while (!*stop) {
+		if (*entryNodeConnection == nullptr) {
+			cout << "Entry node connection is null" << endl;
+			Sleep(1000);
+			continue;
+		}
+
 		string data = (*entryNodeConnection)->receiveData();
 
 		if (data.empty()) {

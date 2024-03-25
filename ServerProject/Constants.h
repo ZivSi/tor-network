@@ -26,6 +26,7 @@ namespace Constants {
 	extern const string CLIENT_INITIAL_MESSAGE;
 	extern const int NODE_SPLIT_SIZE;
 	extern const int DEFAULT_PATH_LENGTH;
+	extern const int MAX_PATH_LENGTH;
 	extern const int MAX_TIME_ALIVE;
 	extern const int MAX_PING_ALIVE_MS;
 	extern const int PATH_TIMEOUT;
