@@ -72,7 +72,7 @@ h1 {
 
 input[type="number"],
 input[type="text"],
-input[type="file"],
+/* input[type="file"], */
 input[type="checkbox"],
 input[type="submit"] {
   /* Added input[type="submit"] for styling the button */
@@ -133,7 +133,7 @@ button:hover,
   display: inline-block;
 }
 
-.custom-file-upload {
+/* .custom-file-upload {
   padding: 10px 20px;
   border-radius: 0.5px;
   background-color: #7d4698;
@@ -160,7 +160,7 @@ button:hover,
 
 input[type="file"] {
   display: none;
-}
+} */
 
 .or-container {
   display: flex;

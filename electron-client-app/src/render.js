@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var connectButton = document.querySelector('.connect-button');
     var pathLengthInput = document.getElementById('pathLen');
     var additionalInputs = document.getElementById('additional-inputs');
-    var fileInput = document.getElementById('file-upload');
-    var fileNameDisplay = document.getElementById('file-name');
+    // var fileInput = document.getElementById('file-upload');
+    // var fileNameDisplay = document.getElementById('file-name');
     var welcomeText = document.getElementById('welcome-text');
     var sendButton = document.querySelector('.connect2-button');
     var messageBox = document.getElementById('message');
@@ -15,13 +15,21 @@ document.addEventListener("DOMContentLoaded", function () {
     var connection = null;
     var usernameField = document.getElementById('username');
 
-    var largeText = document.getElementById("largeText");
-    largeText.textContent = "Waiting for your username...";
-
     pathLengthInput.value = "3";
     ipField.value = "127.0.0.1";
     portField.value = "10210";
     messageBox.value = "Hello from client";
+
+
+    var consoleOutput = document.getElementById('console-output');
+
+    console.log = function(message) {
+        var textNode = document.createTextNode(message);
+
+        consoleOutput.appendChild(textNode);
+
+        consoleOutput.appendChild(document.createElement('br'));
+    };
 
 
     connectButton.addEventListener('click', function (event) {
@@ -37,8 +45,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         hideElements(pathLengthInput, additionalInputs, welcomeText);
 
-        largeText.style.display = "block";
-
         //connecting to local server
         connection = new Connection();
         console.log("connected");
@@ -50,10 +56,10 @@ document.addEventListener("DOMContentLoaded", function () {
         connection.receiveInThread();
     });
 
-    fileInput.addEventListener('change', function (event) {
-        var fileName = event.target.files[0].name;
-        fileNameDisplay.textContent = 'Selected file: ' + fileName;
-    });
+    // fileInput.addEventListener('change', function (event) {
+    //     var fileName = event.target.files[0].name;
+    //     fileNameDisplay.textContent = 'Selected file: ' + fileName;
+    // });
 
     sendButton.addEventListener('click', function (event) {
         console.log("sendButton clicked");
