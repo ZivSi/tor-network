@@ -41,6 +41,9 @@ public:
 	string receiveData(SOCKET connection);
 	string receiveKeys(SOCKET connection);
 
+	string receiveDataFromTcp(SOCKET connection, bool block);
+	string receiveBySize(SOCKET connection, size_t size);
+
 	void closeConnection();
 
 	string getLocalIpv4();

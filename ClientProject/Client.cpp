@@ -52,16 +52,16 @@ void Client::acceptSocket(SOCKET socket) {
 
 		logger.clientEvent("Accepted connection from electron client");
 
-
-		string initialMessage = receiveData(clientSocket);
-
-		if (isElectronClient(initialMessage)) {
+		try {
+			string initialMessage = receiveData(clientSocket);
 
 			std::thread clientThread(&Client::handleClient, this, clientSocket);
 			clientThread.detach();
 		}
-		else {
-			messageQueue.push(initialMessage);
+		catch (...) {
+			// It's not an electron client
+
+
 		}
 	}
 }
@@ -127,6 +127,8 @@ void Client::handleClient(SOCKET clientSocket)
 			receiveResponseFromServer();
 			sendToElectron(clientSocket, "Path design starting now...");
 			startPathDesign(pathLength);
+
+			currentPathAliveTime = 0;
 
 			sendToElectron(clientSocket, "Path design completed");
 			sendToElectron(clientSocket, "Handshaking with nodes...");

@@ -108,8 +108,19 @@ string IConnection::receiveData(SOCKET connection) {
 	}
 
 	if (dataSize > 1000000) {
-		logger->error("Data size is: " + to_string(dataSize));
-		throw std::runtime_error("Data size is too large");
+		logger->error("Data size is too large: " + to_string(dataSize));
+		// Instead of throwing an error, return the data received as string
+		vector<char> dataBuffer(dataSize); // Buffer to hold the data
+		received = recv(connection, dataBuffer.data(), dataSize, 0);
+		if (received < 0) {
+			throw std::runtime_error("Failed to receive data");
+		}
+		else if (received == 0) {
+			throw std::runtime_error("Connection closed prematurely");
+		}
+		// Construct a string from the received data
+		string data(dataBuffer.begin(), dataBuffer.end());
+		return data;
 	}
 
 	string data;

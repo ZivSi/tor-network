@@ -125,4 +125,6 @@ private:
 
 	// ----------------- Control Variables -----------------
 	bool stop = false;
+
+	bool isValidSizeTSize(string sizeStr);
 };
