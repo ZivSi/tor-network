@@ -86,6 +86,7 @@ public:
 	void sendErrorToElectron(SOCKET socket, int errorType, const string& message);
 
 	void receiveMessagesForElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop);
+	void sendMessageFromQueue(SOCKET electronSocket, bool* stop);
 
 	// ----------------- Encryption & Decryption -----------------
 	string encrypt(string ip, unsigned short port, string message);

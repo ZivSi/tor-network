@@ -50,18 +50,18 @@ void Client::acceptSocket(SOCKET socket) {
 			continue;
 		}
 
-		logger.clientEvent("Accepted connection from electron client");
+		string initialMessage = receiveData(clientSocket);
 
-		try {
-			string initialMessage = receiveData(clientSocket);
+		if (isElectronClient(initialMessage)) {
+			logger.clientEvent("Accepted connection from electron client");
 
 			std::thread clientThread(&Client::handleClient, this, clientSocket);
 			clientThread.detach();
 		}
-		catch (...) {
-			// It's not an electron client
-
-
+		else {
+			logger.log("Pushed message: " + initialMessage);
+			// Push to messagesQueue
+			messageQueue.push(initialMessage);
 		}
 	}
 }
@@ -73,8 +73,12 @@ void Client::handleClient(SOCKET clientSocket)
 
 	bool stopCurrentElectronClient = false;
 
-	thread receiveThread(&Client::receiveMessagesForElectron, this, clientSocket, &entryNodeConnection, &stopCurrentElectronClient);
+	thread receiveThread(&Client::receiveMessagesForElectron, this, clientSocket, &entryNodeConnection, &stopCurrentElectronClient); // For incoming messages from entry node
 	receiveThread.detach();
+
+	thread receiveThread2(&Client::sendMessageFromQueue, this, clientSocket, &stopCurrentElectronClient); // For queue messages
+	receiveThread2.detach();
+
 	string username = "";
 
 	unsigned long long lastReceivedTime = 0;
@@ -528,15 +532,6 @@ void Client::receiveMessagesForElectron(SOCKET electronSocket, ClientConnection*
 			continue;
 		}
 
-		while (!messageQueue.empty()) {
-			string message = messageQueue.front();
-			messageQueue.pop();
-
-			cout << "Received for electron: " << message << endl;
-
-			sendToElectron(electronSocket, message);
-		}
-
 		string data = (*entryNodeConnection)->receiveData();
 
 		if (data.empty()) {
@@ -546,6 +541,20 @@ void Client::receiveMessagesForElectron(SOCKET electronSocket, ClientConnection*
 		string decrypted = decrypt(data);
 		cout << "Received from next node: " << decrypted << endl;
 		sendToElectron(electronSocket, decrypted);
+	}
+}
+
+void Client::sendMessageFromQueue(SOCKET electronSocket, bool* stop)
+{
+	while (!*stop) {
+		while (!messageQueue.empty()) {
+			string message = messageQueue.front();
+			messageQueue.pop();
+
+			logger.success("Sending message from queue: " + message);
+
+			sendToElectron(electronSocket, message);
+		}
 	}
 }
 

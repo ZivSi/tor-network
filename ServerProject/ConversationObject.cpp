@@ -207,7 +207,7 @@ void ConversationObject::removeActiveConnection(DestinationData destinationData)
 	auto it = this->destinationMap.find(ConnectionPair(destinationData.getDestinationIP(), destinationData.getDestinationPort()));
 
 	if (it != this->destinationMap.end()) {
-		delete it->second;
+		if (it->second != nullptr) { delete it->second; }
 		this->destinationMap.erase(it);
 
 		return;
@@ -318,10 +318,18 @@ void ConversationObject::collectMessages()
 		}
 		catch (std::runtime_error e)
 		{
+			if (it->first.getPort() == LOCAL_CLIENT_PORT) {
+				// Will be removed by anoteher thread
+				continue;
+			}
+
 			// Host unreachable so we remove the connection
 			cerr << "Host: " << it->first << " is unreachable. Removing connection" << endl;
 
-			delete it->second;
+			if (it->second != nullptr) {
+				cout << "It->second not null" << endl;
+				delete it->second;
+			}
 			this->destinationMap.erase(it);
 		}
 

@@ -287,8 +287,17 @@ void Node::handleNodeAsExit(SOCKET previousNodeSocket, ConversationObject* curre
 				logger.error("Inside handleNodeAsExit: ");
 				cerr << e.what() << endl;
 			}
+			catch (...) {
+				logger.error("Inside handleNodeAsExit: ");
+				cerr << "Unknown error" << endl;
+			}
 
-			received = receiveData(previousNodeSocket);
+			try {
+				received = receiveData(previousNodeSocket);
+			}
+			catch (...) {
+				logger.error("Error in receiveData");
+			}
 
 			continue;
 		}
@@ -367,7 +376,15 @@ bool Node::sendToUsername(std::string& decrypted, vector<string>* packetProperti
 			connection = currentConversation->addActiveConnection(dd);
 		}
 
-		connection->sendDataTcp(message);
+		if (dd.getDestinationPort() == LOCAL_CLIENT_PORT) {
+			logger.log("We send it to another electron client, so we send the size first");
+			connection->sendData(message);
+
+			currentConversation->removeActiveConnection(dd);
+		}
+		else {
+			connection->sendDataTcp(message);
+		}
 
 		return true;
 	}

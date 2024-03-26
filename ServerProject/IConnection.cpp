@@ -14,10 +14,12 @@ IConnection::IConnection(string ip, unsigned short port, Logger* logger) {
 
 IConnection::~IConnection()
 {
+	cerr << "Iconnection Dtor called!" << endl;
 	closeConnection();
 }
 
 SOCKET IConnection::initWSASocket() {
+
 	WSADATA wsaData;
 	WORD version = MAKEWORD(2, 2);
 	int wsaResult = WSAStartup(version, &wsaData);
@@ -100,28 +102,14 @@ void IConnection::sendECCKey(SOCKET connection)
 string IConnection::receiveData(SOCKET connection) {
 	size_t dataSize = 0;
 
-	unsigned long long received = recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
+	long long received = recv(connection, reinterpret_cast<char*>(&dataSize), sizeof(size_t), 0);
+
 	// First, receive the size of the data
 	if (received < 0) {
 		logger->error("Data size is: " + to_string(dataSize));
 		throw std::runtime_error("Failed to receive data size");
 	}
 
-	if (dataSize > 1000000) {
-		logger->error("Data size is too large: " + to_string(dataSize));
-		// Instead of throwing an error, return the data received as string
-		vector<char> dataBuffer(dataSize); // Buffer to hold the data
-		received = recv(connection, dataBuffer.data(), dataSize, 0);
-		if (received < 0) {
-			throw std::runtime_error("Failed to receive data");
-		}
-		else if (received == 0) {
-			throw std::runtime_error("Connection closed prematurely");
-		}
-		// Construct a string from the received data
-		string data(dataBuffer.begin(), dataBuffer.end());
-		return data;
-	}
 
 	string data;
 	data.reserve(dataSize); // Reserve space for the entire data
@@ -133,7 +121,7 @@ string IConnection::receiveData(SOCKET connection) {
 	size_t totalReceived = 0;
 	while (totalReceived < dataSize) {
 		size_t bytesToReceive = min(chunkSize, dataSize - totalReceived);
-		size_t bytesReceived = recv(connection, buffer.data(), static_cast<int>(bytesToReceive), 0);
+		size_t bytesReceived = recv(connection, buffer.data(), bytesToReceive, 0);
 
 		if (bytesReceived < 0) {
 			// Handle receive error
