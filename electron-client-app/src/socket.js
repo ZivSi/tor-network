@@ -2,6 +2,7 @@ const net = window.electron.require('net');
 const pack = window.electron.require('buffer-pack');
 
 const START_PATH_DESIGN_STRING = "START PATH DESIGN";
+const ELECTRON_INIITIAL_MESSAGE = "Hi. I'm an electron";
 
 
 function sendData(socket, data) {
@@ -38,6 +39,7 @@ class Connection {
     }
 
     handshake(numOfNodes) {
+        sendData(this.socket, ELECTRON_INIITIAL_MESSAGE);
         sendData(this.socket, START_PATH_DESIGN_STRING + ":" + numOfNodes);
     }
 
@@ -108,6 +110,8 @@ class Connection {
             }
             else if (jsonResponse.getMessage() == "Path design completed") {
                 alert("Path design completed!");
+            } else if(jsonResponse.messageCode == BackToFront.USERNAME) {
+                alert("Received username: " + jsonResponse.message);
             }
 
         } catch (e) {

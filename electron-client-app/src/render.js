@@ -109,7 +109,8 @@ const BackToFront = {
     ERROR_HOST_UNREACHABLE: 4,
     ERROR_PATH_NOT_COMPLETE: 5,
     INVALID_ARGS: 6,
-    USERNAME: 7
+    USERNAME: 7,
+    CONNECTION_TIMEOUT: 8
 };
 
 class JsonResponse {
@@ -155,10 +156,10 @@ class JsonResponse {
     }
 
     getMessage() {
-        if(!this.isError()) { return this.message;}
+        if (!this.isError()) { return this.message; }
 
         // switch between code and message
-        switch(this.messageCode) {
+        switch (this.messageCode) {
             case BackToFront.ERROR_NODES_LENGTH:
                 return "The path is not complete";
             case BackToFront.ERROR_USERNAME_NOT_FOUND:
@@ -171,6 +172,8 @@ class JsonResponse {
                 return "The path is not complete";
             case BackToFront.INVALID_ARGS:
                 return "Invalid arguments";
+            case BackToFront.CONNECTION_TIMEOUT:
+                return "Connection timeout";
             default:
                 return "Unknown error";
         }

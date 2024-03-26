@@ -19,6 +19,9 @@ namespace Constants {
 	const string START_PATH_DESIGN_STRING = "START PATH DESIGN";
 	const string SPLITER = "::::";
 
+	const string ELECTRON_INIITIAL_MESSAGE = "Hi. I'm an electron";
+	const int ELECTRON_TIMEOUT = 1000 * 60 * 5; // 5 minutes
+
 	// Server port::::publicKey::::Current time in ms::::Random non prime number::::Random number::::Condition number::::Hash of the first parts::::Extended hash of the rest
 	const string NODE_INIT_FORMAT = "{ip}" + SPLITER + "{port}" + SPLITER + "{publickey}" + SPLITER + "{time}" + SPLITER + "{nonprime}" + SPLITER + "{randmomNumber}" + SPLITER + "{modulus base}" + SPLITER + "{hash}" + SPLITER + "{ext_hash}";
 

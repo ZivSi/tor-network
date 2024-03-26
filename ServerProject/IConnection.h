@@ -43,6 +43,8 @@ public:
 
 	void closeConnection();
 
+	string getLocalIpv4();
+
 	SOCKET getSocket() const;
 	unsigned short getPort() const;
 	string getIP() const;

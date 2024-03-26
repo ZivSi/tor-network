@@ -201,3 +201,38 @@ string IConnection::decryptECC(string data)
 		throw std::runtime_error("Error during decryption");
 	}
 }
+
+string IConnection::getLocalIpv4() {
+	char hostbuffer[256];
+	struct addrinfo hints, * res, * p;
+	int status;
+	char ipstr[INET6_ADDRSTRLEN];
+
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC; // Use AF_INET to force IPv4
+	hints.ai_socktype = SOCK_STREAM;
+
+	// Retrieve hostname
+	if (gethostname(hostbuffer, sizeof(hostbuffer)) == -1) {
+		throw std::runtime_error("Error getting hostname.");
+	}
+
+	// Retrieve host information
+	if ((status = getaddrinfo(hostbuffer, NULL, &hints, &res)) != 0) {
+		throw std::runtime_error("Error on status getaddrinfo");
+	}
+
+	// Loop through all the results and get the first IPv4 address
+	for (p = res; p != NULL; p = p->ai_next) {
+		if (p->ai_family == AF_INET) { // IPv4
+			struct sockaddr_in* ipv4 = (struct sockaddr_in*)p->ai_addr;
+			// Convert the IP to a string and return it
+			inet_ntop(AF_INET, &(ipv4->sin_addr), ipstr, sizeof ipstr);
+			freeaddrinfo(res); // Free memory allocated by getaddrinfo
+			return std::string(ipstr);
+		}
+	}
+
+	freeaddrinfo(res); // Free memory allocated by getaddrinfo
+	throw std::runtime_error("Error getting local IPv4.");
+}

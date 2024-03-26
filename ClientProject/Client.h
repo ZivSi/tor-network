@@ -5,6 +5,7 @@
 #include "../ServerProject/Constants.h"
 #include "../ServerProject/Logger.h"
 #include "../ServerProject/NodeData.h"
+#include "../ServerProject/RSAHandler.h"
 #include "../ServerProject\ConversationObject.h"
 #include "../ServerProject\IConnection.h"
 #include "RelayObject.h";
@@ -45,6 +46,14 @@ public:
 	void acceptSocket(SOCKET socket) override;
 	void handleClient(SOCKET clientSocket) override;
 
+	bool invalidSocket(ClientConnection* entryNodeConnection);
+
+	void splitResponseAndSend(std::string& received, ClientConnection* entryNodeConnection, const SOCKET& clientSocket);
+
+	bool pathLengthInvalid(int pathLength);
+
+	bool electronClientDisconnected(unsigned long long lastReceivedTime);
+
 	void waitForNodes();
 	void receiveResponseFromServer();
 	ClientConnection* connectToEntryNode();
@@ -66,12 +75,15 @@ public:
 	void sendData(string username, string message, ClientConnection* entryNodeConnection);
 	void sendData(DestinationData dd, ClientConnection* entryNodeConnection);
 
+	string getUsernameFromKotlin();
+
 	// ----------------- Electron Communication -----------------
-	void informElectron(SOCKET socket, const string& message);
+	void sendToElectron(SOCKET socket, const string& message);
+	void sendUsernameToElectron(SOCKET socket, string username);
 	void passResponseToElectron(SOCKET socket, const string& response);
 	void sendErrorToElectron(SOCKET socket, int errorType, const string& message);
 
-	void receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop);
+	void receiveMessagesForElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop);
 
 	// ----------------- Encryption & Decryption -----------------
 	string encrypt(string ip, unsigned short port, string message);
@@ -94,6 +106,14 @@ private:
 	vector<RelayProperties> receivedRelays;
 	vector<RelayObject*> currentPath;
 	mutex currentPathMutex;
+	RSAHandler rsaHandler;
+
+	string myIp;
+	unsigned short myPort;
+
+	queue<string> messageQueue;
+
+	bool isElectronClient(string initialMessage);
 
 	// ----------------- Private Helper Methods -----------------
 	void clearCurrentPath();

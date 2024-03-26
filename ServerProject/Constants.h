@@ -20,6 +20,8 @@ namespace Constants {
 	extern const unsigned short LOCAL_CLIENT_PORT;
 
 	extern const string START_PATH_DESIGN_STRING;
+	extern const string ELECTRON_INIITIAL_MESSAGE;
+	extern const int ELECTRON_TIMEOUT;
 
 	extern const string SPLITER;
 	extern const string NODE_INIT_FORMAT;
@@ -77,6 +79,6 @@ namespace Constants {
 		ERROR_PATH_NOT_COMPLETE = 5,
 		INVALID_ARGS = 6,
 		USERNAME = 7,
+		CONNECTION_TIMEOUT = 8
 	};
-
 }

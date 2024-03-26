@@ -2,6 +2,9 @@
 
 Client::Client() : logger("Client"), clientConnection("127.0.0.1", SERVER_PORT, logger), stop(false), IConnection(LOCALHOST, LOCAL_CLIENT_PORT, &logger)
 {
+	this->myIp = getLocalIpv4();
+	this->myPort = LOCAL_CLIENT_PORT;
+
 	clientConnection.handshake();
 	clientConnection.sendEncrypted("Hi. I'm a client"); // Initial message
 
@@ -49,148 +52,164 @@ void Client::acceptSocket(SOCKET socket) {
 
 		logger.clientEvent("Accepted connection from electron client");
 
-		std::thread clientThread(&Client::handleClient, this, clientSocket);
-		clientThread.detach();
+
+		string initialMessage = receiveData(clientSocket);
+
+		if (isElectronClient(initialMessage)) {
+
+			std::thread clientThread(&Client::handleClient, this, clientSocket);
+			clientThread.detach();
+		}
+		else {
+			messageQueue.push(initialMessage);
+		}
 	}
 }
 
 void Client::handleClient(SOCKET clientSocket)
 {
-	// 1. wait for "start path design" message
-	// 2. start path design
-	// 3. handshake with current path
-	// 4. start listening for messages
-	// 5. send success message to client with properties
-	// 6. wait for messages from the client and send them to the next node
-
 	bool pathDesignComplete = false;
 	ClientConnection* entryNodeConnection = nullptr;
 
-	bool stop = false;
+	bool stopCurrentElectronClient = false;
 
-	thread receiveThread(&Client::receiveInLoopToElectron, this, clientSocket, &entryNodeConnection, &stop);
+	thread receiveThread(&Client::receiveMessagesForElectron, this, clientSocket, &entryNodeConnection, &stopCurrentElectronClient);
 	receiveThread.detach();
+	string username = "";
 
 	unsigned long long lastReceivedTime = 0;
 
-	while (!stop) {
-		string received = "";
+	while (!stopCurrentElectronClient) {
+		string received = this->receiveData(clientSocket);
 
-		try {
-			received = this->receiveData(clientSocket);
+		if (electronClientDisconnected(lastReceivedTime)) {
+			sendErrorToElectron(clientSocket, CONNECTION_TIMEOUT, "Did not receive for too long. Please connect again");
+			clearCurrentPath();
 
-			if (lastReceivedTime != 0 && (Utility::capture_time() - lastReceivedTime) > 1000 * 60 * 5) { // TODO: Change to 5 minutes
-				sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path is too old. Please start a new path design");
-				clearCurrentPath();
+			stopCurrentElectronClient = true;
 
-				stop = true;
+			// Reset the path design
+			pathDesignComplete = false;
 
-				// Reset the path design
-				pathDesignComplete = false;
-
-				return;
-			}
-
-
-			if (received.empty()) {
-				continue;
-			}
-
-			lastReceivedTime = Utility::capture_time();
-
-			logger.log("Received from electron: " + received);
-
-			if (isPathDesignCommand(received)) {
-				logger.success("Path design command received");
-
-				clearCurrentPath();
-
-				int pathLength = extractPathLength(received);
-
-				logger.log("Path length: " + std::to_string(pathLength));
-
-				if (pathLength == -1 || pathLength < DEFAULT_PATH_LENGTH) {
-					logger.error("Invalid path length received");
-
-					sendErrorToElectron(clientSocket, INVALID_ARGS, "Invalid path length received");
-
-					continue;
-				}
-
-				informElectron(clientSocket, "Waiting for nodes...");
-
-				waitForNodes();
-				receiveResponseFromServer();
-
-				informElectron(clientSocket, "Path design starting now...");
-				startPathDesign(pathLength);
-
-				informElectron(clientSocket, "Path design completed");
-				informElectron(clientSocket, "Handshaking with nodes...");
-
-				handshakeWithCurrentPath();
-
-				informElectron(clientSocket, "Handshake completed");
-				pathDesignComplete = true;
-
-				informElectron(clientSocket, "Path design completed");
-
-				informElectron(clientSocket, "Path: " + pathToString());
-
-				entryNodeConnection = connectToEntryNode();
-			}
-			else if (pathIsTooOld()) {
-				sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path is too old. Please start a new path design");
-				clearCurrentPath();
-
-				pathDesignComplete = false;
-			}
-			else if (pathDesignComplete && pathAvailable()) {
-				// Send the message to the next node
-				if (entryNodeConnection == nullptr || !entryNodeConnection->isConnectionActive()) {
-					if (entryNodeConnection == nullptr) { delete entryNodeConnection; }
-
-					entryNodeConnection = connectToEntryNode();
-				}
-
-				try {
-					DestinationData dd(received);
-
-					string formattedData = Utility::formatData(dd.getData());
-					dd.setData(formattedData);
-
-					sendData(dd, entryNodeConnection);
-
-					logger.log("Passing data to next node: " + dd.getData());
-				}
-				catch (...) {
-					vector<string> split = Utility::splitString(received, SPLITER);
-
-					if (split.size() == 2) {
-						string username = split[0];
-						string message = Utility::formatData(split[1]);
-
-						logger.log("Username: " + username + " Message: " + message);
-
-						sendData(username, message, entryNodeConnection);
-					}
-					else {
-						sendErrorToElectron(clientSocket, INVALID_ARGS, "Invalid input format. Please provide input in the format 'username::::message' or ip::::port::::message");
-					}
-				}
-			}
-			else {
-				sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path design not completed");
-			}
+			return;
 		}
-		catch (std::exception& e) {
-			logger.error("Error in client handling: " + std::string(e.what()));
+
+
+		if (received.empty()) {
+			continue;
+		}
+
+		lastReceivedTime = Utility::capture_time();
+
+
+		logger.log("Received from electron: " + received);
+		if (isPathDesignCommand(received)) {
+			logger.success("Path design command received");
 
 			clearCurrentPath();
 
-			stop = true;
+			int pathLength = extractPathLength(received);
+
+			logger.log("Path length: " + std::to_string(pathLength));
+
+			if (pathLengthInvalid(pathLength)) {
+				logger.error("Invalid path length received");
+
+				sendErrorToElectron(clientSocket, INVALID_ARGS, "Invalid path length received");
+
+				continue;
+			}
+
+			username = getUsernameFromKotlin();
+
+			sendUsernameToElectron(clientSocket, username);
+
+			sendToElectron(clientSocket, "Waiting for nodes...");
+			waitForNodes();
+
+
+			receiveResponseFromServer();
+			sendToElectron(clientSocket, "Path design starting now...");
+			startPathDesign(pathLength);
+
+			sendToElectron(clientSocket, "Path design completed");
+			sendToElectron(clientSocket, "Handshaking with nodes...");
+
+			handshakeWithCurrentPath();
+
+			sendToElectron(clientSocket, "Handshake completed");
+			pathDesignComplete = true;
+
+			sendToElectron(clientSocket, "Path design completed");
+
+			sendToElectron(clientSocket, "Path: " + pathToString());
+
+			entryNodeConnection = connectToEntryNode();
+		}
+		else if (pathIsTooOld()) {
+			sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path is too old. Please start a new path design");
+			clearCurrentPath();
+
+			pathDesignComplete = false;
+		}
+		else if (pathDesignComplete && pathAvailable()) {
+			// Send the message to the next node
+			if (invalidSocket(entryNodeConnection)) {
+				if (entryNodeConnection != nullptr) { delete entryNodeConnection; }
+
+				entryNodeConnection = connectToEntryNode();
+			}
+
+			splitResponseAndSend(received, entryNodeConnection, clientSocket);
+		}
+		else {
+			sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path design not completed");
 		}
 	}
+}
+
+bool Client::invalidSocket(ClientConnection* entryNodeConnection)
+{
+	return entryNodeConnection == nullptr || !entryNodeConnection->isConnectionActive();
+}
+
+void Client::splitResponseAndSend(std::string& received, ClientConnection* entryNodeConnection, const SOCKET& clientSocket)
+{
+	try {
+		DestinationData dd(received);
+
+		string formattedData = Utility::formatData(dd.getData());
+		dd.setData(formattedData);
+
+		sendData(dd, entryNodeConnection);
+
+		logger.log("Passing data to next node: " + dd.getData());
+	}
+	catch (...) {
+		vector<string> split = Utility::splitString(received, SPLITER);
+
+		if (split.size() == 2) {
+			string username = split[0];
+			string message = Utility::formatData(split[1]);
+
+			logger.log("Username: " + username + " Message: " + message);
+
+			sendData(username, message, entryNodeConnection);
+		}
+		else {
+			sendErrorToElectron(clientSocket, INVALID_ARGS, "Invalid input format. Please provide input in the format 'username::::message' or ip::::port::::message");
+		}
+	}
+}
+
+bool Client::pathLengthInvalid(int pathLength)
+{
+	return pathLength == -1 || pathLength < DEFAULT_PATH_LENGTH;
+}
+
+bool Client::electronClientDisconnected(unsigned long long lastReceivedTime)
+{
+	return lastReceivedTime != 0 && (Utility::capture_time() - lastReceivedTime) > ELECTRON_TIMEOUT;
 }
 
 void Client::waitForNodes()
@@ -423,9 +442,48 @@ void Client::sendData(DestinationData dd, ClientConnection* entryNodeConnection)
 	sendData(dd.getDestinationIP(), dd.getDestinationPort(), dd.getData(), entryNodeConnection);
 }
 
-void Client::informElectron(SOCKET socket, const string& message)
+string Client::getUsernameFromKotlin()
+{
+	// Ask the mapping server for the IP and port of the username
+	logger.log("Trying to connect to (" + SERVER_IP + ":" + to_string(MAPPING_SERVER_PORT) + ")");
+	ClientConnection mappingServerConnection(SERVER_IP, MAPPING_SERVER_PORT, logger);
+
+	mappingServerConnection.sendDataTcp(rsaHandler.formatForSending() + "\n");
+
+	logger.keysInfo("Sent RSA keys");
+
+	string received = mappingServerConnection.receiveDataFromTcp(true);
+
+	vector<string> properties = Utility::splitString(received, SPLITER);
+
+	rsaHandler.setClientPublicKey(stoll(properties[0]));
+	rsaHandler.setClientModulus(stoll(properties[1]));
+
+	logger.keysInfo("Received RSA keys from mapping server");
+
+	string formattedRequest = myIp + SPLITER + to_string(myPort);
+
+	string encrypted = rsaHandler.encryptToString(formattedRequest);
+
+	mappingServerConnection.sendDataTcp(encrypted + "\n");
+
+	string response = mappingServerConnection.receiveDataFromTcp(true); // We are sure the server will return an answer
+
+	string decrypted = rsaHandler.decrypt(response);
+
+	return decrypted; // Should receive username
+}
+
+void Client::sendToElectron(SOCKET socket, const string& message)
 {
 	JsonResponse response(LOCALHOST, LOCAL_CLIENT_PORT, "0", INFO, LOCALHOST, LOCAL_CLIENT_PORT, message);
+
+	IConnection::sendData(socket, response.toString());
+}
+
+void Client::sendUsernameToElectron(SOCKET socket, string username)
+{
+	JsonResponse response(LOCALHOST, LOCAL_CLIENT_PORT, "0", USERNAME, LOCALHOST, LOCAL_CLIENT_PORT, username);
 
 	IConnection::sendData(socket, response.toString());
 }
@@ -444,13 +502,22 @@ void Client::sendErrorToElectron(SOCKET socket, int errorType, const string& mes
 	IConnection::sendData(socket, response.toString());
 }
 
-void Client::receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop)
+void Client::receiveMessagesForElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop)
 {
 	while (!*stop) {
 		if (*entryNodeConnection == nullptr) {
 			cout << "Entry node connection is null" << endl;
 			Sleep(1000);
 			continue;
+		}
+
+		while (!messageQueue.empty()) {
+			string message = messageQueue.front();
+			messageQueue.pop();
+
+			cout << "Received for electron: " << message << endl;
+
+			sendToElectron(electronSocket, message);
 		}
 
 		string data = (*entryNodeConnection)->receiveData();
@@ -461,7 +528,7 @@ void Client::receiveInLoopToElectron(SOCKET electronSocket, ClientConnection** e
 
 		string decrypted = decrypt(data);
 		cout << "Received from next node: " << decrypted << endl;
-		informElectron(electronSocket, decrypted);
+		sendToElectron(electronSocket, decrypted);
 	}
 }
 
@@ -572,6 +639,11 @@ bool Client::isErrorResponse(std::string& responseString)
 	catch (std::exception& e) {
 		return false;
 	}
+}
+
+bool Client::isElectronClient(string initialMessage)
+{
+	return initialMessage == ELECTRON_INIITIAL_MESSAGE;
 }
 
 void Client::clearCurrentPath()

@@ -102,9 +102,6 @@ private:
 	string buildAliveFormat();
 	bool dataLegit(string& data);
 
-	// ----------------- Getters -----------------
-	string getLocalIpv4();
-
 	// ----------------- Helper Methods -----------------
 	bool conversationExists(ConversationObject* currentConversation);
 	ConversationObject* findConversationBy(string conversationId);
