@@ -39,6 +39,12 @@ function sendData(socket, data) {
     console.log('Sent:', jsonData);
 }
 
+function capitalizeFirstLetters(str) {
+    return str.replace(/\b\w/g, function(char) {
+        return char.toUpperCase();
+    });
+}
+
 class Connection {
     constructor(serverIp = "127.0.0.1", serverPort = 5060 * 3) {
         this.serverIp = serverIp;
@@ -90,6 +96,8 @@ class Connection {
 
                     if (message.includes('"messageCode": 7')) {
                         var myUsername = extractUsername(message);
+
+                        myUsername = capitalizeFirstLetters(myUsername);
 
                         document.getElementById("largeText").style.display = "block";
                         document.getElementById("largeText").textContent = "Your Username: " + myUsername;

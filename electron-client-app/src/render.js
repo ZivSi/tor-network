@@ -23,7 +23,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var consoleOutput = document.getElementById('console-output');
 
+    var originalConsoleLog = console.log;
+
     console.log = function (message) {
+        // Save the original console.log function
+        originalConsoleLog.apply(console, arguments);
+
         var textNode = document.createTextNode(message);
 
         var spanElement = document.createElement('span');

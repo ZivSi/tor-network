@@ -46,7 +46,7 @@ public:
 	void acceptSocket(SOCKET socket) override;
 	void handleClient(SOCKET clientSocket) override;
 
-	void stopCurrentElectornConnection(bool& stopCurrentElectronClient, bool& pathDesignComplete);
+	void stopCurrentElectornConnection(bool& pathDesignComplete);
 
 	bool invalidSocket(ClientConnection* entryNodeConnection);
 
@@ -85,8 +85,8 @@ public:
 	void passResponseToElectron(SOCKET socket, const string& response);
 	void sendErrorToElectron(SOCKET socket, int errorType, const string& message);
 
-	void receiveMessagesForElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop);
-	void sendMessageFromQueue(SOCKET electronSocket, bool* stop);
+	void receiveMessagesForElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection);
+	void sendMessageFromQueue(SOCKET electronSocket);
 
 	// ----------------- Encryption & Decryption -----------------
 	string encrypt(string ip, unsigned short port, string message);
@@ -125,7 +125,8 @@ private:
 	bool pathIsTooOld();
 
 	// ----------------- Control Variables -----------------
-	bool stop = false;
+	bool stopElectron = false;
+	bool stopAll = false;
 
 	bool isValidSizeTSize(string sizeStr);
 };
