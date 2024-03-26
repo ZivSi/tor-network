@@ -4,6 +4,21 @@ const pack = window.electron.require('buffer-pack');
 const START_PATH_DESIGN_STRING = "START PATH DESIGN";
 const ELECTRON_INIITIAL_MESSAGE = "Hi. I'm an electron";
 
+function extractUsername(message) {
+    // Find the index of the "message" field
+    const messageIndex = message.indexOf('"message": ');
+    if (messageIndex === -1) {
+        return ''; // Return empty string if "message" field is not found
+    }
+    // Find the start index of the username
+    const startIndex = message.indexOf('"', messageIndex + '"message": '.length) + 1;
+    // Find the end index of the username
+    const endIndex = message.indexOf('"', startIndex);
+    // Extract the username substring
+    const username = message.substring(startIndex, endIndex);
+    // Return the extracted username
+    return username;
+}
 
 function sendData(socket, data) {
     // Convert the data to a string
@@ -73,6 +88,12 @@ class Connection {
 
                     this.alertUser(message);
 
+                    if (message.includes('"messageCode": 7')) {
+                        var myUsername = extractUsername(message);
+
+                        document.getElementById("largeText").textContent = "Your Username: " + myUsername;
+                    }
+
                     // Reset dataSizeBuffer for future use
                     dataSizeBuffer = Buffer.alloc(8);
                 } else {
@@ -108,16 +129,16 @@ class Connection {
             jsonResponse.printJsonResponse();
 
             console.log("Message code: " + jsonResponse.getCode());
-            if (jsonResponse.isError()) {                
+            if (jsonResponse.isError()) {
                 alert("Error: " + jsonResponse.getMessage() + " (code: " + jsonResponse.getCode() + ")");
             }
             else if (jsonResponse.getMessage() == "Path design completed") {
                 alert("Path design completed!");
-            } else if(jsonResponse.messageCode == BackToFront.USERNAME) {
+            } else if (jsonResponse.messageCode == BackToFront.USERNAME) {
                 alert("Received username: " + jsonResponse.message);
 
                 var myUsername = jsonResponse.message;
-                // Uriyah, update here the text view to jsonResponse.message
+                document.getElementById("largeText").textContent = "Your Username: " + myUsername;
             }
 
         } catch (e) {
@@ -129,3 +150,4 @@ class Connection {
         return this.socket;
     }
 }
+

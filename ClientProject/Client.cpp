@@ -84,97 +84,104 @@ void Client::handleClient(SOCKET clientSocket)
 	unsigned long long lastReceivedTime = 0;
 
 	while (!stopCurrentElectronClient) {
-		string received = this->receiveData(clientSocket);
+		try {
+			string received = this->receiveData(clientSocket);
 
-		if (electronClientDisconnected(lastReceivedTime)) {
-			sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Did not receive for too long. Please connect again");
-
-			stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
-
-			return;
-		}
-
-
-		if (received.empty()) {
-			continue;
-		}
-
-		lastReceivedTime = Utility::capture_time();
-
-
-		logger.log("Received from electron: " + received);
-		if (isPathDesignCommand(received)) {
-			logger.success("Path design command received");
-
-			clearCurrentPath();
-
-			int pathLength = extractPathLength(received);
-
-			logger.log("Path length: " + std::to_string(pathLength));
-
-			if (pathLengthInvalid(pathLength)) {
-				logger.error("Invalid path length received");
-
-				sendErrorToElectron(clientSocket, ERROR_INVALID_ARGS, "Invalid path length received");
-
-				continue;
-			}
-
-			username = getUsernameFromKotlin();
-
-			sendUsernameToElectron(clientSocket, username);
-
-			sendToElectron(clientSocket, "Waiting for nodes...");
-			waitForNodes();
-
-
-			receiveResponseFromServer();
-			sendToElectron(clientSocket, "Path design starting now...");
-			startPathDesign(pathLength);
-
-			currentPathAliveTime = 0;
-
-			sendToElectron(clientSocket, "Path design completed");
-			sendToElectron(clientSocket, "Handshaking with nodes...");
-
-			handshakeWithCurrentPath();
-
-			sendToElectron(clientSocket, "Handshake completed");
-			pathDesignComplete = true;
-
-			sendToElectron(clientSocket, "Path design completed");
-
-			sendToElectron(clientSocket, "Path: " + pathToString());
-
-			try {
-				entryNodeConnection = connectToEntryNode();
-			}
-			catch (...) {
-				sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Couldn't connect to entry node. Please try again later");
+			if (electronClientDisconnected(lastReceivedTime)) {
+				sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Did not receive for too long. Please connect again");
 
 				stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
 
 				return;
 			}
-		}
-		else if (pathIsTooOld()) {
-			sendErrorToElectron(clientSocket, ERROR_PATH_TIMEOUT, "Path is too old. Please start a new path design");
-			clearCurrentPath();
 
-			pathDesignComplete = false;
-		}
-		else if (pathDesignComplete && pathAvailable()) {
-			// Send the message to the next node
-			if (invalidSocket(entryNodeConnection)) {
-				if (entryNodeConnection != nullptr) { delete entryNodeConnection; }
 
-				entryNodeConnection = connectToEntryNode();
+			if (received.empty()) {
+				continue;
 			}
 
-			splitResponseAndSend(received, entryNodeConnection, clientSocket);
+			lastReceivedTime = Utility::capture_time();
+
+
+			logger.log("Received from electron: " + received);
+			if (isPathDesignCommand(received)) {
+				logger.success("Path design command received");
+
+				clearCurrentPath();
+
+				int pathLength = extractPathLength(received);
+
+				logger.log("Path length: " + std::to_string(pathLength));
+
+				if (pathLengthInvalid(pathLength)) {
+					logger.error("Invalid path length received");
+
+					sendErrorToElectron(clientSocket, ERROR_INVALID_ARGS, "Invalid path length received");
+
+					continue;
+				}
+
+				username = getUsernameFromKotlin();
+
+				sendUsernameToElectron(clientSocket, username);
+
+				sendToElectron(clientSocket, "Waiting for nodes...");
+				waitForNodes();
+
+
+				receiveResponseFromServer();
+				sendToElectron(clientSocket, "Path design starting now...");
+				startPathDesign(pathLength);
+
+				currentPathAliveTime = 0;
+
+				sendToElectron(clientSocket, "Path design completed");
+				sendToElectron(clientSocket, "Handshaking with nodes...");
+
+				handshakeWithCurrentPath();
+
+				sendToElectron(clientSocket, "Handshake completed");
+				pathDesignComplete = true;
+
+				sendToElectron(clientSocket, "Path design completed");
+
+				sendToElectron(clientSocket, "Path: " + pathToString());
+
+				try {
+					entryNodeConnection = connectToEntryNode();
+				}
+				catch (...) {
+					sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Couldn't connect to entry node. Please try again later");
+
+					stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
+
+					return;
+				}
+			}
+			else if (pathIsTooOld()) {
+				sendErrorToElectron(clientSocket, ERROR_PATH_TIMEOUT, "Path is too old. Please start a new path design");
+				clearCurrentPath();
+
+				pathDesignComplete = false;
+			}
+			else if (pathDesignComplete && pathAvailable()) {
+				// Send the message to the next node
+				if (invalidSocket(entryNodeConnection)) {
+					if (entryNodeConnection != nullptr) { delete entryNodeConnection; }
+
+					entryNodeConnection = connectToEntryNode();
+				}
+
+				splitResponseAndSend(received, entryNodeConnection, clientSocket);
+			}
+			else {
+				sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path design not completed");
+			}
 		}
-		else {
-			sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path design not completed");
+		catch (...) {
+			// Electorn disconnected
+			logger.clientEvent("Electorn disconnected!");
+			stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
 		}
 	}
 }

@@ -17,6 +17,28 @@ header {
   margin-bottom: 20px;
 }
 
+#largeTextContainer {
+  text-align: center;
+  /* Center-align the text */
+}
+
+#largeText {
+  text-align: center;
+  /* Center-align the text */
+  font-size: 20px;
+  /* Increase the font size */
+  margin: 0 auto;
+  /* Center the div horizontally */
+  width: 50%;
+  /* Optionally set a width for the div */
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  display: none; /* Initially set to invisible (completely hidden) */
+}
+
 p {
   color: #fff;
 }
@@ -44,14 +66,16 @@ h1 {
 #ip-inputs {
   color: #fff;
   text-align: center;
-  display: none; /* Hide additional inputs initially */
+  display: none;
+  /* Hide additional inputs initially */
 }
 
 input[type="number"],
 input[type="text"],
 input[type="file"],
 input[type="checkbox"],
-input[type="submit"] { /* Added input[type="submit"] for styling the button */
+input[type="submit"] {
+  /* Added input[type="submit"] for styling the button */
   padding: 10px;
   text-align: center;
   border: none;
@@ -76,9 +100,9 @@ button,
   box-sizing: border-box;
   transition: 400ms;
   display: flex;
-  justify-content: center; 
-  align-items: center; 
-  margin-top: 10px; 
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
 }
 
 button:hover,
@@ -100,12 +124,12 @@ button:hover,
   display: none;
 }
 
-.connect-checkbox:checked + label.connect-button,
-.input-checkbox:checked + .submit-button {
+.connect-checkbox:checked+label.connect-button,
+.input-checkbox:checked+.submit-button {
   display: none;
 }
 
-.connect-checkbox:checked + label.submit-button {
+.connect-checkbox:checked+label.submit-button {
   display: inline-block;
 }
 
@@ -119,7 +143,7 @@ button:hover,
   box-sizing: border-box;
   transition: 400ms;
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
 }
 
@@ -148,7 +172,7 @@ input[type="file"] {
 }
 
 
-.inputs{
+.inputs {
   align-content: left;
   align-items: left;
 }
@@ -161,6 +185,6 @@ input[type="file"] {
   background-color: #66397c;
   color: #fff;
   padding: 10px;
-  z-index: 1000; 
+  z-index: 1000;
   border-radius: 5px;
 }

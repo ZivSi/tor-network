@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", function () {
     var connection = null;
     var usernameField = document.getElementById('username');
 
+    var largeText = document.getElementById("largeText");
+    largeText.textContent = "Waiting for your username...";
+
     pathLengthInput.value = "3";
     ipField.value = "127.0.0.1";
     portField.value = "10210";
@@ -33,6 +36,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         hideElements(pathLengthInput, additionalInputs, welcomeText);
+
+        largeText.style.display = "block";
 
         //connecting to local server
         connection = new Connection();
