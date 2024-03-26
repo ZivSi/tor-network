@@ -115,6 +115,8 @@ class Connection {
                 alert("Path design completed!");
             } else if(jsonResponse.messageCode == BackToFront.USERNAME) {
                 alert("Received username: " + jsonResponse.message);
+
+                // Uriyah, update here the text view to jsonResponse.message
             }
 
         } catch (e) {
