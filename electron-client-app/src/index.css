@@ -152,3 +152,15 @@ input[type="file"] {
   align-content: left;
   align-items: left;
 }
+
+#console-output {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 20px;
+  background-color: #66397c;
+  color: #fff;
+  padding: 10px;
+  z-index: 1000; 
+  border-radius: 5px;
+}
