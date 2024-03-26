@@ -23,11 +23,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var consoleOutput = document.getElementById('console-output');
 
-    console.log = function(message) {
+    console.log = function (message) {
         var textNode = document.createTextNode(message);
 
-        consoleOutput.appendChild(textNode);
+        var spanElement = document.createElement('span');
+        spanElement.style.fontSize = 'smaller'; // Set font size to smaller
 
+        spanElement.appendChild(textNode);
+
+        consoleOutput.appendChild(spanElement);
         consoleOutput.appendChild(document.createElement('br'));
     };
 
