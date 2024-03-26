@@ -106,9 +106,7 @@ string IConnection::receiveData(SOCKET connection) {
 
 	// First, receive the size of the data
 	if (received < 0) {
-		logger->error("Data size is: " + to_string(dataSize));
-		cerr << "Failed to receive data" << endl;
-		throw std::runtime_error("Failed to receive data size");
+		return "";
 	}
 
 

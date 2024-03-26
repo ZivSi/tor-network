@@ -206,7 +206,7 @@ class JsonResponse {
             case BackToFront.ERROR_INVALID_ARGS:
                 return "Invalid arguments";
             case BackToFront.ERROR_CONNECTION_TIMEOUT:
-                return "Connection timeout";
+                return "Connection timeout or Mapping server is down";
             case BackToFront.ERROR_PATH_TIMEOUT:
                 return "Path timeout";
             default:

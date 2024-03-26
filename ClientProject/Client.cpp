@@ -120,8 +120,16 @@ void Client::handleClient(SOCKET clientSocket)
 
 					continue;
 				}
+				try {
+					username = getUsernameFromKotlin();
+				}
+				catch (...) {
+					sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Couldn't connect to mapping server. Please try again later");
 
-				username = getUsernameFromKotlin();
+					stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
+
+					return;
+				}
 
 				sendUsernameToElectron(clientSocket, username);
 
@@ -191,6 +199,8 @@ void Client::stopCurrentElectornConnection(bool& stopCurrentElectronClient, bool
 	clearCurrentPath();
 
 	stopCurrentElectronClient = true;
+
+	this->stop = true;
 
 	// Reset the path design
 	pathDesignComplete = false;
@@ -532,36 +542,46 @@ void Client::sendErrorToElectron(SOCKET socket, int errorType, const string& mes
 
 void Client::receiveMessagesForElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop)
 {
-	while (!*stop) {
-		if (*entryNodeConnection == nullptr) {
-			cout << "Entry node connection is null" << endl;
-			Sleep(1000);
-			continue;
+	try {
+		while (!stop) {
+			if (*entryNodeConnection == nullptr) {
+				cout << "Entry node connection is null" << endl;
+				Sleep(1000);
+				continue;
+			}
+
+			string data = (*entryNodeConnection)->receiveData();
+
+			if (data.empty()) {
+				continue;
+			}
+
+			string decrypted = decrypt(data);
+			cout << "Received from next node: " << decrypted << endl;
+			sendToElectron(electronSocket, decrypted);
 		}
-
-		string data = (*entryNodeConnection)->receiveData();
-
-		if (data.empty()) {
-			continue;
-		}
-
-		string decrypted = decrypt(data);
-		cout << "Received from next node: " << decrypted << endl;
-		sendToElectron(electronSocket, decrypted);
+	}
+	catch (...) {
+		logger.error("Error in receiveMessagesForElectron");
 	}
 }
 
 void Client::sendMessageFromQueue(SOCKET electronSocket, bool* stop)
 {
-	while (!*stop) {
-		while (!messageQueue.empty()) {
-			string message = messageQueue.front();
-			messageQueue.pop();
+	try {
+		while (!stop) {
+			while (!messageQueue.empty()) {
+				string message = messageQueue.front();
+				messageQueue.pop();
 
-			logger.success("Sending message from queue: " + message);
+				logger.success("Sending message from queue: " + message);
 
-			sendToElectron(electronSocket, message);
+				sendToElectron(electronSocket, message);
+			}
 		}
+	}
+	catch (...) {
+		logger.error("Error in sendMessageFromQueue");
 	}
 }
 
