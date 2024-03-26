@@ -116,6 +116,7 @@ class Connection {
             } else if(jsonResponse.messageCode == BackToFront.USERNAME) {
                 alert("Received username: " + jsonResponse.message);
 
+                var myUsername = jsonResponse.message;
                 // Uriyah, update here the text view to jsonResponse.message
             }
 
