@@ -108,10 +108,15 @@ const BackToFront = {
     ERROR_USERNAME_NOT_FOUND: 3,
     ERROR_HOST_UNREACHABLE: 4,
     ERROR_PATH_NOT_COMPLETE: 5,
-    INVALID_ARGS: 6,
+    ERROR_INVALID_ARGS: 6,
     USERNAME: 7,
-    CONNECTION_TIMEOUT: 8
+    ERROR_CONNECTION_TIMEOUT: 8,
+    ERROR_PATH_TIMEOUT: 9
 };
+
+function isErrorCode(code) {
+    return code === BackToFront.ERROR_NODES_LENGTH || code === BackToFront.ERROR_USERNAME_NOT_FOUND || code === BackToFront.ERROR_HOST_UNREACHABLE || code === BackToFront.ERROR_PATH_NOT_COMPLETE || code === BackToFront.ERROR_INVALID_ARGS || code === BackToFront.ERROR_CONNECTION_TIMEOUT || code === BackToFront.ERROR_PATH_TIMEOUT;
+}
 
 class JsonResponse {
 
@@ -131,28 +136,45 @@ class JsonResponse {
                 this.senderIp = senderIp;
                 this.senderPort = senderPort;
             }
+
             this.message = message;
         }
     }
 
     fromString(jsonString) {
+        // Parse the JSON string
+        let parsedJson = JSON.parse(jsonString);
+
+        // Check if the message contains another JSON string
+        let innerMessage = parsedJson.message;
         try {
-            const data = JSON.parse(jsonString);
-            this.nodeIp = data.nodeIp;
-            this.nodePort = data.nodePort;
-            this.nodeConversationId = data.nodeConversationId;
-            this.messageCode = data.messageCode;
-            this.senderIp = data.senderIp || ""; // Handle missing senderIp
-            this.senderPort = data.senderPort || 0; // Handle missing senderPort
-            this.message = data.message;
+            let innerJson = JSON.parse(innerMessage);
+            // Update the properties with values from the inner JSON
+            this.nodeIp = innerJson.nodeIp;
+            this.nodePort = innerJson.nodePort;
+            this.nodeConversationId = innerJson.nodeConversationId;
+            this.messageCode = parseInt(innerJson.messageCode);
+            if (!isErrorCode(innerJson.messageCode)) {
+                this.senderIp = innerJson.senderIp;
+                this.senderPort = innerJson.senderPort;
+            }
+            this.message = innerJson.message;
         } catch (error) {
-            return;
+            // If parsing the inner JSON fails, use the outer JSON
+            this.nodeIp = parsedJson.nodeIp;
+            this.nodePort = parsedJson.nodePort;
+            this.nodeConversationId = parsedJson.nodeConversationId;
+            this.messageCode = parseInt(parsedJson.messageCode);
+            if (!isErrorCode(parsedJson.messageCode)) {
+                this.senderIp = parsedJson.senderIp;
+                this.senderPort = parsedJson.senderPort;
+            }
+            this.message = parsedJson.message;
         }
     }
 
     isError() {
-        // should not be undefined
-        return this.messageCode != BackToFront.MESSAGE && this.messageCode != BackToFront.INFO && this.messageCode != BackToFront.USERNAME && this.messageCode != undefined;
+        return isErrorCode(this.messageCode);
     }
 
     getMessage() {
@@ -170,10 +192,12 @@ class JsonResponse {
                 return "The host is unreachable: " + this.nodeIp + ":" + this.nodePort;
             case BackToFront.ERROR_PATH_NOT_COMPLETE:
                 return "The path is not complete";
-            case BackToFront.INVALID_ARGS:
+            case BackToFront.ERROR_INVALID_ARGS:
                 return "Invalid arguments";
-            case BackToFront.CONNECTION_TIMEOUT:
+            case BackToFront.ERROR_CONNECTION_TIMEOUT:
                 return "Connection timeout";
+            case BackToFront.ERROR_PATH_TIMEOUT:
+                return "Path timeout";
             default:
                 return "Unknown error";
         }
@@ -181,5 +205,15 @@ class JsonResponse {
 
     getCode() {
         return this.messageCode;
+    }
+
+    printJsonResponse() {
+        console.log("nodeIp:", this.nodeIp);
+        console.log("nodePort:", this.nodePort);
+        console.log("nodeConversationId:", this.nodeConversationId);
+        console.log("messageCode:", this.messageCode);
+        console.log("senderIp:", this.senderIp);
+        console.log("senderPort:", this.senderPort);
+        console.log("message:", this.message);
     }
 }

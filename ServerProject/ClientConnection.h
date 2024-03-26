@@ -66,8 +66,8 @@ public:
 
 private:
 	// ----------------- Constants -----------------
-	const int MAX_ATTEMPTS = 10;
-	const int DELAY_IN_CONNECTION_LOOP = 1000;
+	const int MAX_ATTEMPTS = 2;
+	const int DELAY_IN_CONNECTION_LOOP = 300;
 
 	// ----------------- Variables -----------------
 	int failedAttempts = 0;

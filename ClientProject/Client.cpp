@@ -83,13 +83,9 @@ void Client::handleClient(SOCKET clientSocket)
 		string received = this->receiveData(clientSocket);
 
 		if (electronClientDisconnected(lastReceivedTime)) {
-			sendErrorToElectron(clientSocket, CONNECTION_TIMEOUT, "Did not receive for too long. Please connect again");
-			clearCurrentPath();
+			sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Did not receive for too long. Please connect again");
 
-			stopCurrentElectronClient = true;
-
-			// Reset the path design
-			pathDesignComplete = false;
+			stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
 
 			return;
 		}
@@ -115,7 +111,7 @@ void Client::handleClient(SOCKET clientSocket)
 			if (pathLengthInvalid(pathLength)) {
 				logger.error("Invalid path length received");
 
-				sendErrorToElectron(clientSocket, INVALID_ARGS, "Invalid path length received");
+				sendErrorToElectron(clientSocket, ERROR_INVALID_ARGS, "Invalid path length received");
 
 				continue;
 			}
@@ -144,10 +140,19 @@ void Client::handleClient(SOCKET clientSocket)
 
 			sendToElectron(clientSocket, "Path: " + pathToString());
 
-			entryNodeConnection = connectToEntryNode();
+			try {
+				entryNodeConnection = connectToEntryNode();
+			}
+			catch (...) {
+				sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Couldn't connect to entry node. Please try again later");
+
+				stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
+
+				return;
+			}
 		}
 		else if (pathIsTooOld()) {
-			sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path is too old. Please start a new path design");
+			sendErrorToElectron(clientSocket, ERROR_PATH_TIMEOUT, "Path is too old. Please start a new path design");
 			clearCurrentPath();
 
 			pathDesignComplete = false;
@@ -166,6 +171,16 @@ void Client::handleClient(SOCKET clientSocket)
 			sendErrorToElectron(clientSocket, ERROR_PATH_NOT_COMPLETE, "Path design not completed");
 		}
 	}
+}
+
+void Client::stopCurrentElectornConnection(bool& stopCurrentElectronClient, bool& pathDesignComplete)
+{
+	clearCurrentPath();
+
+	stopCurrentElectronClient = true;
+
+	// Reset the path design
+	pathDesignComplete = false;
 }
 
 bool Client::invalidSocket(ClientConnection* entryNodeConnection)
@@ -197,7 +212,7 @@ void Client::splitResponseAndSend(std::string& received, ClientConnection* entry
 			sendData(username, message, entryNodeConnection);
 		}
 		else {
-			sendErrorToElectron(clientSocket, INVALID_ARGS, "Invalid input format. Please provide input in the format 'username::::message' or ip::::port::::message");
+			sendErrorToElectron(clientSocket, ERROR_INVALID_ARGS, "Invalid input format. Please provide input in the format 'username::::message' or ip::::port::::message");
 		}
 	}
 }
@@ -648,6 +663,7 @@ bool Client::isElectronClient(string initialMessage)
 
 void Client::clearCurrentPath()
 {
+	logger.log("Clearing current path!!!");
 	currentPathMutex.lock();
 
 	for (int i = 0; i < currentPath.size(); i++) {
@@ -683,7 +699,7 @@ bool Client::pathAvailable()
 
 bool Client::pathIsTooOld()
 {
-	return currentPathAliveTime > Constants::PATH_TIMEOUT - 10000; // Margin of 10 seconds to prevent errors
+	return currentPathAliveTime > Constants::PATH_TIMEOUT;
 }
 
 

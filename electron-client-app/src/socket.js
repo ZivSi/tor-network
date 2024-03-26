@@ -71,7 +71,7 @@ class Connection {
                     const message = remainingData.toString(); // Convert remaining data to string
                     console.log('Received:', message);
 
-                    this.buildJsonReponseObject(message);
+                    this.alertUser(message);
 
                     // Reset dataSizeBuffer for future use
                     dataSizeBuffer = Buffer.alloc(8);
@@ -82,6 +82,7 @@ class Connection {
             } else {
                 // dataSizeBuffer is empty, meaning we've already received the size
                 const message = data.toString();
+
                 console.log('Received:', message);
             }
         });
@@ -100,11 +101,13 @@ class Connection {
         });
     }
 
-    buildJsonReponseObject(message) {
+    alertUser(message) {
         try {
             var jsonResponse = new JsonResponse(message);
 
-            console.error("Message code: " + jsonResponse.getCode());
+            jsonResponse.printJsonResponse();
+
+            console.log("Message code: " + jsonResponse.getCode());
             if (jsonResponse.isError()) {                
                 alert("Error: " + jsonResponse.getMessage() + " (code: " + jsonResponse.getCode() + ")");
             }
@@ -115,7 +118,7 @@ class Connection {
             }
 
         } catch (e) {
-            return;
+            console.error("Error: " + e);
         }
     }
 

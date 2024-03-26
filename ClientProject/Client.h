@@ -46,6 +46,8 @@ public:
 	void acceptSocket(SOCKET socket) override;
 	void handleClient(SOCKET clientSocket) override;
 
+	void stopCurrentElectornConnection(bool& stopCurrentElectronClient, bool& pathDesignComplete);
+
 	bool invalidSocket(ClientConnection* entryNodeConnection);
 
 	void splitResponseAndSend(std::string& received, ClientConnection* entryNodeConnection, const SOCKET& clientSocket);

@@ -375,7 +375,9 @@ bool Node::sendToUsername(std::string& decrypted, vector<string>* packetProperti
 		logger.error("Inside sendToUsername: ");
 		cerr << e.what() << endl;
 
-		return false;
+		sendCouldNotConnectToHost(currentConversation, savedUsernames[username].getIP(), savedUsernames[username].getPort());
+
+		return true; // Return true because username was found but we couldn't connect to it. So we sent an error message
 	}
 }
 
