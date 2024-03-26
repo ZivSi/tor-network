@@ -17,25 +17,27 @@ header {
   margin-bottom: 20px;
 }
 
-
 #largeTextContainer {
   text-align: center;
-  width: 50%;
+  /* Center-align the text */
 }
 
 #largeText {
   text-align: center;
+  /* Center-align the text */
   font-size: 20px;
+  /* Increase the font size */
   margin: 0 auto;
+  /* Center the div horizontally */
   width: 50%;
+  /* Optionally set a width for the div */
   color: #fff;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  white-space: nowrap;
-  display: none;
+  justify-content: center;
+  display: none; /* Initially set to invisible (completely hidden) */
 }
-
 
 p {
   color: #fff;
@@ -185,4 +187,16 @@ input[type="file"] {
   padding: 10px;
   z-index: 1000;
   border-radius: 5px;
+}
+
+#largeText {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 20px;
+  background-color: #66397c;
+  color: #fff;
+  padding: 10px;
+  z-index: 1000;
+  border-radius: 5px;
 }
