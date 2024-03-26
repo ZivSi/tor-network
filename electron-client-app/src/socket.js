@@ -91,6 +91,7 @@ class Connection {
                     if (message.includes('"messageCode": 7')) {
                         var myUsername = extractUsername(message);
 
+                        document.getElementById("largeText").style.display = "block";
                         document.getElementById("largeText").textContent = "Your Username: " + myUsername;
                     }
 
@@ -131,6 +132,11 @@ class Connection {
             console.log("Message code: " + jsonResponse.getCode());
             if (jsonResponse.isError()) {
                 alert("Error: " + jsonResponse.getMessage() + " (code: " + jsonResponse.getCode() + ")");
+
+                if(jsonResponse.messageCode == ERROR_CONNECTION_TIMEOUT) {
+                    // restart app
+                    location.reload();
+                }
             }
             else if (jsonResponse.getMessage() == "Path design completed") {
                 alert("Path design completed!");

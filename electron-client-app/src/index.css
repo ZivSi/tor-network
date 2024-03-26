@@ -17,27 +17,25 @@ header {
   margin-bottom: 20px;
 }
 
+
 #largeTextContainer {
   text-align: center;
-  /* Center-align the text */
+  width: 50%;
 }
 
 #largeText {
   text-align: center;
-  /* Center-align the text */
   font-size: 20px;
-  /* Increase the font size */
   margin: 0 auto;
-  /* Center the div horizontally */
   width: 50%;
-  /* Optionally set a width for the div */
   color: #fff;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  display: none; /* Initially set to invisible (completely hidden) */
+  align-items: center;
+  white-space: nowrap;
+  display: none;
 }
+
 
 p {
   color: #fff;
