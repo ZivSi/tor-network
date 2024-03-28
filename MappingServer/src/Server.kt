@@ -17,6 +17,7 @@ class Server(port: Int = 5060 * 2) {
         println("Server started")
 
         usernamesMap["echo"] = ConnectionPair("45.79.112.203", 4242)
+        usernamesMap["local"] = ConnectionPair("127.0.0.1", 10210)
 
         val serverSocket = createServerSocket()
         listenForConnections(serverSocket)
@@ -60,7 +61,9 @@ class Server(port: Int = 5060 * 2) {
             if (isExitNode(decrypted)) {
                 val (hashed, username) = decrypted.split(Utility.SPLITER)
 
-                val connectionPair = usernamesMap.get(username)
+                val connectionPair = usernamesMap.get(username.lowercase())
+
+                println("Username: " + username + " -> " + username.lowercase())
 
                 println("Exit node asks for \"$username\" : $connectionPair")
 
