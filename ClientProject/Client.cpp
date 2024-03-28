@@ -1,6 +1,6 @@
 #include "Client.h"
 
-Client::Client() : logger("Client"), clientConnection("127.0.0.1", SERVER_PORT, logger), stop(false), IConnection(LOCALHOST, LOCAL_CLIENT_PORT, &logger)
+Client::Client() : logger("Client"), clientConnection("127.0.0.1", SERVER_PORT, logger), stopElectron(false), IConnection(LOCALHOST, LOCAL_CLIENT_PORT, &logger)
 {
 	this->myIp = getLocalIpv4();
 	this->myPort = LOCAL_CLIENT_PORT;
@@ -17,7 +17,8 @@ Client::~Client() {
 
 	clientConnection.closeConnection();
 
-	stop = true;
+	stopElectron = true;
+	stopAll = true;
 
 	clearCurrentPath();
 
@@ -38,7 +39,7 @@ void Client::acceptSocket(SOCKET socket) {
 
 	logger.log("Waiting for connections...");
 
-	while (!stop) {
+	while (!stopAll) {
 		clientSocket = accept(socket, (sockaddr*)&client, &clientSize);
 
 		if (clientSocket == INVALID_SOCKET) {
@@ -71,26 +72,26 @@ void Client::handleClient(SOCKET clientSocket)
 	bool pathDesignComplete = false;
 	ClientConnection* entryNodeConnection = nullptr;
 
-	bool stopCurrentElectronClient = false;
+	stopElectron = false;
 
-	thread receiveThread(&Client::receiveMessagesForElectron, this, clientSocket, &entryNodeConnection, &stopCurrentElectronClient); // For incoming messages from entry node
+	thread receiveThread(&Client::receiveMessagesForElectron, this, clientSocket, &entryNodeConnection); // For incoming messages from entry node
 	receiveThread.detach();
 
-	thread receiveThread2(&Client::sendMessageFromQueue, this, clientSocket, &stopCurrentElectronClient); // For queue messages
+	thread receiveThread2(&Client::sendMessageFromQueue, this, clientSocket); // For queue messages
 	receiveThread2.detach();
 
 	string username = "";
 
 	unsigned long long lastReceivedTime = 0;
 
-	while (!stopCurrentElectronClient) {
+	while (!stopElectron) {
 		try {
 			string received = this->receiveData(clientSocket);
 
 			if (electronClientDisconnected(lastReceivedTime)) {
 				sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Did not receive for too long. Please connect again");
 
-				stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
+				stopCurrentElectornConnection(pathDesignComplete);
 
 				return;
 			}
@@ -120,8 +121,16 @@ void Client::handleClient(SOCKET clientSocket)
 
 					continue;
 				}
+				try {
+					username = getUsernameFromKotlin();
+				}
+				catch (...) {
+					sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Couldn't connect to mapping server. Please try again later");
 
-				username = getUsernameFromKotlin();
+					stopCurrentElectornConnection(pathDesignComplete);
+
+					return;
+				}
 
 				sendUsernameToElectron(clientSocket, username);
 
@@ -153,7 +162,7 @@ void Client::handleClient(SOCKET clientSocket)
 				catch (...) {
 					sendErrorToElectron(clientSocket, ERROR_CONNECTION_TIMEOUT, "Couldn't connect to entry node. Please try again later");
 
-					stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
+					stopCurrentElectornConnection(pathDesignComplete);
 
 					return;
 				}
@@ -181,16 +190,15 @@ void Client::handleClient(SOCKET clientSocket)
 		catch (...) {
 			// Electorn disconnected
 			logger.clientEvent("Electorn disconnected!");
-			stopCurrentElectornConnection(stopCurrentElectronClient, pathDesignComplete);
+			stopCurrentElectornConnection(pathDesignComplete);
 		}
 	}
 }
 
-void Client::stopCurrentElectornConnection(bool& stopCurrentElectronClient, bool& pathDesignComplete)
+void Client::stopCurrentElectornConnection(bool& pathDesignComplete)
 {
 	clearCurrentPath();
-
-	stopCurrentElectronClient = true;
+	this->stopElectron = true;
 
 	// Reset the path design
 	pathDesignComplete = false;
@@ -408,7 +416,7 @@ string Client::pathToString()
 
 void Client::checkConnectionAliveTimer()
 {
-	while (!stop) {
+	while (!stopElectron) {
 		Sleep(1000);
 		currentPathAliveTime += 1000;
 
@@ -530,38 +538,48 @@ void Client::sendErrorToElectron(SOCKET socket, int errorType, const string& mes
 	IConnection::sendData(socket, response.toString());
 }
 
-void Client::receiveMessagesForElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection, bool* stop)
+void Client::receiveMessagesForElectron(SOCKET electronSocket, ClientConnection** entryNodeConnection)
 {
-	while (!*stop) {
-		if (*entryNodeConnection == nullptr) {
-			cout << "Entry node connection is null" << endl;
-			Sleep(1000);
-			continue;
+	try {
+		while (!stopElectron) {
+			if (*entryNodeConnection == nullptr) {
+				cout << "Entry node connection is null" << endl;
+				Sleep(1000);
+				continue;
+			}
+
+			string data = (*entryNodeConnection)->receiveData();
+
+			if (data.empty()) {
+				continue;
+			}
+
+			string decrypted = decrypt(data);
+			cout << "Received from next node: " << decrypted << endl;
+			sendToElectron(electronSocket, decrypted);
 		}
-
-		string data = (*entryNodeConnection)->receiveData();
-
-		if (data.empty()) {
-			continue;
-		}
-
-		string decrypted = decrypt(data);
-		cout << "Received from next node: " << decrypted << endl;
-		sendToElectron(electronSocket, decrypted);
+	}
+	catch (...) {
+		logger.error("Error in receiveMessagesForElectron");
 	}
 }
 
-void Client::sendMessageFromQueue(SOCKET electronSocket, bool* stop)
+void Client::sendMessageFromQueue(SOCKET electronSocket)
 {
-	while (!*stop) {
-		while (!messageQueue.empty()) {
-			string message = messageQueue.front();
-			messageQueue.pop();
+	try {
+		while (!stopElectron) {
+			while (!messageQueue.empty()) {
+				string message = messageQueue.front();
+				messageQueue.pop();
 
-			logger.success("Sending message from queue: " + message);
+				logger.success("Sending message from queue: " + message);
 
-			sendToElectron(electronSocket, message);
+				sendToElectron(electronSocket, message);
+			}
 		}
+	}
+	catch (...) {
+		logger.error("Error in sendMessageFromQueue");
 	}
 }
 

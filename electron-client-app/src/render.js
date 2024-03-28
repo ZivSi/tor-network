@@ -23,11 +23,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var consoleOutput = document.getElementById('console-output');
 
-    console.log = function(message) {
+    var originalConsoleLog = console.log;
+
+    console.log = function (message) {
+        // Save the original console.log function
+        originalConsoleLog.apply(console, arguments);
+
         var textNode = document.createTextNode(message);
 
-        consoleOutput.appendChild(textNode);
+        var spanElement = document.createElement('span');
+        spanElement.style.fontSize = 'smaller'; // Set font size to smaller
 
+        spanElement.appendChild(textNode);
+
+        consoleOutput.appendChild(spanElement);
         consoleOutput.appendChild(document.createElement('br'));
     };
 
@@ -206,7 +215,7 @@ class JsonResponse {
             case BackToFront.ERROR_INVALID_ARGS:
                 return "Invalid arguments";
             case BackToFront.ERROR_CONNECTION_TIMEOUT:
-                return "Connection timeout";
+                return "Connection timeout or Mapping server is down";
             case BackToFront.ERROR_PATH_TIMEOUT:
                 return "Path timeout";
             default:
