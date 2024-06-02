@@ -1,4 +1,4 @@
-# Tor Network - Ziv and Uriyah
+# Tor Network - Ziv Sion
 
 ![image info](https://drawcartoonstyle.com/wp-content/uploads/2022/09/9-add-kawaii-blush-spots-to-the-onion-768x768.jpg)
 
@@ -7,12 +7,6 @@ The Simple Tor Network POC is an experimental project aimed at understanding the
 **Getting Started**
 
 To get started with the Simple Tor Network POC, follow these steps:
-
-## **Clone the Repository:**
-
-**bash**
-
-``git clone https://gitlab.com/zivsion7106/tor-network-ziv-and-uriyah.git``
 
 **Install Dependencies:**
 
